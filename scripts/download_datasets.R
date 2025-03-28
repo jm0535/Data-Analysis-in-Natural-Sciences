@@ -15,7 +15,7 @@ pacman::p_load(
 # Create a function to download files with proper error handling
 download_dataset <- function(url, dest_file, description) {
   cat(paste0("Downloading ", description, "...\n"))
-  
+
   tryCatch({
     download.file(url, dest_file, mode = "wb")
     cat(paste0("Successfully downloaded to ", dest_file, "\n"))
@@ -28,9 +28,23 @@ download_dataset <- function(url, dest_file, description) {
 
 # Set data directory
 data_dir <- "data"
+# Create main data directory if it doesn't exist
+if (!dir.exists(data_dir)) {
+  dir.create(data_dir, recursive = TRUE)
+  cat(paste0("Created main data directory: ", data_dir, "\n"))
+}
+
+# Helper function to ensure directory exists
+ensure_directory <- function(dir_path) {
+  if (!dir.exists(dir_path)) {
+    dir.create(dir_path, recursive = TRUE)
+    cat(paste0("Created directory: ", dir_path, "\n"))
+  }
+}
 
 # 1. FORESTRY DATASET - Forest Inventory Analysis
 forestry_dir <- file.path(data_dir, "forestry")
+ensure_directory(forestry_dir)
 forestry_file <- file.path(forestry_dir, "forest_inventory.csv")
 
 # Using Global Forest Watch dataset
@@ -45,6 +59,7 @@ if (forestry_success) {
 
 # 2. AGRICULTURE DATASET - Crop yield data
 agriculture_dir <- file.path(data_dir, "agriculture")
+ensure_directory(agriculture_dir)
 agriculture_file <- file.path(agriculture_dir, "crop_yields.csv")
 
 # Using crop yield data from Our World in Data
@@ -59,6 +74,7 @@ if (agriculture_success) {
 
 # 3. ECOLOGY DATASET - Biodiversity data
 ecology_dir <- file.path(data_dir, "ecology")
+ensure_directory(ecology_dir)
 ecology_file <- file.path(ecology_dir, "biodiversity.csv")
 
 # Using biodiversity data
@@ -73,6 +89,7 @@ if (ecology_success) {
 
 # 4. MARINE DATASET - Ocean Data
 marine_dir <- file.path(data_dir, "marine")
+ensure_directory(marine_dir)
 marine_file <- file.path(marine_dir, "ocean_data.csv")
 
 # Using Fishing data from TidyTuesday
@@ -87,6 +104,7 @@ if (marine_success) {
 
 # 5. ENVIRONMENTAL DATASET - Climate Data
 environmental_dir <- file.path(data_dir, "environmental")
+ensure_directory(environmental_dir)
 environmental_file <- file.path(environmental_dir, "climate_data.csv")
 
 # Using Climate Data from TidyTuesday
@@ -101,6 +119,7 @@ if (environmental_success) {
 
 # 6. GEOGRAPHY DATASET - Spatial data
 geography_dir <- file.path(data_dir, "geography")
+ensure_directory(geography_dir)
 geography_file <- file.path(geography_dir, "spatial.csv")
 
 # Using spatial data
@@ -115,6 +134,7 @@ if (geography_success) {
 
 # 7. BOTANY DATASET - Plant traits
 botany_dir <- file.path(data_dir, "botany")
+ensure_directory(botany_dir)
 botany_file <- file.path(botany_dir, "plant_traits.csv")
 
 # Using plant data
@@ -129,6 +149,7 @@ if (botany_success) {
 
 # 8. ENTOMOLOGY DATASET - Insect data
 entomology_dir <- file.path(data_dir, "entomology")
+ensure_directory(entomology_dir)
 entomology_file <- file.path(entomology_dir, "insects.csv")
 
 # Using insect-related data
@@ -143,6 +164,7 @@ if (entomology_success) {
 
 # 9. EPIDEMIOLOGY DATASET - Disease Data
 epidemiology_dir <- file.path(data_dir, "epidemiology")
+ensure_directory(epidemiology_dir)
 epidemiology_file <- file.path(epidemiology_dir, "disease_data.csv")
 
 # Using WHO Global Health Observatory data
@@ -157,6 +179,7 @@ if (epidemiology_success) {
 
 # 10. ECONOMICS DATASET - Economic data
 economics_dir <- file.path(data_dir, "economics")
+ensure_directory(economics_dir)
 economics_file <- file.path(economics_dir, "economic.csv")
 
 # Using economic data
@@ -190,6 +213,19 @@ cat("# Data Analysis in Natural Sciences: Datasets\n\n",
     "## Data Updates\n\n",
     "The datasets can be updated by running the `download_datasets.R` script in the root directory of the project.\n",
     file = readme_file)
+
+# Generate a summary report
+cat("\nDataset download summary:\n")
+datasets <- c("Forestry", "Agriculture", "Ecology", "Marine", "Environmental",
+              "Geography", "Botany", "Entomology", "Epidemiology", "Economics")
+statuses <- c(forestry_success, agriculture_success, ecology_success, marine_success,
+              environmental_success, geography_success, botany_success, entomology_success,
+              epidemiology_success, economics_success)
+
+for (i in 1:length(datasets)) {
+  status <- if(statuses[i]) "SUCCESS" else "FAILED"
+  cat(sprintf("%-15s: %s\n", datasets[i], status))
+}
 
 cat("\nDataset download process completed!\n")
 cat("Please check the individual directories for any error messages.\n")

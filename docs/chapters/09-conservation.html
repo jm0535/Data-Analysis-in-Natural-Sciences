@@ -55,7 +55,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -414,7 +434,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="species-distribution-modeling" class="level2" data-number="9.3">
 <h2 data-number="9.3" class="anchored" data-anchor-id="species-distribution-modeling"><span class="header-section-number">9.3</span> Species Distribution Modeling</h2>
-<p>Species distribution models (SDMs) predict where species are likely to occur based on environmental variables <span class="citation" data-cites="elith2009species">(<a href="../references.html#ref-elith2009species" role="doc-biblioref"><strong>elith2009species?</strong></a>)</span>.</p>
+<p>Species distribution models (SDMs) predict where species are likely to occur based on environmental variables <span class="citation" data-cites="elith2009species">(<a href="../references.html#ref-elith2009species" role="doc-biblioref">Elith et al., 2009</a>)</span>.</p>
 <section id="example-simple-species-distribution-model" class="level3" data-number="9.3.1">
 <h3 data-number="9.3.1" class="anchored" data-anchor-id="example-simple-species-distribution-model"><span class="header-section-number">9.3.1</span> Example: Simple Species Distribution Model</h3>
 <div class="cell">
@@ -1349,6 +1369,11 @@ Response: poaching
 
 <!-- -->
 
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list" style="display: none">
+<div id="ref-elith2009species" class="csl-entry" role="listitem">
+Elith, J., Leathwick, J. R., &amp; Hastie, T. (2009). Species distribution models: Ecological explanation and prediction across space and time. <em>Annual Review of Ecology, Evolution, and Systematics</em>, <em>40</em>, 677–697.
+</div>
+</div>
 </section>
 
 </main> <!-- /main -->
