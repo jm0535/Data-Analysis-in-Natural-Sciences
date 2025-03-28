@@ -1,0 +1,6 @@
+Crop Yield Dataset
+
+Source: Our World in Data
+Citation: Roser, M. and Ritchie, H. (2020). Crop Yields. Published online at OurWorldInData.org. Retrieved from: https://ourworldindata.org/crop-yields
+
+Description: Historical crop yield data across different countries and crop types.

@@ -1,0 +1,413 @@
+# Exploratory Data Analysis
+
+## Introduction
+
+Exploratory Data Analysis (EDA) is a critical first step in any data analysis project. In this chapter, you'll learn how to systematically explore your data to understand its structure, identify patterns, detect anomalies, and generate hypotheses for further investigation.
+
+## The Purpose of Exploratory Data Analysis
+
+Exploratory Data Analysis serves several important purposes in natural sciences research:
+
+1. **Understanding Data Structure**: Gain insights into the basic properties of your dataset
+2. **Checking Data Quality**: Identify missing values, outliers, and potential errors
+3. **Discovering Patterns**: Detect relationships, trends, and distributions
+4. **Generating Hypotheses**: Develop questions and hypotheses for formal testing
+5. **Informing Analysis Choices**: Guide decisions about appropriate statistical methods
+
+## Summarizing Data
+
+### Descriptive Statistics
+
+Descriptive statistics provide a concise summary of your data's central tendency, dispersion, and shape:
+
+```{r}
+# Load necessary libraries
+library(tidyverse)
+
+# Load the crop yield dataset
+crop_yields <- read_csv("../data/agriculture/crop_yields.csv")
+
+# View the first few rows
+head(crop_yields)
+
+# Get summary statistics for wheat yields
+wheat_summary <- crop_yields %>%
+  filter(!is.na(`Wheat (tonnes per hectare)`)) %>%
+  summarize(
+    Mean = mean(`Wheat (tonnes per hectare)`, na.rm = TRUE),
+    Median = median(`Wheat (tonnes per hectare)`, na.rm = TRUE),
+    StdDev = sd(`Wheat (tonnes per hectare)`, na.rm = TRUE),
+    Min = min(`Wheat (tonnes per hectare)`, na.rm = TRUE),
+    Max = max(`Wheat (tonnes per hectare)`, na.rm = TRUE),
+    Q1 = quantile(`Wheat (tonnes per hectare)`, 0.25, na.rm = TRUE),
+    Q3 = quantile(`Wheat (tonnes per hectare)`, 0.75, na.rm = TRUE)
+  )
+
+# Display the summary statistics
+knitr::kable(wheat_summary, caption = "Summary Statistics for Global Wheat Yields")
+
+# Visualize the distribution of wheat yields
+ggplot(crop_yields, aes(x = `Wheat (tonnes per hectare)`)) +
+  geom_histogram(bins = 30, fill = "forestgreen", color = "black", alpha = 0.7) +
+  labs(title = "Distribution of Global Wheat Yields",
+       x = "Wheat Yield (tonnes per hectare)",
+       y = "Frequency") +
+  theme_minimal()
+
+# Identify top wheat-producing countries (by average yield)
+top_wheat_countries <- crop_yields %>%
+  filter(!is.na(`Wheat (tonnes per hectare)`)) %>%
+  group_by(Entity) %>%
+  summarize(Avg_Yield = mean(`Wheat (tonnes per hectare)`, na.rm = TRUE)) %>%
+  arrange(desc(Avg_Yield)) %>%
+  head(10)
+
+# Display the top countries
+knitr::kable(top_wheat_countries, caption = "Top 10 Countries by Average Wheat Yield")
+```
+
+### Frequency Tables
+
+Frequency tables are useful for understanding the distribution of categorical variables:
+
+```{r}
+# Let's create a categorical variable based on wheat yield levels
+crop_yields_with_categories <- crop_yields %>%
+  filter(!is.na(`Wheat (tonnes per hectare)`)) %>%
+  mutate(yield_category = case_when(
+    `Wheat (tonnes per hectare)` < 2 ~ "Low",
+    `Wheat (tonnes per hectare)` >= 2 & `Wheat (tonnes per hectare)` < 4 ~ "Medium",
+    `Wheat (tonnes per hectare)` >= 4 ~ "High"
+  ))
+
+# Frequency table for yield categories
+table(crop_yields_with_categories$yield_category)
+
+# Proportions
+prop.table(table(crop_yields_with_categories$yield_category))
+
+# Create a decade variable for temporal analysis
+crop_yields_with_categories <- crop_yields_with_categories %>%
+  mutate(decade = floor(Year / 10) * 10)
+
+# Two-way frequency table: yield category by decade
+yield_decade_table <- table(crop_yields_with_categories$yield_category, 
+                            crop_yields_with_categories$decade)
+yield_decade_table
+
+# Convert to proportions (by row)
+prop.table(yield_decade_table, margin = 1)
+```
+
+## Visualizing Distributions
+
+### Histograms and Density Plots
+
+Histograms and density plots help visualize the distribution of continuous variables:
+
+```{r}
+# Histogram of wheat yields
+ggplot(crop_yields, aes(x = `Wheat (tonnes per hectare)`)) +
+  geom_histogram(bins = 30, fill = "darkgreen", color = "white", na.rm = TRUE) +
+  labs(title = "Histogram of Wheat Yields", 
+       x = "Wheat Yield (tonnes per hectare)", 
+       y = "Frequency") +
+  theme_minimal()
+
+# Density plot
+ggplot(crop_yields, aes(x = `Wheat (tonnes per hectare)`)) +
+  geom_density(fill = "darkgreen", alpha = 0.5, na.rm = TRUE) +
+  labs(title = "Density Plot of Wheat Yields", 
+       x = "Wheat Yield (tonnes per hectare)", 
+       y = "Density") +
+  theme_minimal()
+
+# Histogram with density overlay
+ggplot(crop_yields, aes(x = `Wheat (tonnes per hectare)`)) +
+  geom_histogram(aes(y = ..density..), bins = 30, fill = "darkgreen", color = "white", na.rm = TRUE) +
+  geom_density(color = "darkgreen", linewidth = 1, na.rm = TRUE) +
+  labs(title = "Distribution of Wheat Yields", 
+       x = "Wheat Yield (tonnes per hectare)", 
+       y = "Density") +
+  theme_minimal()
+```
+
+### Box Plots
+
+Box plots are excellent for comparing distributions across groups:
+
+```{r}
+# Select a few major countries for comparison
+major_wheat_producers <- c("United States", "China", "India", "Russia", "France", "Australia")
+
+# Filter data for these countries and recent years
+recent_wheat_data <- crop_yields %>%
+  filter(Entity %in% major_wheat_producers, 
+         Year >= 2000,
+         !is.na(`Wheat (tonnes per hectare)`))
+
+# Box plot of wheat yields by country
+ggplot(recent_wheat_data, aes(x = Entity, y = `Wheat (tonnes per hectare)`)) +
+  geom_boxplot(fill = "darkgreen", alpha = 0.7) +
+  labs(title = "Wheat Yields by Country (2000-present)", 
+       x = "Country", 
+       y = "Wheat Yield (tonnes per hectare)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Enhanced box plot with jittered points
+ggplot(recent_wheat_data, aes(x = Entity, y = `Wheat (tonnes per hectare)`)) +
+  geom_boxplot(fill = "darkgreen", alpha = 0.5) +
+  geom_jitter(width = 0.2, alpha = 0.5, color = "darkgreen") +
+  labs(title = "Wheat Yields by Country (2000-present)", 
+       x = "Country", 
+       y = "Wheat Yield (tonnes per hectare)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### Bar Charts
+
+Bar charts are useful for visualizing categorical data:
+
+```{r}
+# Calculate average wheat yield by country for the last decade
+recent_avg_yields <- crop_yields %>%
+  filter(Year >= 2010, !is.na(`Wheat (tonnes per hectare)`)) %>%
+  group_by(Entity) %>%
+  summarize(avg_wheat_yield = mean(`Wheat (tonnes per hectare)`, na.rm = TRUE)) %>%
+  arrange(desc(avg_wheat_yield)) %>%
+  head(10)  # Top 10 countries
+
+# Bar chart of average wheat yields
+ggplot(recent_avg_yields, aes(x = reorder(Entity, avg_wheat_yield), y = avg_wheat_yield)) +
+  geom_bar(stat = "identity", fill = "darkgreen") +
+  labs(title = "Top 10 Countries by Average Wheat Yield (2010-present)", 
+       x = "Country", 
+       y = "Average Wheat Yield (tonnes per hectare)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## Exploring Relationships
+
+### Scatter Plots
+
+Scatter plots help visualize relationships between two continuous variables:
+
+```{r}
+# Let's compare wheat and rice yields
+crop_yields_filtered <- crop_yields %>%
+  filter(!is.na(`Wheat (tonnes per hectare)`), !is.na(`Rice (tonnes per hectare)`)) %>%
+  filter(Year >= 2000)
+
+# Basic scatter plot
+ggplot(crop_yields_filtered, aes(x = `Wheat (tonnes per hectare)`, y = `Rice (tonnes per hectare)`)) +
+  geom_point(alpha = 0.5, color = "darkgreen") +
+  labs(title = "Relationship between Wheat and Rice Yields",
+       x = "Wheat Yield (tonnes per hectare)", 
+       y = "Rice Yield (tonnes per hectare)") +
+  theme_minimal()
+
+# Scatter plot with color by continent (we'll need to add continent information)
+# For demonstration, let's create a simple mapping for a few countries
+continent_mapping <- tibble(
+  Entity = c("United States", "Canada", "Mexico", 
+             "China", "India", "Japan", 
+             "Germany", "France", "United Kingdom", 
+             "Brazil", "Argentina", "Chile",
+             "Egypt", "Nigeria", "South Africa",
+             "Australia", "New Zealand"),
+  Continent = c(rep("North America", 3), 
+                rep("Asia", 3), 
+                rep("Europe", 3), 
+                rep("South America", 3),
+                rep("Africa", 3),
+                rep("Oceania", 2))
+)
+
+# Join with our dataset
+crop_yields_with_continent <- crop_yields_filtered %>%
+  inner_join(continent_mapping, by = "Entity")
+
+# Scatter plot with color by continent
+ggplot(crop_yields_with_continent, aes(x = `Wheat (tonnes per hectare)`, y = `Rice (tonnes per hectare)`, color = Continent)) +
+  geom_point(size = 3, alpha = 0.7) +
+  labs(title = "Relationship between Wheat and Rice Yields by Continent",
+       x = "Wheat Yield (tonnes per hectare)", 
+       y = "Rice Yield (tonnes per hectare)") +
+  theme_minimal()
+```
+
+### Correlation Analysis
+
+Correlation analysis quantifies the strength and direction of relationships between variables:
+
+```{r}
+# Select numeric columns for correlation analysis
+crop_numeric <- crop_yields %>%
+  select(`Wheat (tonnes per hectare)`, `Rice (tonnes per hectare)`, `Maize (tonnes per hectare)`, `Soybeans (tonnes per hectare)`, `Potatoes (tonnes per hectare)`, `Beans (tonnes per hectare)`) %>%
+  na.omit()
+
+# Correlation matrix
+cor_matrix <- cor(crop_numeric)
+round(cor_matrix, 2)
+
+# Visualize correlation matrix
+library(corrplot)
+corrplot(cor_matrix, method = "circle", type = "upper", 
+         tl.col = "black", tl.srt = 45,
+         title = "Correlation Matrix of Crop Yields")
+```
+
+### Pair Plots
+
+Pair plots provide a comprehensive view of relationships between multiple variables:
+
+```{r}
+# Basic pair plot
+pairs(crop_numeric, pch = 19, col = "darkgreen")
+
+# Enhanced pair plot with GGally
+library(GGally)
+ggpairs(crop_numeric) +
+  theme_minimal() +
+  labs(title = "Relationships Between Different Crop Yields")
+```
+
+## Identifying Outliers and Anomalies
+
+### Box Plots for Outlier Detection
+
+Box plots can help identify potential outliers:
+
+```{r}
+# Box plot to identify outliers in wheat yield
+ggplot(crop_yields, aes(y = `Wheat (tonnes per hectare)`)) +
+  geom_boxplot(fill = "darkgreen", alpha = 0.7, na.rm = TRUE) +
+  labs(title = "Box Plot of Wheat Yields with Potential Outliers",
+       y = "Wheat Yield (tonnes per hectare)") +
+  theme_minimal()
+
+# Identify potential outliers
+wheat_outliers <- crop_yields %>%
+  filter(!is.na(`Wheat (tonnes per hectare)`)) %>%
+  mutate(
+    q1 = quantile(`Wheat (tonnes per hectare)`, 0.25),
+    q3 = quantile(`Wheat (tonnes per hectare)`, 0.75),
+    iqr = q3 - q1,
+    lower_bound = q1 - 1.5 * iqr,
+    upper_bound = q3 + 1.5 * iqr,
+    is_outlier = `Wheat (tonnes per hectare)` < lower_bound | `Wheat (tonnes per hectare)` > upper_bound
+  ) %>%
+  filter(is_outlier) %>%
+  select(Entity, Year, `Wheat (tonnes per hectare)`)
+
+# Display the outliers
+head(wheat_outliers, 10)
+```
+
+### Z-Scores for Outlier Detection
+
+Z-scores can also help identify outliers:
+
+```{r}
+# Calculate z-scores for wheat yields
+wheat_z_scores <- crop_yields %>%
+  filter(!is.na(`Wheat (tonnes per hectare)`)) %>%
+  mutate(
+    wheat_mean = mean(`Wheat (tonnes per hectare)`),
+    wheat_sd = sd(`Wheat (tonnes per hectare)`),
+    z_score = (`Wheat (tonnes per hectare)` - wheat_mean) / wheat_sd,
+    is_extreme = abs(z_score) > 3
+  )
+
+# Display extreme values (z-score > 3 or < -3)
+wheat_extremes <- wheat_z_scores %>%
+  filter(is_extreme) %>%
+  select(Entity, Year, `Wheat (tonnes per hectare)`, z_score) %>%
+  arrange(desc(abs(z_score)))
+
+head(wheat_extremes, 10)
+```
+
+## Time Series Exploration
+
+Agricultural data often contains important temporal patterns:
+
+```{r}
+# Select a few countries for time series analysis
+countries_for_ts <- c("United States", "China", "India", "France")
+
+# Filter data for these countries
+wheat_ts_data <- crop_yields %>%
+  filter(Entity %in% countries_for_ts, !is.na(`Wheat (tonnes per hectare)`)) %>%
+  filter(Year >= 1960)
+
+# Time series plot
+ggplot(wheat_ts_data, aes(x = Year, y = `Wheat (tonnes per hectare)`, color = Entity)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  labs(title = "Wheat Yield Trends Over Time",
+       x = "Year",
+       y = "Wheat Yield (tonnes per hectare)") +
+  theme_minimal() +
+  scale_color_brewer(palette = "Dark2")
+```
+
+## Missing Data Analysis
+
+Understanding patterns of missing data is crucial:
+
+```{r}
+# Check for missing values in each column
+colSums(is.na(crop_yields))
+
+# Visualize missing data patterns
+if(requireNamespace("naniar", quietly = TRUE)) {
+  library(naniar)
+  
+  # Create a visualization of missing data
+  gg_miss_var(crop_yields)
+  
+  # Create a matrix showing missing data patterns
+  vis_miss(crop_yields[, c("Entity", "Year", "Wheat (tonnes per hectare)", "Rice (tonnes per hectare)", "Maize (tonnes per hectare)")])
+} else {
+  message("The 'naniar' package is not installed. Install it with install.packages('naniar') to visualize missing data patterns.")
+  
+  # Alternative: simple summary of missing data
+  missing_summary <- sapply(crop_yields, function(x) sum(is.na(x)))
+  missing_df <- data.frame(
+    Variable = names(missing_summary),
+    Missing_Count = missing_summary,
+    Missing_Percent = round(missing_summary / nrow(crop_yields) * 100, 2)
+  )
+  
+  # Display the summary
+  missing_df <- missing_df[order(-missing_df$Missing_Count), ]
+  head(missing_df, 10)
+}
+```
+
+## Summary
+
+This chapter has demonstrated various techniques for exploratory data analysis using a real agricultural dataset. We've covered:
+
+1. Computing and interpreting descriptive statistics
+2. Creating and analyzing frequency tables
+3. Visualizing distributions with histograms, density plots, and box plots
+4. Exploring relationships with scatter plots and correlation analysis
+5. Identifying outliers and anomalies
+6. Analyzing time series patterns
+7. Examining missing data
+
+These techniques provide a foundation for understanding your data before proceeding to more advanced analyses. By thoroughly exploring your data, you can make informed decisions about appropriate statistical methods and generate meaningful hypotheses for testing.
+
+## Exercises
+
+1. Load the plant biodiversity dataset from `docs/data/ecology/biodiversity.csv` and perform a comprehensive exploratory analysis.
+2. Create a histogram and density plot for another crop in the dataset. How does its distribution compare to wheat?
+3. Investigate the relationship between potato yields and latitude (you'll need to find or create a dataset with latitude information).
+4. Identify countries with the most significant improvement in crop yields over time.
+5. Create a time series plot showing the ratio of wheat to rice yields over time for major producing countries.
+6. Perform the same exploratory analyses in R for the spatial dataset in `docs/data/geography/spatial.csv`.

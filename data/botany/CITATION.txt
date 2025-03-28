@@ -1,0 +1,6 @@
+Plant Dataset
+
+Source: Break Free From Plastic
+Citation: Break Free From Plastic. (2021). Plastic Waste Makers Index.
+
+Description: Data on plastic pollution that affects plant ecosystems.

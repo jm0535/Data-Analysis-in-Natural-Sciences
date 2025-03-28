@@ -1,0 +1,6 @@
+Coffee Economics Dataset
+
+Source: Coffee Quality Institute
+Citation: Coffee Quality Institute. (2020). Coffee Quality Database.
+
+Description: Coffee quality ratings and economic data relevant to agricultural economics.

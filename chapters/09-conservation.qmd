@@ -1,0 +1,649 @@
+---
+prefer-html: true
+---
+
+# Conservation Applications
+
+## Introduction
+
+This chapter explores how data analysis techniques can be applied to conservation science and management. We'll examine how the statistical methods covered in previous chapters can help address real-world conservation challenges, from monitoring endangered species to evaluating the effectiveness of protected areas.
+
+## Conservation Data Types and Sources
+
+### Types of Conservation Data
+
+Conservation science relies on various types of data:
+
+1. **Species Occurrence Data**: Presence/absence or abundance of species
+2. **Habitat Data**: Vegetation structure, land cover, habitat quality
+3. **Threat Data**: Pollution levels, invasive species, human disturbance
+4. **Protected Area Data**: Boundaries, management activities, effectiveness
+5. **Socioeconomic Data**: Human population, land use, resource extraction
+
+### Data Sources
+
+```{r}
+#| echo: false
+library(knitr)
+
+data_sources <- data.frame(
+  Source = c("Field Surveys", "Remote Sensing", "Citizen Science", "Existing Databases", "Environmental Monitoring"),
+  Description = c(
+    "Direct collection of data through field observations and measurements",
+    "Satellite imagery, aerial photography, LiDAR, and other remote sensing techniques",
+    "Data collected by volunteers and non-specialists",
+    "GBIF, IUCN Red List, World Database on Protected Areas (WDPA)",
+    "Continuous monitoring of environmental variables (e.g., weather stations, water quality sensors)"
+  ),
+  Advantages = c(
+    "High accuracy, detailed information",
+    "Large spatial coverage, temporal consistency",
+    "Cost-effective, large-scale data collection",
+    "Comprehensive, standardized data",
+    "Continuous temporal data, real-time information"
+  ),
+  Limitations = c(
+    "Time-consuming, expensive, limited spatial coverage",
+    "Lower resolution for some applications, cloud cover issues",
+    "Variable data quality, sampling bias",
+    "May have gaps, outdated information",
+    "Equipment failures, limited spatial coverage"
+  )
+)
+
+kable(data_sources, caption = "Common Data Sources in Conservation Science")
+```
+
+## Species Distribution Modeling
+
+Species distribution models (SDMs) predict where species are likely to occur based on environmental variables [@elith2009species].
+
+### Example: Simple Species Distribution Model
+
+```{r}
+#| eval: true
+#| warning: false
+#| message: false
+
+# Load required packages
+library(ggplot2)
+
+# Create a simulated environmental dataset
+set.seed(123)
+n <- 200
+temperature <- runif(n, 5, 30)
+precipitation <- runif(n, 200, 2000)
+elevation <- runif(n, 0, 3000)
+
+# Calculate species probability based on environmental preferences
+# This species prefers moderate temperatures, high precipitation, and lower elevations
+probability <- dnorm(temperature, mean = 18, sd = 5) * 
+               dnorm(precipitation, mean = 1500, sd = 400) * 
+               (1 - elevation/3000)
+probability <- probability / max(probability)  # Scale to 0-1
+
+# Generate presence/absence based on probability
+presence <- rbinom(n, 1, probability)
+
+# Create a data frame
+species_data <- data.frame(
+  temperature = temperature,
+  precipitation = precipitation,
+  elevation = elevation,
+  probability = probability,
+  presence = factor(presence, labels = c("Absent", "Present"))
+)
+
+# Visualize the relationship between environmental variables and species presence
+ggplot(species_data, aes(x = temperature, y = precipitation, color = presence)) +
+  geom_point(size = 3, alpha = 0.7) +
+  scale_color_manual(values = c("red", "blue")) +
+  labs(title = "Species Presence in Environmental Space",
+       x = "Temperature (°C)",
+       y = "Precipitation (mm)") +
+  theme_minimal()
+
+# Fit a logistic regression model (simple SDM)
+sdm <- glm(presence ~ temperature + precipitation + elevation, 
+           family = binomial, data = species_data)
+
+# Summary of the model
+summary(sdm)
+
+# Calculate predicted probabilities
+species_data$predicted <- predict(sdm, type = "response")
+
+# Create a prediction surface for visualization
+temp_seq <- seq(min(temperature), max(temperature), length.out = 50)
+precip_seq <- seq(min(precipitation), max(precipitation), length.out = 50)
+elev_mean <- mean(elevation)
+
+prediction_grid <- expand.grid(
+  temperature = temp_seq,
+  precipitation = precip_seq,
+  elevation = elev_mean
+)
+
+prediction_grid$probability <- predict(sdm, newdata = prediction_grid, type = "response")
+
+# Plot the prediction surface
+ggplot(prediction_grid, aes(x = temperature, y = precipitation, fill = probability)) +
+  geom_tile() +
+  scale_fill_viridis_c(option = "plasma") +
+  labs(title = "Predicted Species Distribution",
+       subtitle = "Based on temperature and precipitation (at mean elevation)",
+       x = "Temperature (°C)",
+       y = "Precipitation (mm)",
+       fill = "Probability") +
+  theme_minimal()
+
+# Add actual presence points to the prediction map
+ggplot(prediction_grid, aes(x = temperature, y = precipitation, fill = probability)) +
+  geom_tile() +
+  geom_point(data = species_data[species_data$presence == "Present", ], 
+             aes(x = temperature, y = precipitation), 
+             color = "white", size = 2, alpha = 0.7) +
+  scale_fill_viridis_c(option = "plasma") +
+  labs(title = "Predicted Species Distribution with Actual Presence",
+       subtitle = "White points show actual presence records",
+       x = "Temperature (°C)",
+       y = "Precipitation (mm)",
+       fill = "Probability") +
+  theme_minimal()
+```
+
+## Population Trend Analysis
+
+Analyzing population trends is crucial for conservation planning and evaluating management effectiveness.
+
+### Example: Linear Mixed Models for Population Trends
+
+```{r}
+# Simulate population monitoring data
+set.seed(456)
+n_sites <- 10
+n_years <- 15
+
+# Create site and year variables
+site <- rep(paste0("Site", 1:n_sites), each = n_years)
+year <- rep(2008:(2008 + n_years - 1), times = n_sites)
+
+# Create random site effects and declining trend
+site_effect <- rep(rnorm(n_sites, 0, 0.5), each = n_years)
+time_effect <- -0.05 * (year - 2008)  # Declining trend
+noise <- rnorm(n_sites * n_years, 0, 0.2)
+
+# Calculate log population size
+log_pop_size <- 2 + site_effect + time_effect + noise
+
+# Convert to actual counts
+population <- round(exp(log_pop_size))
+
+# Create a data frame
+pop_data <- data.frame(
+  site = factor(site),
+  year = year,
+  population = population
+)
+
+# Visualize the data
+library(ggplot2)
+ggplot(pop_data, aes(x = year, y = population, color = site, group = site)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Population Trends Across Multiple Sites",
+       x = "Year",
+       y = "Population Size") +
+  theme_minimal()
+
+# Fit a linear mixed model
+library(lme4)
+trend_model <- lmer(log(population) ~ year + (1|site), data = pop_data)
+
+# Display model summary
+summary(trend_model)
+
+# Calculate overall trend
+trend_coef <- fixef(trend_model)["year"]
+annual_change <- (exp(trend_coef) - 1) * 100
+cat("Annual population change:", round(annual_change, 2), "%\n")
+
+# Predict values for visualization
+pop_data$predicted <- exp(predict(trend_model))
+
+# Plot observed vs. predicted values
+ggplot(pop_data, aes(x = year)) +
+  geom_point(aes(y = population, color = site), alpha = 0.5) +
+  geom_line(aes(y = predicted, group = site), color = "black") +
+  labs(title = "Observed and Predicted Population Sizes",
+       x = "Year",
+       y = "Population Size") +
+  theme_minimal()
+```
+
+## Habitat Fragmentation Analysis
+
+Habitat fragmentation is a major threat to biodiversity. Landscape metrics help quantify fragmentation patterns.
+
+### Example: Calculating Landscape Metrics
+
+```{r}
+#| eval: true
+#| warning: false
+#| message: false
+
+# Load required packages
+library(terra)
+library(ggplot2)
+
+# Create a simple landscape raster
+r <- rast(ncol=30, nrow=30)
+values(r) <- sample(c(1, 2, 3, 4), ncell(r), replace=TRUE, 
+                   prob=c(0.4, 0.3, 0.2, 0.1))
+names(r) <- "landcover"
+
+# Plot the landscape
+plot(r, main="Simulated Landscape", col=c("forestgreen", "yellow", "blue", "grey"))
+
+# Create a data frame with class-level metrics manually
+class_metrics <- data.frame(
+  class = c(1, 2, 3, 4),
+  class_name = c("Forest", "Agriculture", "Water", "Urban"),
+  percentage = c(40, 30, 20, 10),
+  edge_density = c(0.12, 0.09, 0.06, 0.03),
+  num_patches = c(15, 12, 8, 5)
+)
+
+# Visualize class-level metrics
+ggplot(class_metrics, aes(x = factor(class), y = percentage, fill = factor(class))) +
+  geom_bar(stat = "identity") +
+  labs(title = "Percentage of Landscape by Class",
+       x = "Land Cover Class",
+       y = "Percentage (%)") +
+  scale_fill_manual(values = c("forestgreen", "yellow", "blue", "grey"),
+                    labels = class_metrics$class_name) +
+  theme_minimal() +
+  theme(legend.title = element_blank())
+
+# Visualize number of patches
+ggplot(class_metrics, aes(x = factor(class), y = num_patches, fill = factor(class))) +
+  geom_bar(stat = "identity") +
+  labs(title = "Number of Patches by Class",
+       x = "Land Cover Class",
+       y = "Number of Patches") +
+  scale_fill_manual(values = c("forestgreen", "yellow", "blue", "grey"),
+                    labels = class_metrics$class_name) +
+  theme_minimal() +
+  theme(legend.title = element_blank())
+
+# Visualize edge density
+ggplot(class_metrics, aes(x = factor(class), y = edge_density, fill = factor(class))) +
+  geom_bar(stat = "identity") +
+  labs(title = "Edge Density by Class",
+       x = "Land Cover Class",
+       y = "Edge Density") +
+  scale_fill_manual(values = c("forestgreen", "yellow", "blue", "grey"),
+                    labels = class_metrics$class_name) +
+  theme_minimal() +
+  theme(legend.title = element_blank())
+```
+
+## Protected Area Effectiveness
+
+Evaluating the effectiveness of protected areas is essential for conservation planning and management.
+
+### Example: Before-After-Control-Impact (BACI) Analysis
+
+```{r}
+# Simulate protected area effectiveness data
+set.seed(789)
+n_sites <- 20
+n_years <- 10
+
+# Create site, protection status, and year variables
+site <- rep(paste0("Site", 1:n_sites), each = n_years)
+protected <- rep(rep(c("Protected", "Unprotected"), each = n_sites/2), each = n_years)
+year <- rep(2013:(2013 + n_years - 1), times = n_sites)
+period <- ifelse(year < 2018, "Before", "After")  # Protection started in 2018
+
+# Create random site effects and impact of protection
+site_effect <- rep(rnorm(n_sites, 0, 0.5), each = n_years)
+protection_effect <- ifelse(protected == "Protected" & period == "After", 0.3, 0)
+time_effect <- -0.05 * (year - 2013)  # General declining trend
+noise <- rnorm(n_sites * n_years, 0, 0.2)
+
+# Calculate biodiversity index
+biodiversity <- 5 + site_effect + time_effect + protection_effect + noise
+
+# Create a data frame
+pa_data <- data.frame(
+  site = factor(site),
+  protected = factor(protected),
+  year = year,
+  period = factor(period),
+  biodiversity = biodiversity
+)
+
+# Visualize the data
+ggplot(pa_data, aes(x = year, y = biodiversity, color = protected, group = interaction(site, protected))) +
+  geom_line(alpha = 0.3) +
+  stat_summary(aes(group = protected), fun = mean, geom = "line", size = 1.5) +
+  geom_vline(xintercept = 2018, linetype = "dashed") +
+  labs(title = "Biodiversity Trends in Protected and Unprotected Sites",
+       subtitle = "Vertical line indicates when protection was implemented",
+       x = "Year",
+       y = "Biodiversity Index") +
+  theme_minimal()
+
+# Fit a BACI model
+baci_model <- lm(biodiversity ~ protected * period, data = pa_data)
+
+# Display model summary
+summary(baci_model)
+
+# Visualize the interaction effect
+pa_summary <- aggregate(biodiversity ~ protected + period, data = pa_data, FUN = mean)
+
+ggplot(pa_summary, aes(x = period, y = biodiversity, color = protected, group = protected)) +
+  geom_point(size = 3) +
+  geom_line() +
+  labs(title = "BACI Design: Interaction between Protection Status and Time Period",
+       x = "Period",
+       y = "Mean Biodiversity Index") +
+  theme_minimal()
+```
+
+## Threat Assessment and Prioritization
+
+Conservation resources are limited, so prioritizing threats and actions is essential.
+
+### Example: Multi-Criteria Decision Analysis
+
+```{r}
+# Create a threat assessment dataset
+threats <- c("Habitat Loss", "Invasive Species", "Climate Change", "Pollution", "Overexploitation")
+severity <- c(0.9, 0.7, 0.8, 0.6, 0.7)
+scope <- c(0.8, 0.6, 0.9, 0.5, 0.6)
+irreversibility <- c(0.9, 0.7, 0.9, 0.4, 0.5)
+
+# Create a data frame
+threat_data <- data.frame(
+  threat = threats,
+  severity = severity,
+  scope = scope,
+  irreversibility = irreversibility
+)
+
+# Calculate overall threat magnitude
+threat_data$magnitude <- with(threat_data, severity * scope * irreversibility)
+
+# Sort by magnitude
+threat_data <- threat_data[order(threat_data$magnitude, decreasing = TRUE), ]
+
+# Visualize the threat assessment
+ggplot(threat_data, aes(x = reorder(threat, magnitude), y = magnitude)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(title = "Threat Prioritization Based on Magnitude",
+       x = "Threat",
+       y = "Magnitude (Severity × Scope × Irreversibility)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Visualize the components
+threat_data_long <- reshape2::melt(threat_data[, c("threat", "severity", "scope", "irreversibility")],
+                                 id.vars = "threat")
+
+ggplot(threat_data_long, aes(x = reorder(threat, -value), y = value, fill = variable)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Components of Threat Assessment",
+       x = "Threat",
+       y = "Score",
+       fill = "Component") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## Conservation Planning
+
+Systematic conservation planning helps identify priority areas for conservation.
+
+### Example: Complementarity Analysis
+
+```{r}
+# Create a species-by-site matrix
+set.seed(101)
+n_sites <- 10
+n_species <- 15
+species_names <- paste0("Species", 1:n_species)
+site_names <- paste0("Site", 1:n_sites)
+
+# Generate presence/absence data
+presence_prob <- matrix(runif(n_sites * n_species, 0, 1), nrow = n_sites, ncol = n_species)
+presence <- ifelse(presence_prob > 0.7, 0, 1)  # 30% chance of presence
+rownames(presence) <- site_names
+colnames(presence) <- species_names
+
+# Calculate species richness per site
+richness <- rowSums(presence)
+
+# Calculate site complementarity
+complementarity <- function(selected, candidates, presence_matrix) {
+  if (length(selected) == 0) {
+    # If no sites selected yet, return site richness
+    return(rowSums(presence_matrix[candidates, , drop = FALSE]))
+  } else {
+    # Calculate new species added by each candidate site
+    species_in_selected <- colSums(presence_matrix[selected, , drop = FALSE]) > 0
+    new_species <- function(site) {
+      sum(presence_matrix[site, ] & !species_in_selected)
+    }
+    return(sapply(candidates, new_species))
+  }
+}
+
+# Greedy algorithm for site selection
+select_sites <- function(presence_matrix, n_to_select) {
+  n_sites <- nrow(presence_matrix)
+  available_sites <- 1:n_sites
+  selected_sites <- integer(0)
+  
+  for (i in 1:n_to_select) {
+    if (length(available_sites) == 0) break
+    
+    # Calculate complementarity scores
+    scores <- complementarity(selected_sites, available_sites, presence_matrix)
+    
+    # Select site with highest score
+    best <- available_sites[which.max(scores)]
+    selected_sites <- c(selected_sites, best)
+    available_sites <- setdiff(available_sites, best)
+  }
+  
+  return(selected_sites)
+}
+
+# Select 3 priority sites
+priority_sites <- select_sites(presence, 3)
+cat("Priority sites:", site_names[priority_sites], "\n")
+
+# Calculate species coverage
+species_covered <- colSums(presence[priority_sites, , drop = FALSE]) > 0
+cat("Species covered:", sum(species_covered), "out of", n_species, 
+    "(", round(100 * sum(species_covered) / n_species, 1), "%)\n")
+
+# Visualize the species-site matrix
+library(pheatmap)
+pheatmap(presence, 
+        cluster_rows = FALSE, 
+        cluster_cols = FALSE,
+        main = "Species Presence by Site",
+        color = c("white", "steelblue"),
+        labels_row = site_names,
+        labels_col = species_names,
+        display_numbers = TRUE,
+        number_color = "black",
+        fontsize = 10,
+        fontsize_number = 8)
+
+# Highlight priority sites
+priority_data <- data.frame(
+  Priority = factor(ifelse(1:n_sites %in% priority_sites, "Selected", "Not Selected"))
+)
+rownames(priority_data) <- site_names
+
+pheatmap(presence, 
+        cluster_rows = FALSE, 
+        cluster_cols = FALSE,
+        main = "Priority Sites for Conservation",
+        color = c("white", "steelblue"),
+        labels_row = site_names,
+        labels_col = species_names,
+        display_numbers = TRUE,
+        number_color = "black",
+        annotation_row = priority_data,
+        fontsize = 10,
+        fontsize_number = 8)
+```
+
+## Climate Change Vulnerability Assessment
+
+Climate change poses significant threats to biodiversity. Vulnerability assessments help identify at-risk species and ecosystems.
+
+### Example: Trait-Based Vulnerability Analysis
+
+```{r}
+# Create a species trait dataset
+species <- paste0("Species", 1:12)
+dispersal_ability <- c(1, 3, 2, 1, 3, 2, 1, 2, 3, 1, 2, 3)  # 1=low, 2=medium, 3=high
+thermal_tolerance <- c(1, 2, 3, 1, 2, 3, 2, 3, 1, 3, 1, 2)  # 1=low, 2=medium, 3=high
+habitat_specificity <- c(3, 2, 1, 3, 1, 2, 3, 2, 1, 2, 3, 1)  # 1=low, 2=medium, 3=high
+population_size <- c(1, 2, 3, 1, 3, 2, 1, 3, 2, 1, 2, 3)  # 1=small, 2=medium, 3=large
+
+# Create a data frame
+vulnerability_data <- data.frame(
+  species = species,
+  dispersal_ability = dispersal_ability,
+  thermal_tolerance = thermal_tolerance,
+  habitat_specificity = habitat_specificity,
+  population_size = population_size
+)
+
+# Calculate vulnerability scores (higher = more vulnerable)
+vulnerability_data$sensitivity <- 4 - thermal_tolerance
+vulnerability_data$adaptive_capacity <- 4 - (dispersal_ability + population_size) / 2
+vulnerability_data$exposure <- habitat_specificity
+vulnerability_data$vulnerability <- with(vulnerability_data, 
+                                       (sensitivity + adaptive_capacity + exposure) / 3)
+
+# Sort by vulnerability
+vulnerability_data <- vulnerability_data[order(vulnerability_data$vulnerability, decreasing = TRUE), ]
+
+# Visualize vulnerability scores
+ggplot(vulnerability_data, aes(x = reorder(species, -vulnerability), y = vulnerability)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(title = "Climate Change Vulnerability by Species",
+       x = "Species",
+       y = "Vulnerability Score") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Visualize components
+vulnerability_components <- vulnerability_data[, c("species", "sensitivity", "adaptive_capacity", "exposure")]
+vulnerability_long <- reshape2::melt(vulnerability_components, id.vars = "species")
+
+ggplot(vulnerability_long, aes(x = reorder(species, -value), y = value, fill = variable)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Components of Climate Change Vulnerability",
+       x = "Species",
+       y = "Score",
+       fill = "Component") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## Community-Based Conservation Monitoring
+
+Involving local communities in conservation monitoring can improve data collection and conservation outcomes.
+
+### Example: Analyzing Community Monitoring Data
+
+```{r}
+# Simulate community monitoring data
+set.seed(202)
+n_villages <- 5
+n_months <- 24
+
+# Create variables
+village <- rep(paste0("Village", 1:n_villages), each = n_months)
+month <- rep(1:n_months, times = n_villages)
+year <- rep(rep(c(1, 2), each = 12), times = n_villages)
+
+# Generate poaching incidents with seasonal pattern and declining trend
+season <- sin(month * pi / 6) + 1  # Seasonal pattern
+trend <- -0.03 * (month - 1)  # Declining trend
+village_effect <- rep(rnorm(n_villages, 0, 0.5), each = n_months)
+lambda <- exp(1 + 0.5 * season + trend + village_effect)
+poaching <- rpois(n_villages * n_months, lambda)
+
+# Create a data frame
+monitoring_data <- data.frame(
+  village = factor(village),
+  month = month,
+  year = factor(year),
+  poaching = poaching
+)
+
+# Visualize the data
+ggplot(monitoring_data, aes(x = month, y = poaching, color = village, group = village)) +
+  geom_line() +
+  geom_point() +
+  facet_wrap(~year, scales = "free_x", labeller = labeller(year = c("1" = "Year 1", "2" = "Year 2"))) +
+  labs(title = "Poaching Incidents Reported by Community Monitors",
+       x = "Month",
+       y = "Number of Incidents") +
+  theme_minimal()
+
+# Analyze trends
+library(MASS)
+trend_model <- glm.nb(poaching ~ month + village, data = monitoring_data)
+summary(trend_model)
+
+# Calculate overall trend
+trend_coef <- coef(trend_model)["month"]
+monthly_change <- (exp(trend_coef) - 1) * 100
+cat("Monthly change in poaching incidents:", round(monthly_change, 2), "%\n")
+
+# Analyze seasonal patterns
+season_model <- glm.nb(poaching ~ sin(2 * pi * month / 12) + cos(2 * pi * month / 12) + village, 
+                      data = monitoring_data)
+summary(season_model)
+
+# Compare models
+anova(trend_model, season_model)
+```
+
+## Summary
+
+In this chapter, we've explored how data analysis techniques can be applied to conservation challenges:
+
+- Species distribution modeling to predict habitat suitability
+- Population trend analysis to monitor species status
+- Habitat fragmentation analysis to assess landscape connectivity
+- Protected area effectiveness evaluation using BACI designs
+- Threat assessment and prioritization for conservation planning
+- Systematic conservation planning using complementarity analysis
+- Climate change vulnerability assessment based on species traits
+- Community-based conservation monitoring to track threats
+
+These applications demonstrate how the statistical methods covered throughout this book can help address real-world conservation problems, inform management decisions, and ultimately contribute to biodiversity conservation.
+
+## Exercises
+
+1. Import a dataset on species occurrences and environmental variables, then build a simple species distribution model.
+2. Analyze population monitoring data to detect trends and assess conservation status.
+3. Calculate basic landscape metrics for a land cover map to quantify habitat fragmentation.
+4. Design and analyze a BACI study to evaluate the effectiveness of a conservation intervention.
+5. Conduct a threat assessment for a species or ecosystem of your choice.
+6. Use complementarity analysis to identify priority sites for conservation.
+7. Perform a climate change vulnerability assessment for a group of species.
+8. Analyze community monitoring data to detect trends in threats or biodiversity.

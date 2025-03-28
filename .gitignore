@@ -1,0 +1,36 @@
+# R specific
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+
+# Quarto specific
+/.quarto/
+/_site/
+/_book/
+/.ipynb_checkpoints/
+/quarto-cli/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Editor specific
+.vscode/
+.idea/
+
+# Large data files
+*.csv
+*.xlsx
+*.xls
+*.zip
+*.tar.gz
+
+# Exceptions - include specific data files needed for examples
+!data/*/sample_*.csv
+
+# Temporary files
+*.log
+*.tmp
+*~

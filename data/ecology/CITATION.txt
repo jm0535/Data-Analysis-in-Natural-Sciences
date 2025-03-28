@@ -1,0 +1,6 @@
+Plant Biodiversity Dataset
+
+Source: IUCN Red List
+Citation: International Union for Conservation of Nature. (2020). The IUCN Red List of Threatened Species. Version 2020-2.
+
+Description: Conservation status of plant species worldwide.

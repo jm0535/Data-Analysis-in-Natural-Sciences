@@ -1,0 +1,6 @@
+Spatial Dataset
+
+Source: United Nations Office on Drugs and Crime
+Citation: United Nations Office on Drugs and Crime. (2023). World Drug Report 2023.
+
+Description: Global data on drug seizures with geographical information.

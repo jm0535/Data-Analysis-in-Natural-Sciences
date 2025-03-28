@@ -1,0 +1,6 @@
+Forest Inventory Dataset
+
+Source: Global Forest Watch
+Citation: Hansen, M. C., Potapov, P. V., Moore, R., Hancher, M., Turubanova, S. A., Tyukavina, A., ... & Townshend, J. (2013). High-resolution global maps of 21st-century forest cover change. Science, 342(6160), 850-853.
+
+Description: Global forest cover change data with detailed metrics on forest loss and gain.

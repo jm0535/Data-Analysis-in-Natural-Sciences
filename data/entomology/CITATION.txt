@@ -1,0 +1,6 @@
+Animal Dataset
+
+Source: Austin Animal Center
+Citation: Austin Animal Center. (2020). Outcomes. Data made available by the Austin Animal Center.
+
+Description: Data on animal outcomes that can be used for ecological studies.

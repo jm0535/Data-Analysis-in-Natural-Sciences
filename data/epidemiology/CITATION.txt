@@ -1,0 +1,6 @@
+Epidemiology Dataset
+
+Source: World Health Organization Global Health Observatory
+Citation: World Health Organization. (2022). Global Health Observatory data repository. Retrieved from https://www.who.int/data/gho
+
+Description: Global health data on disease prevalence, mortality, and health system indicators across countries and regions.

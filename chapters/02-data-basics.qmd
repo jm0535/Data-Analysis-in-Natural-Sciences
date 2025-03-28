@@ -1,0 +1,344 @@
+# Data Basics
+
+## Introduction
+
+This chapter covers the fundamental concepts of working with data in R and Jamovi. You'll learn how to import, clean, and prepare data for analysis, which are essential skills for any data analysis project.
+
+## Understanding Data Structures
+
+### Data Types in R
+
+R has several basic data types that you'll encounter frequently:
+
+1. **Numeric**: Numbers such as 1, 2.5, -3.14
+2. **Character**: Text values like "species", "forest", "treatment"
+3. **Logical**: Boolean values TRUE or FALSE
+4. **Factor**: Categorical variables with predefined levels
+5. **Date/Time**: Specialized formats for dates and times
+
+```{r}
+# Examples of different data types
+numeric_example <- 42.5
+character_example <- "Ecological data"
+logical_example <- TRUE
+factor_example <- factor(c("Control", "Treatment", "Control"), 
+                         levels = c("Control", "Treatment"))
+date_example <- as.Date("2025-03-27")
+
+# Check the data types
+str(numeric_example)
+str(character_example)
+str(logical_example)
+str(factor_example)
+str(date_example)
+```
+
+### Data Structures in R
+
+R uses several data structures to organize and store data:
+
+1. **Vectors**: One-dimensional arrays of elements of the same type
+2. **Matrices**: Two-dimensional arrays of elements of the same type
+3. **Data Frames**: Two-dimensional structures that can contain different types of data
+4. **Lists**: Collections of objects that can be of different types
+5. **Arrays**: Multi-dimensional structures of elements of the same type
+
+```{r}
+# Vector example
+tree_heights <- c(15.2, 18.7, 12.3, 20.1, 17.5)
+print(tree_heights)
+
+# Matrix example
+soil_samples <- matrix(1:12, nrow = 4, ncol = 3)
+colnames(soil_samples) <- c("pH", "Nitrogen", "Phosphorus")
+print(soil_samples)
+
+# Data frame example
+forest_data <- data.frame(
+  species = c("Oak", "Pine", "Maple", "Birch"),
+  height = c(18.2, 22.5, 15.7, 12.8),
+  diameter = c(45, 30, 25, 20),
+  age = c(120, 80, 60, 40)
+)
+print(forest_data)
+
+# List example
+ecosystem <- list(
+  forest_type = "Temperate",
+  dominant_species = c("Oak", "Maple", "Beech"),
+  average_rainfall = 1200,
+  temperature_range = c(-5, 30)
+)
+print(ecosystem)
+```
+
+## Importing Data
+
+### Reading Data from Files
+
+R provides several functions for importing data from different file formats:
+
+```{r}
+#| eval: false
+
+# CSV files
+data_csv <- read.csv("data/forest_inventory.csv")
+
+# Tab-delimited files
+data_tab <- read.delim("data/species_counts.txt", header = TRUE)
+
+# Excel files (requires readxl package)
+library(readxl)
+data_excel <- read_excel("data/climate_data.xlsx", sheet = "Temperature")
+
+# Using the tidyverse approach
+library(tidyverse)
+data_csv_tidy <- readr::read_csv("data/forest_inventory.csv")
+```
+
+### Using Our Downloaded Forestry Dataset
+
+Let's explore the forestry dataset we've downloaded:
+
+```{r}
+# Basic read.csv function
+forest_data <- read.csv("../data/forestry/forest_inventory.csv")
+head(forest_data)
+
+# Using readr package for better performance and control
+library(readr)
+forest_data_tidy <- read_csv("../data/forestry/forest_inventory.csv")
+head(forest_data_tidy)
+```
+
+### Importing Data in Jamovi
+
+In Jamovi, you can import data by:
+
+1. Clicking on the "Data" tab
+2. Selecting "Import" from the menu
+3. Choosing the file format (CSV, Excel, SPSS, etc.)
+4. Navigating to and selecting your file
+5. Adjusting import options if necessary
+
+## Data Cleaning and Preparation
+
+### Handling Missing Values
+
+Missing values are common in ecological datasets and need to be addressed before analysis:
+
+```{r}
+# Create a dataset with missing values
+tree_data <- data.frame(
+  height = c(15.2, NA, 12.3, 20.1, NA),
+  diameter = c(45, 30, NA, 20, 35),
+  age = c(120, 80, 60, NA, 90)
+)
+
+# Check for missing values
+sum(is.na(tree_data))
+colSums(is.na(tree_data))
+
+# Remove rows with any missing values
+tree_data_complete <- na.omit(tree_data)
+print(tree_data_complete)
+
+# Replace missing values with the mean
+tree_data$height[is.na(tree_data$height)] <- mean(tree_data$height, na.rm = TRUE)
+tree_data$diameter[is.na(tree_data$diameter)] <- mean(tree_data$diameter, na.rm = TRUE)
+tree_data$age[is.na(tree_data$age)] <- mean(tree_data$age, na.rm = TRUE)
+print(tree_data)
+```
+
+### Data Transformation
+
+Often, you'll need to transform your data to meet the assumptions of statistical tests or to make patterns more apparent:
+
+```{r}
+# Load a dataset
+data(iris)
+
+# Log transformation
+iris$log_sepal_length <- log(iris$Sepal.Length)
+
+# Square root transformation
+iris$sqrt_sepal_width <- sqrt(iris$Sepal.Width)
+
+# Standardization (z-score)
+iris$z_petal_length <- scale(iris$Petal.Length)
+
+# View the first few rows of the transformed data
+head(iris[, c("Sepal.Length", "log_sepal_length", 
+               "Sepal.Width", "sqrt_sepal_width",
+               "Petal.Length", "z_petal_length")])
+```
+
+### Creating New Variables
+
+Creating new variables based on existing ones is a common task in data preparation:
+
+```{r}
+# Create a dataset
+forest_plots <- data.frame(
+  plot_id = 1:5,
+  length = c(100, 150, 120, 200, 180),
+  width = c(80, 100, 90, 120, 110)
+)
+
+# Calculate area
+forest_plots$area <- forest_plots$length * forest_plots$width
+
+# Create a categorical variable
+forest_plots$size_class <- cut(
+  forest_plots$area,
+  breaks = c(0, 10000, 15000, Inf),
+  labels = c("Small", "Medium", "Large")
+)
+
+print(forest_plots)
+```
+
+## Data Manipulation with dplyr
+
+The dplyr package from the tidyverse provides a powerful grammar for data manipulation:
+
+```{r}
+library(dplyr)
+
+# Sample dataset
+data(starwars)
+
+# Select specific columns
+characters <- starwars %>%
+  select(name, species, height, mass)
+
+# Filter rows based on conditions
+humans <- starwars %>%
+  filter(species == "Human")
+
+# Arrange data
+tall_characters <- starwars %>%
+  arrange(desc(height))
+
+# Create new variables
+bmi_data <- starwars %>%
+  filter(!is.na(height), !is.na(mass)) %>%
+  mutate(bmi = mass / ((height / 100)^2))
+
+# Summarize data
+species_summary <- starwars %>%
+  group_by(species) %>%
+  summarize(
+    count = n(),
+    avg_height = mean(height, na.rm = TRUE),
+    avg_mass = mean(mass, na.rm = TRUE)
+  ) %>%
+  filter(count > 1) %>%
+  arrange(desc(count))
+
+# Display the results
+head(characters)
+head(humans)
+head(tall_characters)
+head(bmi_data)
+head(species_summary)
+```
+
+### Using Our Downloaded Epidemiology Dataset
+
+Now let's explore our epidemiology dataset (storm data) using dplyr:
+
+```{r}
+# Let's use our epidemiology dataset
+disease_data <- read_csv("../data/epidemiology/disease_data.csv")
+head(disease_data)
+
+# Filter rows
+storm_data <- disease_data %>%
+  filter(year >= 2000)
+
+# Select columns
+storm_subset <- disease_data %>%
+  select(name, year, month, wind, pressure)
+
+# Create new variables
+storm_analysis <- disease_data %>%
+  mutate(wind_kph = wind * 1.852) # Convert knots to kph
+
+# Summarize data
+storm_summary <- disease_data %>%
+  group_by(name) %>%
+  summarize(
+    avg_wind = mean(wind, na.rm = TRUE),
+    max_wind = max(wind, na.rm = TRUE),
+    count = n()
+  ) %>%
+  arrange(desc(max_wind))
+
+head(storm_summary)
+```
+
+## Working with Data in Jamovi
+
+Jamovi provides a user-friendly interface for data manipulation:
+
+1. **Data View**: The main spreadsheet-like interface for viewing and editing data
+2. **Variables View**: For defining variable properties like name, type, and measurement level
+3. **Compute**: For creating new variables based on formulas
+4. **Transform**: For recoding variables or creating categorical variables from continuous ones
+5. **Filters**: For selecting subsets of data based on conditions
+
+## Exploratory Data Analysis
+
+Before diving into formal statistical tests, it's important to explore your data:
+
+```{r}
+# Load a dataset
+data(mtcars)
+
+# Basic summary statistics
+summary(mtcars)
+
+# Structure of the data
+str(mtcars)
+
+# First few rows
+head(mtcars)
+
+# Correlation matrix
+cor_matrix <- cor(mtcars)
+round(cor_matrix, 2)
+
+# Basic visualizations
+par(mfrow = c(2, 2))
+hist(mtcars$mpg, main = "Histogram of MPG", xlab = "Miles Per Gallon")
+boxplot(mpg ~ cyl, data = mtcars, main = "MPG by Cylinder Count", 
+        xlab = "Cylinders", ylab = "Miles Per Gallon")
+plot(mtcars$wt, mtcars$mpg, main = "MPG vs. Weight", 
+     xlab = "Weight (1000 lbs)", ylab = "Miles Per Gallon")
+plot(mtcars$hp, mtcars$qsec, main = "Quarter Mile Time vs. Horsepower", 
+     xlab = "Horsepower", ylab = "Quarter Mile Time (sec)")
+```
+
+## Summary
+
+In this chapter, we've covered the basics of working with data in R and Jamovi:
+
+- Understanding different data types and structures
+- Importing data from various file formats
+- Cleaning data by handling missing values
+- Transforming data to meet analysis requirements
+- Creating new variables
+- Using dplyr for powerful data manipulation
+- Conducting initial exploratory data analysis
+
+These skills form the foundation for all the analyses we'll perform in the subsequent chapters. By mastering these basics, you'll be well-prepared to tackle more complex analytical challenges in ecological and forestry research.
+
+## Exercises
+
+1. Import a CSV file of your choice into R and examine its structure.
+2. Create a new variable in the dataset based on existing variables.
+3. Filter the dataset to include only observations that meet specific criteria.
+4. Calculate summary statistics for different groups within your dataset.
+5. Create basic visualizations to explore relationships between variables.
+6. Repeat exercises 1-5 using Jamovi instead of R.

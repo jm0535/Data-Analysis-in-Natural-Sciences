@@ -1,0 +1,6 @@
+Marine Dataset
+
+Source: Great Lakes Fishery Commission
+Citation: Great Lakes Fishery Commission. (2021). Commercial Fish Production in the Great Lakes 1867-2015. http://www.glfc.org/great-lakes-databases.php
+
+Description: Historical commercial fishing data for the Great Lakes region, including catch by species and location.
