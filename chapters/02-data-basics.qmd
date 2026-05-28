@@ -18,15 +18,15 @@ By the end of this chapter, you will be able to:
 5.  Perform initial exploratory data analysis to understand dataset properties
 :::
 
-This chapter covers the fundamental concepts of working with data in R. You'll learn how to import, clean, and prepare data for analysis, which are essential skills for any data analysis project across all natural science disciplines.
+Most data analysis is data wrangling with a bit of statistics on the end. This chapter is about the wrangling part: getting numbers and text into R, working out what type they are, cleaning the messy bits, and reshaping things into a form the rest of the book can work with. None of it is glamorous, all of it is essential.
 
-## Understanding Data Structures
+## Understanding data structures
 
-Before diving into data analysis, it's important to understand the basic data structures in R:
+Before any analysis, you need to know what kind of thing R thinks it is holding. A column of numbers behaves very differently from a column of factors, and a date that R reads as a string is a date you cannot plot on a timeline.
 
-### Data Types
+### Data types
 
-R has several basic data types:
+R has a handful of basic types. You will meet all of them in the first hour of any project.
 
 - **Numeric**: Decimal values (e.g., measurements of temperature, pH, concentration, or distance)
 - **Integer**: Whole numbers (e.g., counts of organisms, samples, or observations)

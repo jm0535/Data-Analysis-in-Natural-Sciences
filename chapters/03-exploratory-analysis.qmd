@@ -19,17 +19,17 @@ By the end of this chapter, you will be able to:
 6.  Analyze missing data patterns and their potential impact
 :::
 
-Exploratory Data Analysis (EDA) is a critical first step in any data analysis project. In this chapter, you'll learn how to systematically explore your data to understand its structure, identify patterns, detect anomalies, and generate hypotheses for further investigation.
+Before you run a single test, you look at your data. That is exploratory data analysis, and it is the part most people skip and then regret. This chapter walks through what to look for when you first open a dataset, how to spot trouble (missing values, weird outliers, columns that should not be character), and how to use simple plots and summaries to decide what questions are even worth asking.
 
-## The Purpose of Exploratory Data Analysis
+## What EDA is actually for
 
-Exploratory Data Analysis serves several important purposes in natural sciences research:
+Five honest reasons to spend an afternoon on EDA before you spend a week on modelling:
 
-1. **Understanding Data Structure**: Gain insights into the basic properties of your dataset
-2. **Checking Data Quality**: Identify missing values, outliers, and potential errors
-3. **Discovering Patterns**: Detect relationships, trends, and distributions
-4. **Generating Hypotheses**: Develop questions and hypotheses for formal testing
-5. **Informing Analysis Choices**: Guide decisions about appropriate statistical methods
+1. You find out what the dataset is. Variable types, ranges, how the file is structured.
+2. You spot quality problems early. Missing values, duplicated rows, impossible measurements.
+3. You see patterns. Distributions, relationships, trends across time or space.
+4. You generate hypotheses worth testing, instead of inventing them to match a result.
+5. You pick the right analysis. The right plot first usually tells you whether the right test is parametric or not.
 
 ::: {.callout-tip}
 ## PROFESSIONAL TIP: Creating Reproducible EDA Workflows

@@ -21,11 +21,11 @@ By the end of this chapter, you will be able to:
 
 ## Introduction
 
-This chapter explores advanced modeling techniques that extend beyond traditional regression. We'll cover model interpretation methods that help us understand "black box" machine learning models, and time series analysis for data collected sequentially over time.
+This chapter is about two things that did not fit neatly into earlier ones. The first is model interpretation: when you fit a random forest or a gradient boost and it predicts well, how do you actually explain what it is doing? The second is time series, which behaves badly in ordinary regression because the observations are not independent. Both come up often enough in real ecological work that ignoring them is no longer a defensible choice.
 
-## Model Interpretation and Explainability
+## Model interpretation and explainability
 
-While machine learning models like Random Forest can achieve high predictive accuracy, understanding *why* they make specific predictions is crucial for ecological applications. Model interpretation helps us extract ecological insights and communicate results to stakeholders.
+A random forest can be embarrassingly accurate and equally opaque. You can predict species presence with 90% accuracy and still have no idea which variables are driving the prediction. That is fine for a competition but useless for a paper or a management recommendation. The methods in this section pry open the black box: which variables matter, how the response changes with each predictor, and why a particular observation was classified the way it was.
 
 ### Variable Importance
 

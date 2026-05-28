@@ -54,17 +54,17 @@ By the end of this chapter, you will be able to:
 6.  Report statistical results in a clear, standard format
 :::
 
-This chapter explores common statistical tests used in natural sciences research. Building on the hypothesis testing framework introduced in the previous chapter, we'll examine specific tests for different research scenarios and data types.
+Chapter 4 set up the logic of testing. This chapter goes through the actual tests you will reach for in practice. T-tests when you have two groups. ANOVA when you have more. Non-parametric versions of both when the data refuse to behave. Correlation and regression when you care about relationships rather than differences. By the end you should be able to pick the right test for a given question and run it without second-guessing yourself.
 
-## Choosing the Right Statistical Test
+## Choosing the right statistical test
 
-Selecting the appropriate statistical test depends on several factors:
+There is no single answer to "which test should I use?". It depends on a few things, and once you can answer them, the choice is usually obvious:
 
-1. **Research Question**: What you're trying to determine
-2. **Data Type**: Categorical, continuous, or ordinal
-3. **Number of Groups**: One, two, or multiple groups
-4. **Data Distribution**: Normal or non-normal
-5. **Independence**: Whether observations are independent or related
+1. What are you actually asking? Difference between groups, relationship between variables, change over time?
+2. What kind of data do you have? Continuous, categorical, ordinal?
+3. How many groups or variables are involved?
+4. Are the data roughly normal, or skewed?
+5. Are your observations independent, or paired/repeated?
 
 ### Decision Tree for Common Tests
 

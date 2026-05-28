@@ -19,13 +19,13 @@ By the end of this chapter, you will be able to:
 6.  Animate visualizations to show temporal changes using `gganimate`
 :::
 
-Building on the visualization techniques covered in Chapter 6, this chapter explores advanced data visualization methods that can help you communicate complex ecological data more effectively. We'll focus on creating publication-quality graphics, interactive visualizations, and specialized plots for ecological data.
+Chapter 6 covered the workhorse charts. This one goes further: how to push a ggplot output to publication standard, how to stitch multiple panels into one figure, how to put data on a map, and how to make a plot a reader can actually click around in. Pick what you need; you do not have to learn all of it at once.
 
-## Creating Publication-Quality Graphics
+## Publication-quality graphics
 
-### Customizing ggplot2 Themes
+### Customising ggplot2 themes
 
-The ggplot2 package allows extensive customization of plot appearance:
+ggplot2 lets you change almost every visual element of a plot. The defaults are fine for exploration, but for a paper or report you usually want something cleaner.
 
 ```{r}
 #| label: fig-custom-theme

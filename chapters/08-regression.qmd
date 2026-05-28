@@ -19,11 +19,11 @@ By the end of this chapter, you will be able to:
 
 ## Introduction
 
-Regression analysis is a powerful statistical tool for modeling relationships between variables. This chapter explores different types of regression models and their applications in natural sciences research.
+Regression is how we describe a relationship between variables with an equation we can poke at. How much does tree height change per millimetre of rainfall? Does adding fertiliser actually increase yield once you account for soil type? This chapter covers the workhorse: linear regression with one predictor, multiple linear regression when you have several, and logistic regression when the outcome is yes-or-no instead of a number. We will also do the diagnostic work that separates a model worth quoting from one that just happens to fit your sample.
 
-## Linear Regression
+## Linear regression
 
-Linear regression models the relationship between a dependent variable and one or more independent variables:
+Linear regression draws the best straight line through your data, where "best" means it minimises the squared vertical distances between the line and each point. You get an intercept, a slope, and an equation you can use to predict the response for new values of the predictor.
 
 ```{r}
 #| label: setup-linear-regression

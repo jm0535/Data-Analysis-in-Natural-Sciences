@@ -19,11 +19,7 @@ By the end of this chapter, you will be able to:
 6.  Apply best practices for design, accessibility, and data integrity in visualizations
 :::
 
-Data visualization is a crucial skill for communicating scientific findings effectively. In this chapter, you will:
-
-- Learn various data visualization techniques
-- Gain expertise in creating informative graphs and plots
-- Understand the role of visualization in conveying insights clearly in natural sciences
+A good plot does in a second what three paragraphs of text struggle to do. A bad plot does the opposite. This chapter is about making more of the first kind. We will work through the chart types you will use most often in natural sciences (bars, histograms, boxplots, scatter, time series, heatmaps), how to pick the right one for what you are showing, and how to push a default ggplot output into something you would not be embarrassed to put in a paper or report.
 
 ::: {.callout-tip}
 ## Accessibility note
@@ -37,17 +33,15 @@ with deuteranopia and protanopia (the two most common forms of colour-vision
 deficiency).
 :::
 
-## The Importance of Data Visualization
+## Why visualization matters
 
-### Why Data Visualization Matters
+### A few honest reasons
 
-Data visualization plays a pivotal role in natural sciences research for several reasons:
+1. Patterns jump out. A trend, an outlier or a population crash that is invisible in a table is obvious in a scatter or time-series plot. Your eye is doing real work the moment you look at a good chart.
 
-1. **Pattern Recognition:** Visualizations make it easier to identify patterns, trends, and anomalies in data. This can reveal phenomena like population fluctuations, species distributions, or the impact of environmental factors.
+2. Other people can follow your reasoning. Most of your audience will never read your code, and many will not read your prose either. The figures are what they remember.
 
-2. **Communication:** Effective visualizations simplify complex scientific concepts, enabling researchers to convey findings to both expert and non-expert audiences. This is particularly valuable when sharing results with policymakers, stakeholders, or the general public.
-
-3. **Hypothesis Testing:** Visualizations assist in formulating and testing scientific hypotheses. Researchers can visually explore data distributions, relationships, and spatial patterns, which informs the design of hypothesis tests.
+3. You spot problems early. Half the value of plotting is catching the data error you would otherwise have run a test on.
 
 4. **Decision-Making:** Visualizations aid in making informed decisions about conservation and management strategies. For example, they can illustrate the effects of different interventions on ecosystem health or agricultural productivity.
 

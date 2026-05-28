@@ -21,7 +21,7 @@ By the end of this chapter, you will be able to:
 6.  Communicate data-driven recommendations to stakeholders
 :::
 
-This chapter explores how data analysis techniques can be applied to conservation science and management. We'll examine how the statistical methods covered in previous chapters (including the advanced modeling techniques in [Chapter 9](09-advanced-modeling.qmd)) can help address real-world conservation challenges, from monitoring endangered species to evaluating the effectiveness of protected areas.
+Conservation work is where the statistics in this book stop being academic. Decisions about protected areas, threatened species recovery, and management interventions cost money and sometimes determine whether a population persists. This chapter brings the tools from earlier chapters (descriptive statistics, regression, mixed-effects models, the machine learning from Chapter 9) to bear on the questions practitioners actually face: is the population in trouble, is the intervention working, and where should the next dollar go?
 
 ::: {.callout-tip}
 ## PROFESSIONAL TIP: Data-Driven Decision Making in Conservation
