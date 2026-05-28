@@ -29,7 +29,7 @@ prefer-html: true
 
 **Official Documentation:**
 - The Comprehensive R Archive Network (CRAN): https://cran.r-project.org/
-- RStudio Education: https://education.rstudio.com/
+- Posit Education (formerly RStudio Education): https://posit.co/blog/
 - Tidyverse: https://www.tidyverse.org/
 - Tidymodels: https://www.tidymodels.org/
 
@@ -40,7 +40,7 @@ prefer-html: true
 - #rstats on Twitter/X
 
 **Cheat Sheets:**
-- RStudio Cheat Sheets: https://www.rstudio.com/resources/cheatsheets/
+- Posit Cheat Sheets (formerly RStudio Cheat Sheets): https://posit.co/resources/cheatsheets/
 - Data Wrangling with dplyr and tidyr
 - Data Visualization with ggplot2
 - R Markdown

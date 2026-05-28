@@ -140,6 +140,26 @@ check_model <- check_model(model)
 plot(check_model)
 ```
 
+::: {.callout-important}
+## Reading the diagnostic plots
+
+- **Posterior predictive check** — simulated draws should overlay the
+  observed density; large gaps indicate model misspecification.
+- **Linearity** — the reference line should be roughly flat; curvature
+  means the linear form is wrong.
+- **Homogeneity of variance** — points should scatter evenly around the
+  line. A funnel shape signals heteroscedasticity; consider a
+  transformation or robust standard errors.
+- **Influential observations** — flagged points outside the contour
+  exert disproportionate leverage. Refit without them to confirm the
+  conclusion is not driven by 1-2 cases.
+- **Collinearity (multi-predictor models)** — VIF > 5 warrants concern;
+  > 10 means one predictor is largely redundant.
+- **Normality of residuals** — Q-Q points should fall on the diagonal.
+  Mild departures are fine at n > 30 (CLT); heavy tails matter for
+  prediction intervals more than for slope inference.
+:::
+
 ::: {.callout-note}
 ## Code Explanation
 

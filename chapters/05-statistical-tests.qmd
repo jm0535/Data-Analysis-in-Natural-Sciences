@@ -375,6 +375,27 @@ ggplot(crop_yields_grouped, aes(x = period, y = `Wheat (tonnes per hectare)`, fi
   theme(legend.position = "none")
 ```
 
+::: {.callout-note}
+## Checking t-test assumptions
+
+Before the test, verify normality of each group and equality of variance.
+`t.test()` defaults to Welch's correction, which is robust to unequal
+variance — preferred over the classical Student's t-test in almost all
+applied work.
+
+```{r}
+#| label: ttest-assumptions
+by_period <- split(crop_yields_grouped$`Wheat (tonnes per hectare)`,
+                   crop_yields_grouped$period)
+shapiro.test(by_period[[1]])  # group 1 normality
+shapiro.test(by_period[[2]])  # group 2 normality
+var.test(`Wheat (tonnes per hectare)` ~ period, data = crop_yields_grouped)
+```
+
+If Shapiro rejects on either group at moderate sample size, prefer
+`wilcox.test()` (Mann-Whitney U).
+:::
+
 ```{r}
 #| label: tbl-independent-ttest
 #| tbl-cap: "Independent Samples t-Test Results: Wheat Yields by Time Period"
@@ -488,6 +509,22 @@ ggplot(paired_data_long, aes(x = Crop, y = Yield, fill = Crop)) +
        y = "Yield (tonnes/hectare)") +
   theme_minimal()
 ```
+
+::: {.callout-note}
+## Paired t-test assumption
+
+The paired t-test assumes the *differences* (not the raw values) are
+approximately normal. Check before running:
+
+```{r}
+#| label: paired-ttest-assumption
+diffs <- paired_data$`Wheat (tonnes per hectare)` -
+         paired_data$`Rice (tonnes per hectare)`
+shapiro.test(diffs)
+```
+
+If the differences are heavily skewed, use `wilcox.test(..., paired = TRUE)`.
+:::
 
 ```{r}
 #| label: tbl-paired-ttest-results
@@ -1290,6 +1327,26 @@ if("red_list_category" %in% colnames(plants) & "group" %in% colnames(plants)) {
   }
 }
 ```
+
+::: {.callout-note}
+## Chi-square assumption: expected cell counts
+
+The chi-square approximation breaks down when expected cell counts are
+small. The standard rule: every expected cell should be ≥ 5; if more than
+20% of cells fall below 5, the p-value is unreliable. Use Fisher's exact
+test as a fallback for sparse tables.
+
+```{r}
+#| label: chisq-assumption
+if (exists("contingency_table") && min(dim(contingency_table)) > 1) {
+  expected <- chisq.test(contingency_table)$expected
+  expected
+  sum(expected < 5) / length(expected)  # proportion of low-count cells
+  # If proportion > 0.2, prefer:
+  # fisher.test(contingency_table, simulate.p.value = TRUE)
+}
+```
+:::
 
 ```{r}
 #| label: tbl-chi-square-results
