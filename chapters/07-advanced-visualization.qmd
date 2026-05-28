@@ -30,6 +30,7 @@ The ggplot2 package allows extensive customization of plot appearance:
 ```{r}
 #| label: fig-custom-theme
 #| fig-cap: "Customized ggplot2 scatter plot with professional theme"
+#| fig-alt: "Scatter plot of iris sepal length vs petal length with points colored by species (setosa, versicolor, virginica); setosa forms a tight cluster at low petal length while versicolor and virginica trend upward, shown with a customized minimal theme."
 
 # Load necessary packages
 library(ggplot2)
@@ -93,7 +94,7 @@ This code demonstrates advanced visualization customization:
 ::: {.callout-important}
 ## Results Interpretation
 
-The visualization reveals several key insights:
+The visualization in @fig-custom-theme reveals several key insights:
 
 1. **Species Differentiation**:
    - Clear clustering of species
@@ -149,6 +150,12 @@ Choosing appropriate color palettes is crucial for effective visualization:
 #|   - "Scatter plot with Set1 palette"
 #|   - "Scatter plot with Viridis palette"
 #|   - "Continuous color scale example"
+#| fig-alt:
+#|   - "Stacked display of three ColorBrewer palettes (sequential YlGn, diverging BrBG, diverging RdYlBu) shown as horizontal color swatches in a 4-row layout."
+#|   - "Horizontal swatch of the eight-color viridis palette rendered with scales::show_col, illustrating its perceptually uniform progression from dark purple to yellow."
+#|   - "Iris sepal-length vs petal-length scatter colored by species using the qualitative Set1 palette; three species clusters separate clearly."
+#|   - "Same iris scatter recolored with the discrete viridis palette, demonstrating a colorblind-friendly alternative to Set1."
+#|   - "Iris scatter where point color encodes petal width on a continuous viridis scale, adding a third quantitative dimension to the plot."
 
 # Load packages for color palettes
 library(RColorBrewer)
@@ -253,6 +260,7 @@ Combining multiple plots can help compare different aspects of your data:
 ```{r}
 #| label: fig-multi-panel
 #| fig-cap: "Multi-panel figure combining boxplots and density plots"
+#| fig-alt: "Patchwork 2x2 figure of iris morphology: top row holds boxplots of sepal length and petal length by species; bottom row holds species-colored density curves of the same two variables."
 
 library(patchwork)
 
@@ -308,6 +316,7 @@ The `plotly` package allows you to convert ggplot2 graphics to interactive versi
 #| fig-width: 8
 #| fig-height: 6
 #| fig-cap: "Interactive scatter plot of iris dataset"
+#| fig-alt: "Interactive plotly scatter plot of iris sepal length vs petal length with points colored by species and hover tooltips; species form distinct groups across the plot area."
 library(plotly)
 
 # Check if we're in HTML output mode
@@ -425,6 +434,7 @@ For spatial ecological data, interactive maps can be particularly useful:
 #| fig-width: 8
 #| fig-height: 6
 #| fig-cap: "Ecological study sites across different habitat types"
+#| fig-alt: "Interactive leaflet map (or static fallback) of five Bay Area ecological study sites, with circle markers colored by habitat (forest, wetland, grassland, alpine, coastal) and sized by species count."
 library(leaflet)
 library(ggplot2)
 library(knitr)

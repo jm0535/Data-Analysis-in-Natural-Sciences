@@ -1,0 +1,188 @@
+# Glossary {.unnumbered}
+
+This appendix defines key statistical, modeling, and R-programming terms used throughout the book. Definitions are written for beginner natural scientists and are intended as quick refreshers rather than exhaustive treatments.
+
+## A
+
+**Alternative hypothesis (H₁)**
+: The statement that there is an effect, difference, or relationship in the population. It is what the researcher typically aims to find evidence for, and it is contrasted with the null hypothesis during a statistical test.
+
+**ANOVA (Analysis of Variance)**
+: A family of tests that compares the means of three or more groups by partitioning total variance into between-group and within-group components. A significant result indicates that at least one group mean differs from the others.
+
+**Assumption (statistical)**
+: A condition that must be reasonably satisfied for a statistical procedure to produce valid results (e.g., normality, independence, equal variances). Violations can bias estimates or invalidate p-values, so assumptions should always be checked.
+
+## B
+
+**Bootstrap**
+: A resampling method in which many new datasets are drawn (with replacement) from the original sample to estimate the sampling distribution of a statistic. It is useful for computing confidence intervals when analytical formulas are unavailable or assumptions are dubious.
+
+## C
+
+**Confidence interval (CI)**
+: A range of plausible values for a population parameter, accompanied by a confidence level (commonly 95%). Over many repeated samples, the stated proportion of such intervals would contain the true parameter.
+
+**Correlation**
+: A standardized measure of the strength and direction of a linear (or monotonic) association between two variables, bounded between −1 and +1. Correlation does not imply causation.
+
+**Covariance**
+: An unstandardized measure of how two variables vary together. Positive values mean they tend to increase together; the magnitude depends on the variables' units, which is why correlation is often preferred.
+
+**Cross-validation**
+: A model-evaluation technique in which the data are repeatedly split into training and testing subsets to estimate predictive performance on unseen data. *k*-fold cross-validation is the most common variant.
+
+## D
+
+**Degrees of freedom (df)**
+: The number of independent pieces of information available to estimate a statistic, typically the sample size minus the number of parameters estimated. Degrees of freedom shape the reference distributions used in many tests.
+
+## E
+
+**Effect size**
+: A quantitative measure of the magnitude of a phenomenon (e.g., Cohen's *d*, η², *r*). Unlike p-values, effect sizes are largely independent of sample size and communicate practical importance.
+
+## G
+
+**ggplot2**
+: A widely used R package for declarative data visualization based on the Grammar of Graphics. Plots are built up in layers (data, aesthetics, geoms, scales, facets, themes).
+
+## H
+
+**Heteroscedasticity**
+: A situation in which the variance of the residuals is not constant across the range of fitted values or predictors. It violates an assumption of ordinary least squares regression and can distort standard errors.
+
+**Hypothesis test**
+: A formal procedure for deciding between two competing claims (null vs. alternative) about a population, based on sample evidence and a chosen significance level.
+
+## I
+
+**ICE plot (Individual Conditional Expectation)**
+: A model-interpretation tool that shows how the predicted outcome for each individual observation changes as one feature is varied, holding the others fixed. It complements partial dependence plots by revealing heterogeneous effects.
+
+**Interquartile range (IQR)**
+: The difference between the 75th and 25th percentiles (Q3 − Q1) of a distribution. It is a robust measure of spread and is used to define outliers in boxplots.
+
+## K
+
+**Kruskal-Wallis test**
+: A nonparametric alternative to one-way ANOVA that compares the distributions of three or more independent groups using ranks. It does not assume normality.
+
+## L
+
+**Levene's test**
+: A test for the equality of variances across groups. It is commonly used to check the homogeneity-of-variance assumption before running ANOVA or a *t*-test.
+
+**Linear regression**
+: A model that describes the expected value of a continuous response variable as a linear combination of one or more predictors. Parameters are typically estimated by ordinary least squares.
+
+## M
+
+**Mann-Kendall test**
+: A nonparametric test for monotonic trend in time-series data. It is widely used in ecology and hydrology because it does not require the data to be normally distributed.
+
+**Median**
+: The middle value of an ordered dataset (or the average of the two middle values for even *n*). It is a robust measure of central tendency that is less affected by outliers than the mean.
+
+**Multiple regression**
+: A linear regression with two or more predictor variables. It allows the effect of each predictor to be estimated while controlling for the others.
+
+## N
+
+**Null hypothesis (H₀)**
+: The default claim of "no effect" or "no difference" that a statistical test attempts to disprove. Rejecting H₀ in favor of H₁ requires sufficiently strong evidence, usually summarized by a small p-value.
+
+## O
+
+**Outlier**
+: An observation that lies far from the bulk of the data. Outliers may reflect data-entry errors, rare events, or genuinely extreme but valid observations, and should be investigated rather than reflexively removed.
+
+## P
+
+**p-value**
+: The probability, assuming the null hypothesis is true, of obtaining a test statistic at least as extreme as the one observed. Small p-values provide evidence against H₀ but do not measure the size or importance of an effect.
+
+**Pearson correlation**
+: A measure of *linear* association between two continuous variables, denoted *r*. It assumes approximately bivariate-normal data and is sensitive to outliers.
+
+**Permutation test**
+: A nonparametric test in which the observed test statistic is compared to a distribution generated by randomly reshuffling group labels. It requires few distributional assumptions.
+
+**Posterior**
+: In Bayesian statistics, the probability distribution of parameters after updating prior beliefs with observed data via Bayes' theorem. Inference (point estimates, intervals) is drawn from the posterior.
+
+**Power (statistical)**
+: The probability that a test correctly rejects a false null hypothesis (i.e., 1 − β). Power increases with sample size, effect size, and the chosen significance level.
+
+## Q
+
+**Q-Q plot (Quantile-Quantile plot)**
+: A diagnostic plot that compares the quantiles of a sample to the quantiles of a reference distribution (often the normal). Points falling near the 1:1 line suggest the data follow that distribution.
+
+**Quartile**
+: One of three values (Q1, Q2, Q3) that split an ordered dataset into four equal parts. Q2 is the median; Q1 and Q3 mark the lower and upper quartiles.
+
+## R
+
+**Random forest**
+: An ensemble machine-learning method that averages predictions from many decision trees, each built on a bootstrap sample with a random subset of predictors. It handles nonlinearities and interactions well and is robust to overfitting.
+
+**Random sample**
+: A subset drawn from a population such that every member has a known (typically equal) probability of being selected. Random sampling is the foundation of valid statistical inference.
+
+**Reproducibility**
+: The ability of an independent analyst to obtain the same results using the same data and code. Practices such as version control, literate programming, and seed-setting support reproducibility.
+
+**Residual**
+: The difference between an observed value and the value predicted by a model. Patterns in residuals are used to diagnose model misspecification, nonlinearity, and heteroscedasticity.
+
+**R-squared (R²)**
+: The proportion of variance in the response that is explained by the model, ranging from 0 to 1. Adjusted R² penalizes the addition of uninformative predictors.
+
+## S
+
+**SHAP value (SHapley Additive exPlanations)**
+: A game-theoretic measure of each feature's contribution to an individual model prediction. SHAP values provide consistent, locally accurate explanations for complex models such as random forests and gradient-boosted trees.
+
+**Shapiro-Wilk test**
+: A formal test of the null hypothesis that a sample is drawn from a normal distribution. It is most reliable for small to moderate sample sizes.
+
+**Spearman correlation**
+: A nonparametric measure of *monotonic* association based on the ranks of the data, denoted ρ. It is robust to outliers and does not require linearity.
+
+**Standard deviation (SD)**
+: The square root of the variance; a measure of the typical distance of observations from the mean expressed in the original units.
+
+**Standard error (SE)**
+: The standard deviation of the sampling distribution of a statistic (e.g., the sample mean). It quantifies the uncertainty of an estimate and shrinks as sample size grows.
+
+**Statistical significance**
+: The conclusion that an observed result is unlikely under the null hypothesis, typically when *p* falls below a pre-specified threshold (often 0.05). Significance does not by itself indicate practical importance.
+
+## T
+
+**t-test**
+: A test for comparing one or two group means when the data are approximately normal and the sample size is modest. Variants include the one-sample, independent two-sample, and paired *t*-tests.
+
+**Tidyverse**
+: A collection of R packages (including dplyr, ggplot2, tidyr, readr, purrr) that share a consistent design philosophy centered on tidy data and pipeable functions.
+
+**Time series**
+: A sequence of observations indexed by time, typically at regular intervals. Time-series analysis addresses trend, seasonality, autocorrelation, and forecasting.
+
+**Tukey HSD (Honestly Significant Difference)**
+: A post-hoc test used after a significant ANOVA to identify which specific group means differ, while controlling the family-wise error rate.
+
+**Type I error**
+: Rejecting a true null hypothesis (a false positive). Its probability equals the chosen significance level α.
+
+**Type II error**
+: Failing to reject a false null hypothesis (a false negative). Its probability is denoted β; statistical power equals 1 − β.
+
+## V
+
+**Variance**
+: The average squared deviation of observations from their mean. It measures spread but is expressed in squared units, which is why the standard deviation is often reported instead.
+
+**Viridis palette**
+: A family of perceptually uniform, colorblind-friendly color scales (viridis, magma, plasma, inferno, cividis) widely used in scientific visualization and available in ggplot2 via `scale_*_viridis_*()`.

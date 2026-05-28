@@ -526,6 +526,10 @@ Before diving into formal statistical tests, it's essential to explore your data
 #|   - "Distribution of penguin bill lengths"
 #|   - "Body mass distribution by penguin species"
 #|   - "Relationship between bill length and flipper length"
+#| fig-alt:
+#|   - "Histogram of penguin bill length (mm) with 1mm bins; the distribution is roughly bimodal with peaks near 39mm and 47mm and a range of about 32-60mm."
+#|   - "Boxplot of body mass (g) by penguin species; Gentoo penguins are clearly heaviest (median ~5000g) while Adelie and Chinstrap have similar lower medians (~3700g)."
+#|   - "Scatter plot of flipper length (mm) vs bill length (mm) colored by species; Gentoo points cluster at longer flippers (>210mm), while Adelie and Chinstrap separate mainly by bill length."
 
 # Basic summary statistics
 summary(penguins$bill_length_mm)

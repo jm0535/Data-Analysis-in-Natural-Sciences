@@ -89,6 +89,7 @@ knitr::kable(wheat_summary)
 ```{r}
 #| label: fig-descriptive-stats
 #| fig-cap: "Distribution of global wheat yields"
+#| fig-alt: "Histogram of global wheat yields (tonnes per hectare) with 30 forest-green bins; the distribution is right-skewed with most observations between 1 and 4 tonnes/ha and a long tail extending toward higher yields."
 
 # Visualize the distribution of wheat yields
 ggplot(crop_yields, aes(x = `Wheat (tonnes per hectare)`)) +
@@ -145,8 +146,8 @@ The summary statistics reveal several key insights about global wheat yields:
 
 - The mean wheat yield is higher than the median, suggesting a right-skewed distribution with some countries achieving exceptionally high yields.
 - The standard deviation indicates substantial variability in wheat productivity across different regions.
-- The histogram confirms this skewed distribution, with most countries clustered at lower to moderate yield levels, and fewer countries achieving very high yields.
-- The top 10 countries table shows which nations have the most productive wheat cultivation systems, likely due to advanced agricultural practices, favorable climate conditions, or intensive farming methods.
+- The histogram in @fig-descriptive-stats confirms this skewed distribution, with most countries clustered at lower to moderate yield levels, and fewer countries achieving very high yields.
+- The top 10 countries listed in @tbl-top-wheat-countries show which nations have the most productive wheat cultivation systems, likely due to advanced agricultural practices, favorable climate conditions, or intensive farming methods.
 - This analysis provides a foundation for investigating factors that contribute to high wheat yields and potential strategies for improving agricultural productivity in lower-yielding regions.
 :::
 
@@ -219,6 +220,9 @@ Box plots are excellent for comparing distributions across groups:
 #| fig-cap:
 #|   - "Wheat yields by country"
 #|   - "Enhanced boxplot with data points"
+#| fig-alt:
+#|   - "Boxplot of wheat yield (tonnes/ha) for six major producing countries (US, China, India, Russia, France, Australia); France and the US show the highest medians while Australia and Russia have the lowest and most variable yields."
+#|   - "Boxplot with overlaid jittered points showing wheat yield by country; the individual points reveal sample density within each country's distribution, with clear separation between higher-yielding (France, China) and lower-yielding (Australia, Russia) producers."
 
 # Select a few major countries for comparison
 major_wheat_producers <- c("United States", "China", "India", "Russia", "France", "Australia")
@@ -269,7 +273,7 @@ This code demonstrates how to create and enhance box plots for comparing distrib
 ::: {.callout-important}
 ## Results Interpretation
 
-The box plots reveal important comparisons between major wheat-producing countries:
+The box plots in @fig-boxplots-summary reveal important comparisons between major wheat-producing countries:
 
 - The median line in each box shows the typical yield for each country, allowing direct comparison of central tendency.
 - The height of each box (IQR) indicates the variability of yields within each country over the time period.
@@ -286,6 +290,7 @@ Bar charts are useful for visualizing categorical data:
 ```{r}
 #| label: fig-barchart-yields
 #| fig-cap: "Top 10 countries by average wheat yield (2010-present)"
+#| fig-alt: "Vertical bar chart of the top 10 countries by average wheat yield since 2010, sorted ascending; bars are dark green and country names are rotated 45 degrees on the x-axis, with the leading country reaching roughly 8-9 tonnes/ha."
 
 # Calculate average wheat yield by country for the last decade
 recent_avg_yields <- crop_yields %>%
@@ -322,7 +327,7 @@ This code demonstrates how to create a bar chart for visualizing categorical dat
 ::: {.callout-important}
 ## Results Interpretation
 
-The bar chart reveals the top 10 countries by average wheat yield:
+The bar chart in @fig-barchart-yields reveals the top 10 countries by average wheat yield:
 
 - The height of each bar represents the average yield for each country.
 - The countries are sorted in descending order by average yield, making it easy to identify the most productive nations.
@@ -342,6 +347,10 @@ Histograms and density plots help visualize the distribution of continuous varia
 #|   - "Histogram of wheat yields"
 #|   - "Density plot of wheat yields"
 #|   - "Combined histogram with density overlay"
+#| fig-alt:
+#|   - "Histogram of global wheat yields (tonnes/ha) in 30 dark-green bins; right-skewed distribution with most values between 1 and 4 tonnes/ha and a long thin tail extending past 8 tonnes/ha."
+#|   - "Smoothed density curve of wheat yields shaded dark green; a single broad peak around 2-3 tonnes/ha with a long right tail confirms right-skewed global production."
+#|   - "Histogram on density scale with a smooth density curve overlaid; the curve traces the right-skewed shape of the bars, peaking near 2-3 tonnes/ha and tapering past 7 tonnes/ha."
 
 # Histogram of wheat yields
 ggplot(crop_yields, aes(x = `Wheat (tonnes per hectare)`)) +
@@ -393,7 +402,7 @@ This code demonstrates three approaches to visualizing distributions:
 ::: {.callout-important}
 ## Results Interpretation
 
-These distribution visualizations reveal key patterns in wheat yields:
+The distribution visualizations in @fig-distributions reveal key patterns in wheat yields:
 
 - The histogram shows the frequency of observations at different yield levels, highlighting where most countries cluster.
 - The density plot smooths the distribution, making it easier to identify the central tendency and spread.
@@ -412,6 +421,9 @@ Box plots are excellent for comparing distributions across groups:
 #| fig-cap:
 #|   - "Country comparison boxplot"
 #|   - "Boxplot with jittered observations"
+#| fig-alt:
+#|   - "Boxplot of wheat yield (tonnes/ha) since 2000 for six major producers; France and the US show the highest medians, Russia and Australia the lowest, with rotated country names on the x-axis."
+#|   - "Boxplot of country-level wheat yield with jittered individual-year points overlaid in dark green, exposing both summary statistics and per-year spread within each country."
 
 # Select a few major countries for comparison
 major_wheat_producers <- c("United States", "China", "India", "Russia", "France", "Australia")
@@ -462,7 +474,7 @@ This code demonstrates how to create and enhance box plots for comparing distrib
 ::: {.callout-important}
 ## Results Interpretation
 
-The box plots reveal important comparisons between major wheat-producing countries:
+The box plots in @fig-boxplots-visualizing reveal important comparisons between major wheat-producing countries:
 
 - The median line in each box shows the typical yield for each country, allowing direct comparison of central tendency.
 - The height of each box (IQR) indicates the variability of yields within each country over the time period.
@@ -479,6 +491,7 @@ Bar charts are useful for visualizing categorical data:
 ```{r}
 #| label: fig-barchart-distributions
 #| fig-cap: "Top 10 countries by average wheat yield"
+#| fig-alt: "Vertical dark-green bar chart of the ten highest-yielding wheat countries since 2010, reordered ascending so the tallest bar (top producer) appears on the right; country names are rotated 45 degrees."
 
 # Calculate average wheat yield by country for the last decade
 recent_avg_yields <- crop_yields %>%
@@ -515,7 +528,7 @@ This code demonstrates how to create a bar chart for visualizing categorical dat
 ::: {.callout-important}
 ## Results Interpretation
 
-The bar chart reveals the top 10 countries by average wheat yield:
+The bar chart in @fig-barchart-distributions reveals the top 10 countries by average wheat yield:
 
 - The height of each bar represents the average yield for each country.
 - The countries are sorted in descending order by average yield, making it easy to identify the most productive nations.
@@ -534,6 +547,9 @@ Scatter plots help visualize relationships between two continuous variables:
 #| fig-cap:
 #|   - "Relationship between wheat and rice yields"
 #|   - "Wheat vs rice yields by continent"
+#| fig-alt:
+#|   - "Scatter plot of country-year wheat yield (x) vs rice yield (y) since 2000 in dark green semi-transparent points; the cloud shows a weak positive association with high density at low-to-moderate yields for both crops."
+#|   - "Scatter plot of wheat vs rice yields colored by continent (Africa, Asia, Europe, North America, Oceania, South America); continents cluster differently, with European points high on wheat and Asian points high on rice."
 
 # Let's compare wheat and rice yields
 crop_yields_filtered <- crop_yields %>%
@@ -598,7 +614,7 @@ This code demonstrates how to create scatter plots for exploring relationships:
 ::: {.callout-important}
 ## Results Interpretation
 
-The scatter plots reveal the relationship between wheat and rice yields:
+The scatter plots in @fig-scatter-relationships reveal the relationship between wheat and rice yields:
 
 - The basic scatter plot shows the overall relationship between wheat and rice yields.
 - The scatter plot with color by continent reveals how the relationship varies across different continents.
@@ -613,6 +629,7 @@ Correlation analysis quantifies the strength and direction of relationships betw
 ```{r}
 #| label: fig-correlation-matrix
 #| fig-cap: "Correlation matrix of crop yields"
+#| fig-alt: "Upper-triangle correlation plot rendered with corrplot using filled circles whose size and color encode the Pearson correlation between six crops (wheat, rice, maize, soybeans, potatoes, beans); most pairs are positively correlated."
 
 # Select numeric columns for correlation analysis
 crop_numeric <- crop_yields %>%
@@ -645,7 +662,7 @@ This code demonstrates how to perform correlation analysis:
 ::: {.callout-important}
 ## Results Interpretation
 
-The correlation matrix reveals the strength and direction of relationships between variables:
+The correlation matrix in @fig-correlation-matrix reveals the strength and direction of relationships between variables:
 
 - The correlation matrix shows the correlation coefficients between each pair of variables.
 - The correlation coefficients range from -1 (perfect negative correlation) to 1 (perfect positive correlation).
@@ -662,6 +679,9 @@ Pair plots provide a comprehensive view of relationships between multiple variab
 #| fig-cap:
 #|   - "Basic pair plot of crop yields"
 #|   - "Enhanced pair plot with GGally"
+#| fig-alt:
+#|   - "Base R pair plot matrix of six crop-yield variables in dark-green points; each off-diagonal cell is a scatter plot of one crop against another, revealing positive associations across crop pairs."
+#|   - "GGally ggpairs matrix showing density plots on the diagonal, scatter plots below the diagonal, and Pearson correlations above the diagonal for the six crop-yield variables."
 
 # Basic pair plot
 pairs(crop_numeric, pch = 19, col = "darkgreen")
@@ -686,7 +706,7 @@ This code demonstrates how to create pair plots:
 ::: {.callout-important}
 ## Results Interpretation
 
-The pair plots reveal the relationships between multiple variables:
+The pair plots in @fig-pair-plots reveal the relationships between multiple variables:
 
 - The pair plots show the relationships between each pair of variables.
 - The histograms and scatter plots provide a visual representation of the relationships.
@@ -703,6 +723,7 @@ Box plots can help identify potential outliers:
 ```{r}
 #| label: fig-outlier-detection
 #| fig-cap: "Box plot showing potential outliers in wheat yields"
+#| fig-alt: "Single vertical boxplot of global wheat yields (tonnes/ha) in dark green; the box covers roughly 1.5-4 tonnes/ha with many outlier dots extending well above the upper whisker, indicating right-skewed extremes."
 
 # Box plot to identify outliers in wheat yield
 ggplot(crop_yields, aes(y = `Wheat (tonnes per hectare)`)) +
@@ -743,7 +764,7 @@ This code demonstrates how to use box plots for outlier detection:
 ::: {.callout-important}
 ## Results Interpretation
 
-The box plot and outlier detection reveal potential outliers:
+The box plot and outlier detection in @fig-outlier-detection reveal potential outliers:
 
 - The box plot shows the distribution of wheat yields, with potential outliers indicated by points outside the whiskers.
 - The outlier detection identifies observations that fall outside the lower and upper bounds.
@@ -803,6 +824,7 @@ Agricultural data often contains important temporal patterns:
 ```{r}
 #| label: fig-time-series-eda
 #| fig-cap: "Wheat yield trends over time for major producers"
+#| fig-alt: "Line and point time series of annual wheat yield since 1960 for the United States, China, India, and France, colored with the Dark2 palette; all four series trend upward, with France climbing the fastest to the highest yields."
 
 # Select a few countries for time series analysis
 countries_for_ts <- c("United States", "China", "India", "France")
@@ -837,7 +859,7 @@ This code demonstrates how to create a time series plot:
 ::: {.callout-important}
 ## Results Interpretation
 
-The time series plot reveals temporal patterns:
+The time series plot in @fig-time-series-eda reveals temporal patterns:
 
 - The time series plot shows the trends in wheat yields over time for each country.
 - The plot reveals patterns such as increasing or decreasing trends, seasonality, or anomalies.
@@ -853,6 +875,9 @@ Understanding patterns of missing data is crucial:
 #| fig-cap:
 #|   - "Missing values by variable"
 #|   - "Missing data pattern visualization"
+#| fig-alt:
+#|   - "Horizontal naniar gg_miss_var bar chart ranking each crop_yields variable by the number of missing observations, with the most-missing variables at the top."
+#|   - "Naniar vis_miss heatmap of Entity, Year, and the three main crop columns; black tiles mark missing cells, revealing that maize and rice yields have substantial blocks of missingness while Entity and Year are complete."
 
 # Check for missing values in each column
 colSums(is.na(crop_yields))
@@ -896,7 +921,7 @@ This code demonstrates how to analyze missing data:
 ::: {.callout-important}
 ## Results Interpretation
 
-The missing data analysis reveals patterns of missingness:
+The missing data analysis in @fig-missing-data reveals patterns of missingness:
 
 - The summary of missing data shows the number and percentage of missing values in each column.
 - The visualization of missing data patterns reveals the distribution of missing values across different variables.
