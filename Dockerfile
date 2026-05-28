@@ -1,7 +1,7 @@
 # Dockerfile for Data Analysis in Natural Sciences
 # Provides reproducible environment for building the book
 
-FROM rocker/r-ver:4.2.0
+FROM rocker/r-ver:4.4.3
 
 # Set labels
 LABEL maintainer="Data Analysis Team"
@@ -10,7 +10,7 @@ LABEL version="1.0"
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
-ENV QUARTO_VERSION=1.3.450
+ENV QUARTO_VERSION=1.5.57
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
