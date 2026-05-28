@@ -1,0 +1,36 @@
+---
+title: "Solutions — 07-advanced-visualization"
+format: html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+```
+
+> **Instructor copy — do not distribute.** See `solutions/README.md`.
+
+## Exercise 1
+
+*Prompt placeholder — fill in by copying the exercise text from
+`chapters/07-advanced-visualization.qmd` and writing the worked solution below.*
+
+```{r}
+# TODO: solution
+```
+
+**Interpretation.** TODO — 2-3 sentences.
+
+## Exercise 2
+
+```{r}
+# TODO: solution
+```
+
+**Interpretation.** TODO.
+
+## Common student pitfalls
+
+::: {.callout-tip}
+- TODO: typical mistakes to flag during marking.
+:::

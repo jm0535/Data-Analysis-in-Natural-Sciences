@@ -1,0 +1,106 @@
+---
+title: "Solutions — 04-hypothesis-testing"
+format: html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+```
+
+> **Instructor copy — do not distribute.** See `solutions/README.md`.
+
+## Exercise 1 — Two-sample t-test on forest inventory
+
+```{r}
+forest <- read_csv("../data/forestry/forest_inventory.csv")
+
+# Replace `species` and the level names with what's actually in the file.
+two_species <- forest %>% filter(species %in% c("Pinus", "Eucalyptus"))
+
+# Assumption checks
+by_sp <- split(two_species$dbh, two_species$species)
+shapiro.test(by_sp[[1]])
+shapiro.test(by_sp[[2]])
+var.test(dbh ~ species, data = two_species)
+
+# Welch's t-test (default — robust to unequal variance)
+t.test(dbh ~ species, data = two_species)
+```
+
+**Interpretation.** Report t, df, p, and a Cohen's d. If Shapiro fails on
+either group, switch to Wilcoxon rank-sum and note the change.
+
+## Exercise 2 — One-sample t-test against reference
+
+```{r}
+bio <- read_csv("../data/ecology/biodiversity.csv")
+t.test(bio$species_richness, mu = 15)
+```
+
+**Interpretation.** H0: mean richness = 15. Reject if p < 0.05 and the CI
+excludes 15. Always state direction (above/below 15) — students often omit
+this.
+
+## Exercise 3 — Paired t-test on crop yields
+
+```{r}
+crops <- read_csv("../data/agriculture/crop_yields.csv")
+paired <- crops %>%
+  group_by(country) %>%
+  summarise(wheat = mean(wheat_yield, na.rm = TRUE),
+            rice = mean(rice_yield, na.rm = TRUE),
+            .groups = "drop") %>%
+  drop_na()
+
+# Assumption: differences are approximately normal
+shapiro.test(paired$wheat - paired$rice)
+
+t.test(paired$wheat, paired$rice, paired = TRUE)
+```
+
+**Interpretation.** Paired design controls for country-level confounders
+(climate, infrastructure). If shapiro fails, use `wilcox.test(..., paired = TRUE)`.
+
+## Exercise 4 — Normality checks
+
+```{r}
+x <- bio$species_richness
+qqnorm(x); qqline(x, col = "red")
+shapiro.test(x)
+```
+
+**Interpretation.** Q-Q deviations at the tails indicate heavy tails;
+S-shape indicates skew. Shapiro is sensitive at large n — at n > 5000 it
+will reject even tiny deviations, so weight the visual check higher.
+
+## Exercise 5 — 95% CI
+
+```{r}
+clim <- read_csv("../data/environmental/climate_data.csv")
+ci <- t.test(clim$temperature)$conf.int
+ci
+```
+
+**Interpretation.** "We are 95% confident the long-run mean temperature
+lies in [lower, upper] °C." Do **not** say "there is a 95% chance the
+true mean is in this interval" — that's a Bayesian statement.
+
+## Exercise 6 — Design your own test
+
+Marking rubric:
+- States H0 and H1 in symbolic form (e.g., μ1 = μ2 vs μ1 ≠ μ2).
+- Identifies one-sided vs two-sided and justifies.
+- Names the test and its assumptions.
+- States α and how multiple comparisons (if any) will be handled.
+- Specifies effect size to report alongside p.
+
+## Common student pitfalls
+
+::: {.callout-tip}
+- Treating p < 0.05 as proof of H1. Remind them: it's evidence against H0
+  given the assumptions hold.
+- Forgetting to check normality before parametric tests.
+- Using two-sample t-test on paired data — inflates variance, lowers power.
+- Quoting "p = 0.000" — should be "p < 0.001".
+:::

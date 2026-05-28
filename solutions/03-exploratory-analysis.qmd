@@ -1,0 +1,96 @@
+---
+title: "Solutions — 03-exploratory-analysis"
+format: html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(viridis)
+```
+
+> **Instructor copy — do not distribute.** See `solutions/README.md`.
+
+## Exercise 1 — Biodiversity EDA
+
+```{r}
+bio <- read_csv("../data/ecology/biodiversity.csv")
+glimpse(bio)
+summary(bio)
+
+# Univariate distributions for every numeric column
+bio %>%
+  select(where(is.numeric)) %>%
+  pivot_longer(everything(), names_to = "var", values_to = "val") %>%
+  ggplot(aes(val)) +
+  geom_histogram(bins = 30, fill = viridis(1)) +
+  facet_wrap(~ var, scales = "free") +
+  theme_minimal()
+```
+
+**Interpretation.** Look for skew, multi-modality, and out-of-range values.
+Flag columns where median << mean (right skew) — these are candidates for
+log-transform before downstream tests.
+
+## Exercise 2 — Distribution of a second crop
+
+```{r}
+crops <- read_csv("../data/agriculture/crop_yields.csv")
+# Replace `rice_yield` with another crop column present in the file.
+ggplot(crops, aes(x = rice_yield)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 30, fill = viridis(1)) +
+  geom_density(color = "red") +
+  theme_minimal()
+```
+
+**Interpretation.** Compare central tendency, spread, and skew to wheat.
+Rice yields typically have a heavier right tail than wheat in this dataset.
+
+## Exercise 3 — Yield vs latitude
+
+Requires joining a geography table to the crops table. If the bundled data
+lacks latitude, students should merge against a country-centroid lookup
+(e.g., `rnaturalearth::ne_countries()`). Mark down for any solution that
+silently drops countries with missing matches without noting the drop.
+
+## Exercise 4 — Largest improvement over time
+
+```{r}
+crops %>%
+  group_by(country) %>%
+  filter(n() >= 2) %>%
+  summarise(
+    delta = last(wheat_yield) - first(wheat_yield),
+    rel = delta / first(wheat_yield),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(rel)) %>%
+  slice_head(n = 10)
+```
+
+**Interpretation.** Relative change (`rel`) is the right metric — absolute
+deltas reward countries that already had high yields.
+
+## Exercise 5 — Wheat-to-rice ratio
+
+```{r}
+crops %>%
+  filter(country %in% c("China", "United States", "India")) %>%
+  mutate(ratio = wheat_yield / rice_yield) %>%
+  ggplot(aes(year, ratio, color = country)) +
+  geom_line() +
+  scale_color_viridis_d() +
+  theme_minimal()
+```
+
+## Exercise 6 — Spatial EDA
+
+Same pipeline as Exercise 1 applied to `../data/geography/spatial.csv`.
+
+## Common student pitfalls
+
+::: {.callout-tip}
+- Reading from `docs/data/` instead of `../data/` — old path, now broken.
+- Not setting `set.seed()` before any sampling step.
+- Reporting only the mean for skewed columns; require median + IQR too.
+:::

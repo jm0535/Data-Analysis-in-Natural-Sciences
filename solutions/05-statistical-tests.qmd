@@ -1,0 +1,147 @@
+---
+title: "Solutions — 05-statistical-tests"
+format: html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(car)        # Levene
+library(broom)
+```
+
+> **Instructor copy — do not distribute.** See `solutions/README.md`.
+
+## Exercise 1 — Test selection (conceptual)
+
+- Tree heights across 3 soil types, normal: **one-way ANOVA**, post-hoc Tukey HSD.
+- Bird species across 2 fragments, non-normal: **Mann-Whitney U** (`wilcox.test`).
+- Predicting biomass from rainfall + temperature: **multiple linear regression**.
+
+## Exercise 2 — ANOVA vs Kruskal-Wallis on maize
+
+```{r}
+crops <- read_csv("../data/agriculture/crop_yields.csv")
+
+# Assumption checks
+shapiro.test(crops$maize_yield[crops$continent == "Africa"])
+car::leveneTest(maize_yield ~ continent, data = crops)
+
+aov_fit <- aov(maize_yield ~ continent, data = crops)
+summary(aov_fit)
+
+kruskal.test(maize_yield ~ continent, data = crops)
+```
+
+**Interpretation.** If either assumption fails, Kruskal-Wallis is the
+correct test — it ranks the data and so doesn't require normality or
+equal variance. ANOVA is more powerful when assumptions hold.
+
+## Exercise 3 — Pearson vs Spearman
+
+```{r}
+with(crops, cor.test(potato_yield, rice_yield, method = "pearson"))
+with(crops, cor.test(potato_yield, rice_yield, method = "spearman"))
+```
+
+**Interpretation.** Pearson assumes linear association and normality;
+Spearman ranks the data and captures any monotonic relationship. If the
+scatterplot shows curvature or heavy tails, prefer Spearman.
+
+## Exercise 4 — Chi-square on biodiversity
+
+```{r}
+bio <- read_csv("../data/ecology/biodiversity.csv")
+tab <- table(bio$conservation_status, bio$habitat_type)
+chi <- chisq.test(tab)
+chi
+
+# Check expected cell counts
+chi$expected
+```
+
+**Interpretation.** If any expected cell < 5, fall back to
+`fisher.test(tab)`. Report χ², df, p, and Cramer's V for effect size.
+
+## Exercise 5 — Mann-Kendall trend
+
+```{r}
+library(Kendall)
+china <- crops %>% filter(country == "China") %>% arrange(year)
+us    <- crops %>% filter(country == "United States") %>% arrange(year)
+
+MannKendall(china$wheat_yield)
+MannKendall(us$wheat_yield)
+
+# Sen's slope for the rate of change
+library(trend)
+sens.slope(china$wheat_yield)
+sens.slope(us$wheat_yield)
+```
+
+**Interpretation.** Mann-Kendall tests for monotonic trend; Sen's slope
+gives the median rate of change per year. Compare slopes directly.
+
+## Exercise 6 — Two-group comparison on insects
+
+```{r}
+insects <- read_csv("../data/entomology/insects.csv")
+# Choose two groups present in the data; verify with table() first.
+shapiro.test(insects$count[insects$group == "A"])
+# If normal + equal var → t.test; else → wilcox.test
+wilcox.test(count ~ group, data = insects %>% filter(group %in% c("A", "B")))
+```
+
+## Exercise 7 — Multiple regression on coffee quality
+
+```{r}
+econ <- read_csv("../data/economics/economic.csv")
+fit <- lm(quality_score ~ price + altitude + rainfall, data = econ)
+summary(fit)
+
+# Diagnostics
+par(mfrow = c(2, 2)); plot(fit); par(mfrow = c(1, 1))
+```
+
+**Interpretation.** Each slope is the change in quality per unit predictor
+**holding the others constant**. R² is the proportion of variance
+explained. Residual plots should show no pattern; QQ should be linear.
+
+## Exercise 8 — iris ANOVA + Tukey
+
+```{r}
+fit_iris <- aov(Sepal.Length ~ Species, data = iris)
+summary(fit_iris)
+TukeyHSD(fit_iris)
+```
+
+**Interpretation.** All three pairwise differences are significant.
+*setosa* has the shortest sepals; *virginica* the longest.
+
+## Exercise 9 — mtcars Mann-Whitney
+
+```{r}
+wilcox.test(mpg ~ am, data = mtcars)
+```
+
+**Interpretation.** Manual transmissions show higher mpg in this sample.
+Effect size via rank-biserial correlation if needed.
+
+## Exercise 10 — Reporting paragraph (template)
+
+> A one-way ANOVA on `Sepal.Length` across the three *iris* species was
+> statistically significant, *F*(2, 147) = 119.3, *p* < 0.001, η² = 0.62.
+> Tukey HSD revealed all pairwise comparisons significant at α = 0.05;
+> *virginica* (M = 6.59, 95% CI [6.45, 6.72]) was longest, followed by
+> *versicolor* (M = 5.94, [5.81, 6.07]) and *setosa* (M = 5.01, [4.91, 5.10]).
+
+## Common student pitfalls
+
+::: {.callout-tip}
+- Running ANOVA without checking Levene's test; using Tukey when groups
+  are unequal in variance.
+- Reporting p without effect size.
+- Confusing statistical significance with practical importance.
+- Using Pearson on non-linear or heavy-tailed data.
+- Forgetting to report degrees of freedom.
+:::
