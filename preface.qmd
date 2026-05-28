@@ -4,21 +4,23 @@ prefer-html: true
 
 # Preface {.unnumbered}
 
-Welcome to **Data Analysis in Natural Sciences: An R-Based Approach**, a comprehensive guide designed for students, professionals, and researchers across the natural sciences. This book provides practical methods for analyzing and visualizing data using R, with applications spanning forestry, agriculture, ecology, marine biology, environmental science, geology, atmospheric science, hydrology, and more.
+Welcome. This is *Data Analysis in Natural Sciences: An R-Based Approach*. It is a practical book for anyone who has to wrangle scientific data into something useful, whether you are a student, a working researcher, a field technician, or somebody who just got handed a CSV and a deadline. The examples come from forestry, agriculture, ecology, marine biology, environmental science, geology, atmospheric science and hydrology, because those are the fields I keep meeting people in, and the same techniques keep coming up.
 
-## Why This Book?
+## Why this book?
 
-The landscape of data analysis in natural sciences has evolved dramatically in recent years. Modern researchers need to navigate increasingly complex datasets, apply sophisticated statistical methods, and communicate their findings effectively to diverse audiences. This book addresses these challenges by providing a unified framework for data analysis that combines:
+There are plenty of statistics textbooks already, and plenty of R tutorials. What there is less of is something that walks you through the whole loop a working scientist actually does: load some messy data, look at it, clean it, ask a real question, pick the right test, run it, check whether the test was even appropriate, and write the result up in a way somebody else can reproduce.
 
-1. **Modern R Workflow**: Emphasis on the tidyverse and tidymodels ecosystems for consistent, readable code
-2. **Reproducible Research**: Best practices for creating transparent, reproducible analyses
-3. **Practical Applications**: Real-world datasets from multiple natural science disciplines
-4. **Statistical Rigor**: Comprehensive coverage of appropriate statistical methods and their assumptions
-5. **Effective Communication**: Professional visualization techniques and reporting strategies
+So that is what this book tries to do. Each chapter sticks close to that loop. You will find:
 
-## About the Author
+1. A modern R workflow built on the tidyverse and tidymodels packages, because they are now the lingua franca.
+2. Reproducible-research habits baked in from the start (Git, Quarto, renv).
+3. Real datasets from real disciplines, not just `mtcars` and `iris`.
+4. Honest treatment of statistical assumptions, including what to do when they fail.
+5. Plotting and reporting strategies that respect the reader's time.
 
-This book has been developed by **Jimmy Moses** from the School of Forestry, Faculty of Natural Resources, Papua New Guinea University of Technology. With extensive experience in ecological research and data analysis, I have created this resource to support students and researchers in developing essential analytical skills for natural science disciplines.
+## About the author
+
+I am Jimmy Moses, based at the School of Forestry, Faculty of Natural Resources, Papua New Guinea University of Technology. My day job is ecological research, mostly in PNG's forests and farms, and I wrote this book because I kept giving the same advice to students and colleagues and wanted it in one place.
 
 ## Target Audience
 
@@ -47,27 +49,23 @@ The content is relevant to those working in:
 - Natural resource management
 - Conservation biology
 
-## What Makes This Book Different?
+## What makes this book different?
 
-### Tidyverse and Tidymodels Framework
+### Tidyverse and tidymodels
 
-This book embraces the modern R ecosystem built around the tidyverse and tidymodels principles:
+R has two main dialects. There is base R, which is what the language ships with, and there is the tidyverse, which is a layer of packages on top that makes most data work easier to read and write. This book leans on the tidyverse side, plus tidymodels for the statistical modelling bits. If you have used `dplyr`, `ggplot2` or `tidyr` before, you are already most of the way there. If you have not, that is fine, we start from scratch.
 
-- **Tidyverse**: A coherent collection of R packages sharing a common design philosophy, grammar, and data structures. This includes `dplyr` for data manipulation, `ggplot2` for visualization, `tidyr` for data tidying, and many others.
+### Real datasets
 
-- **Tidymodels**: A unified framework for modeling and machine learning that brings the tidyverse philosophy to statistical modeling. This provides consistency across different modeling approaches and simplifies complex workflows.
+Every chapter uses data that came from somewhere real. You will still see `iris` and `mtcars` occasionally because they are useful for tiny examples, but most of the time you are working with actual scientific datasets bundled in the book's `data/` folder.
 
-### Real-World Applications
+### Reproducibility, from day one
 
-Every chapter includes examples using actual datasets from natural sciences research, ensuring that the methods you learn can be immediately applied to your own work.
+By the time you finish, your analyses should be runnable by somebody else (or you, in two years) on a different machine without a long email thread of "what version of which package did you use again". The tools we lean on for that:
 
-### Reproducible Research Focus
-
-The book emphasizes reproducible research practices throughout, including:
-- Version control with Git
-- R Markdown and Quarto for dynamic documents
-- Package management with renv
-- Clear documentation practices
+- Git, for tracking changes to your code.
+- Quarto, for writing analyses that mix code, prose and output in one document.
+- renv, for locking the package versions your project depends on.
 
 ## What You Will Learn
 

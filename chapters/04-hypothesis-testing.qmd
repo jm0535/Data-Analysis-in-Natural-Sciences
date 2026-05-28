@@ -19,7 +19,7 @@ By the end of this chapter, you will be able to:
 6.  Calculate and interpret confidence intervals for population parameters
 :::
 
-Hypothesis testing is a fundamental statistical approach used to make inferences about populations based on sample data. In ecological and forestry research, hypothesis testing helps researchers determine whether observed patterns or differences are statistically significant or merely due to random chance.
+Hypothesis testing is how we ask a number whether it really means anything. You measure something in a sample, you see a pattern, and the test tells you whether that pattern is plausibly just noise. For ecologists and foresters that question comes up constantly. Are these two plots actually different, or did we just happen to draw a few unusual trees? Did the treatment work, or are we kidding ourselves?
 
 ```{r}
 #| label: setup-hypothesis
@@ -42,39 +42,44 @@ knitr::opts_chunk$set(
 )
 ```
 
-## The Logic of Hypothesis Testing
+## The logic of hypothesis testing
 
-### Null and Alternative Hypotheses
+### Null and alternative hypotheses
 
-The foundation of hypothesis testing involves two competing hypotheses:
+Every test starts with two competing claims about the world.
 
-1. **Null Hypothesis (H₀)**: This is the default position that assumes no effect, no difference, or no relationship exists. For example, "There is no difference in tree height between two forest types."
+The *null hypothesis* (H₀) is the boring one. It says nothing interesting is going on: no effect, no difference, no relationship. "Oak trees at Site A are the same average height as oak trees at Site B."
 
-2. **Alternative Hypothesis (H₁ or Hₐ)**: This is the hypothesis that the researcher typically wants to provide evidence for. For example, "There is a significant difference in tree height between two forest types."
+The *alternative hypothesis* (H₁) is the one you actually care about. It says there is something to find. "Oak trees at Site A differ in average height from oak trees at Site B."
 
-### Example in Ecological Research
+The test does not try to prove H₁. It asks a narrower question: given the data we collected, are these numbers a comfortable fit for H₀, or do they look weird if H₀ is true? Strong "weirdness" gives us licence to reject H₀ in favour of H₁.
 
-Let's consider a specific example from forestry research:
+### A worked example from forestry
 
-- **Research Question**: Is there a difference in the average height of oak trees between Site A and Site B?
-- **Null Hypothesis (H₀)**: There is no difference in the average height of oak trees between Site A and Site B.
-- **Alternative Hypothesis (H₁)**: There is a significant difference in the average height of oak trees between Site A and Site B.
+Suppose you want to know whether oak trees grow taller at Site A than at Site B.
 
-## Understanding P-values and Significance Levels
+- Research question: Do oak tree heights differ between Site A and Site B?
+- H₀: The mean tree height is the same at both sites.
+- H₁: The mean tree height is different at the two sites.
 
-### The P-value
+You measure 30 trees at each site, run a two-sample t-test, and let the p-value tell you whether the difference in your samples is bigger than random noise would comfortably produce.
 
-The p-value is the probability of obtaining results at least as extreme as the observed results, assuming that the null hypothesis is true. In simpler terms, it measures the strength of evidence against the null hypothesis.
+## Understanding p-values and significance levels
 
-- A small p-value (typically ≤ 0.05) indicates strong evidence against the null hypothesis, leading to its rejection.
-- A large p-value (> 0.05) indicates insufficient evidence to reject the null hypothesis.
+### The p-value
+
+The p-value answers a single, narrow question: if the null hypothesis were true, how often would I see a result this extreme just from random sampling?
+
+A small p-value (commonly ≤ 0.05) means your data would be unlikely under H₀, so you reject H₀. A large p-value means your data are reasonably compatible with H₀, so you do not reject it.
+
+Read that second sentence again. "Not rejecting H₀" is not the same as "H₀ is true". You just did not have enough evidence to push back on it.
 
 ::: callout-warning
 ## Common misinterpretations of the p-value
 
 The p-value is one of the most frequently misinterpreted statistics. To keep your reasoning sharp:
 
-- A **high p-value does *not* mean the null hypothesis is true** — only that the data do not provide enough evidence to reject it. Failing to reject H₀ is not the same as proving H₀.
+- A **high p-value does *not* mean the null hypothesis is true**. It only means the data do not provide enough evidence to reject it. Failing to reject H₀ is not the same as proving H₀.
 - The p-value is **not the probability that the null hypothesis is true**, nor the probability that your result occurred by chance.
 - **Statistical significance ≠ practical importance.** A very small p-value can accompany a trivially small effect, especially with large samples. Always report and interpret an effect size alongside the p-value.
 - p-values depend on sample size. Reporting confidence intervals gives a more complete picture of the result.
@@ -82,7 +87,7 @@ The p-value is one of the most frequently misinterpreted statistics. To keep you
 
 ### Significance Level (α)
 
-The significance level, often denoted as α (alpha), represents the threshold for statistical significance. In most research, it is set at 0.05 (5%). This value signifies the maximum acceptable probability of making a Type I error — wrongly rejecting the null hypothesis when it is true.
+The significance level, written α (alpha), is the threshold you pick before running the test. In most fields it is 0.05, meaning you are willing to accept a 5% chance of falsely rejecting a true null hypothesis. The number is conventional, not magical. In some areas (genomics, particle physics) it is much smaller because the cost of false positives is higher.
 
 ## Types of Errors in Hypothesis Testing
 
