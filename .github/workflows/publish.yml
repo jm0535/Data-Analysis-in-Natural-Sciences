@@ -84,9 +84,24 @@ jobs:
         run: |
           Rscript tests/test-chapters.R
 
-      - name: Render Quarto book
+      - name: Render Quarto book (timed)
         run: |
+          start=$(date +%s)
           quarto render
+          end=$(date +%s)
+          elapsed=$((end - start))
+          echo "render_seconds=$elapsed" >> "$GITHUB_OUTPUT"
+          echo "Render took ${elapsed}s"
+          # Soft regression gate: warn if render exceeds 25 minutes (1500s).
+          # Tune this ceiling as the book grows. Hard-fail only on egregious
+          # regressions (>40 min) so transient runner slowdowns don't block.
+          if [ "$elapsed" -gt 2400 ]; then
+            echo "::error::Render took ${elapsed}s — exceeds 40min hard limit"
+            exit 1
+          elif [ "$elapsed" -gt 1500 ]; then
+            echo "::warning::Render took ${elapsed}s — exceeds 25min soft limit; investigate slowdown"
+          fi
+        id: render
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
