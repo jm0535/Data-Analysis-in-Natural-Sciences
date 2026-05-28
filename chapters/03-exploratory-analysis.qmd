@@ -919,24 +919,27 @@ These techniques provide a foundation for understanding your data before proceed
 
 ## Exercises
 
-1. Load the plant biodiversity dataset from `docs/data/ecology/biodiversity.csv` and perform a comprehensive exploratory analysis.
+1. Load the plant biodiversity dataset from `../data/ecology/biodiversity.csv` and perform a comprehensive exploratory analysis.
 2. Create a histogram and density plot for another crop in the dataset. How does its distribution compare to wheat?
 3. Investigate the relationship between potato yields and latitude (you'll need to find or create a dataset with latitude information).
 4. Identify countries with the most significant improvement in crop yields over time.
 5. Create a time series plot showing the ratio of wheat to rice yields over time for major producing countries.
-6. Perform the same exploratory analyses in R for the spatial dataset in `docs/data/geography/spatial.csv`.
+6. Perform the same exploratory analyses in R for the spatial dataset in `../data/geography/spatial.csv`.
 
 ```{r}
 #| label: fig-conservation-status
-#| fig-cap: "Conservation status of plant species by region"
+#| fig-cap: "Conservation status of plant species by region (illustrative simulated data)"
+#| fig-alt: "Stacked bar chart with six geographic regions on the x-axis and number of species on the y-axis. Each bar is segmented by IUCN conservation status (Least Concern, Near Threatened, Vulnerable, Endangered, Critically Endangered) using the viridis palette."
 
 # Load required packages
 library(tidyverse)
 library(ggplot2)
 library(viridis)  # For colorblind-friendly palettes
 
-# Create a sample plant biodiversity dataset since the original is not available
-# This simulates conservation status data across different regions
+# Note: this example uses *simulated* data so the chapter remains
+# reproducible without the full ecology dataset. For the exercises above,
+# load the real file with:
+#   plant_data <- readr::read_csv("../data/ecology/biodiversity.csv")
 set.seed(123)  # For reproducibility
 regions <- c("North America", "South America", "Europe", "Africa", "Asia", "Oceania")
 statuses <- c("Least Concern", "Near Threatened", "Vulnerable", "Endangered", "Critically Endangered")

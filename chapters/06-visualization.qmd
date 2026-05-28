@@ -175,7 +175,7 @@ This code demonstrates professional visualization techniques:
 ::: {.callout-important}
 ## Results Interpretation
 
-The visualization reveals important patterns:
+The bar chart in @fig-bar-chart reveals important patterns:
 
 1. **Regional Distribution**:
    - Different regions show varying numbers of species

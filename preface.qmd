@@ -133,10 +133,18 @@ All code examples are provided in a clear, commented format. You can:
 
 ### Exercises
 
-Each chapter includes exercises to reinforce learning:
-- Basic exercises for fundamental concepts
-- Intermediate challenges for applied practice
-- Advanced problems for deeper exploration
+Each chapter ends with exercises to reinforce learning:
+
+- **Conceptual** questions that check your understanding of the underlying ideas
+- **Applied** problems that use the book's bundled datasets in `data/`
+- **Reporting** prompts that ask you to communicate your results
+
+Worked solutions are not bundled with the book — by design. Working through
+an exercise, inspecting your output, and iterating is the fastest way to
+build real fluency. If you get stuck, revisit the relevant section of the
+chapter or open an issue at
+[github.com/jm0535/dains/issues](https://github.com/jm0535/dains/issues)
+to discuss your approach with other readers.
 
 ## Prerequisites
 

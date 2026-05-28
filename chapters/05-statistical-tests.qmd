@@ -242,8 +242,7 @@ Before applying a parametric test, it's essential to check if your data meets th
 #| label: load-crop-data
 #| echo: true
 
-# Load necessary libraries
-library(tidyverse)
+# Packages are loaded in the chapter setup chunk above.
 
 # Load the crop yield dataset
 crop_yields <- read_csv("../data/agriculture/crop_yields.csv")
