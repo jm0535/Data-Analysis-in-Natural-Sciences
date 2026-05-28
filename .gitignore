@@ -8,6 +8,9 @@
 
 # Quarto specific
 /.quarto/
+
+# Tooling runtime artifacts
+.claude-flow/
 /_site/
 /_book/
 /.ipynb_checkpoints/

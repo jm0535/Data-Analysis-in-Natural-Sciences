@@ -1,0 +1,27 @@
+Package: dains
+Type: Book
+Title: Data Analysis in Natural Sciences
+Version: 1.0.0
+Authors@R: person("Jimmy", "Moses", role = c("aut", "cre"), email = "j.moses0131@gmail.com")
+Description: Supporting R code and helper functions for the Quarto book
+    "Data Analysis in Natural Sciences: An R-Based Approach". Provides
+    logging, performance monitoring, plotting themes, and workshop
+    functions used throughout the book chapters.
+License: CC BY 4.0
+Encoding: UTF-8
+Depends:
+    R (>= 4.4.0)
+Imports:
+    ggplot2,
+    dplyr,
+    knitr,
+    testthat
+Suggests:
+    lintr,
+    styler,
+    covr,
+    devtools,
+    roxygen2
+URL: https://github.com/jm0535/dains
+BugReports: https://github.com/jm0535/dains/issues
+RoxygenNote: 7.3.2
