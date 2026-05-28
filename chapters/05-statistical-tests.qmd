@@ -604,6 +604,44 @@ ggplot(continental_yields, aes(x = Continent, y = `Wheat (tonnes per hectare)`, 
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+### Checking ANOVA assumptions
+
+Before interpreting an ANOVA, verify that its assumptions hold:
+
+1. **Independence** of observations (study design — not testable from the data alone).
+2. **Normality** of residuals within each group (Shapiro-Wilk test or Q-Q plot).
+3. **Homogeneity of variance** across groups (Levene's test).
+
+If the assumptions are seriously violated, prefer the non-parametric **Kruskal-Wallis** test instead.
+
+```{r}
+#| label: anova-assumptions
+#| message: false
+#| warning: false
+
+# Homogeneity of variance: Levene's test (car package)
+if (requireNamespace("car", quietly = TRUE)) {
+  car::leveneTest(`Wheat (tonnes per hectare)` ~ Continent, data = continental_yields)
+}
+
+# Per-group normality (Shapiro-Wilk on the largest groups)
+continental_yields %>%
+  group_by(Continent) %>%
+  filter(n() >= 3 & n() <= 5000) %>%
+  summarise(
+    n = n(),
+    shapiro_p = tryCatch(
+      shapiro.test(`Wheat (tonnes per hectare)`)$p.value,
+      error = function(e) NA_real_
+    )
+  )
+```
+
+A non-significant Levene's test (p > 0.05) supports the equal-variance assumption.
+A non-significant Shapiro-Wilk (p > 0.05) supports normality within groups. With
+large samples, Shapiro-Wilk becomes overly sensitive — also inspect a Q-Q plot
+of the residuals: `plot(anova_result, which = 2)`.
+
 ```{r}
 #| label: tbl-anova-results
 #| tbl-cap: "ANOVA Results: Wheat Yields by Continent"
@@ -1464,20 +1502,6 @@ When conducting statistical tests, remember to:
 - Interpret results in the context of your research question
 - Consider the practical significance, not just statistical significance
 
-## Exercises
-
-1. Using the crop yield dataset, compare maize yields between continents using both ANOVA and the Kruskal-Wallis test. Which is more appropriate and why?
-
-2. Examine the relationship between potato and rice yields using correlation analysis. Calculate both Pearson and Spearman correlations and explain which is more appropriate.
-
-3. Using the biodiversity dataset, investigate whether there's an association between conservation status and another categorical variable of your choice.
-
-4. Perform a time series analysis of wheat yields for China and compare the trend with that of the United States.
-
-5. Using the animal dataset (`../data/entomology/insects.csv`), compare two groups using an appropriate statistical test.
-
-6. Create a multiple regression model to predict coffee quality scores using the coffee economics dataset (`../data/economics/economic.csv`).
-
 ## Chapter Summary
 
 ### Key Concepts
@@ -1505,17 +1529,33 @@ In the next part of the book, we will shift our focus to **Data Visualization**,
 
 ## Exercises
 
+### Conceptual
+
 1.  **Test Selection**: For each of the following scenarios, identify the appropriate statistical test:
     -   Comparing tree heights between three different soil types (normal distribution)
     -   Testing if the number of bird species differs between two forest fragments (non-normal)
     -   Predicting biomass based on rainfall and temperature
 
-2.  **Group Comparison**: Use the `iris` dataset to compare sepal lengths among the three species using ANOVA. Follow up with a post-hoc test.
+### Applied (using book datasets)
 
-3.  **Non-Parametric Test**: Use the `mtcars` dataset to compare fuel efficiency (`mpg`) between automatic and manual transmissions (`am`) using a non-parametric test.
+2.  **ANOVA vs. Kruskal-Wallis**: Using `../data/agriculture/crop_yields.csv`, compare maize yields between continents using both ANOVA and the Kruskal-Wallis test. Which is more appropriate, and why? Justify with assumption checks (Shapiro-Wilk, Levene's test).
 
-4.  **Correlation**: Analyze the relationship between two continuous variables in your own dataset. Calculate the correlation coefficient and interpret the result.
+3.  **Correlation comparison**: Examine the relationship between potato and rice yields. Calculate both Pearson and Spearman correlations and explain which is more appropriate given the data's distribution.
 
-5.  **Regression**: Fit a linear regression model to predict a continuous outcome. Interpret the slope and R-squared value.
+4.  **Categorical associations**: Using `../data/ecology/biodiversity.csv`, investigate whether there's an association between conservation status and another categorical variable of your choice using a Chi-Square test.
 
-6.  **Reporting**: Write a short paragraph reporting the results of one of your analyses, including the test statistic, degrees of freedom, p-value, and effect size.
+5.  **Time series**: Perform a Mann-Kendall trend test on wheat yields for China and compare the trend slope with that of the United States.
+
+6.  **Two-group comparison**: Using `../data/entomology/insects.csv`, compare two groups using an appropriate statistical test (justify your choice of parametric vs. non-parametric).
+
+7.  **Multiple regression**: Using `../data/economics/economic.csv`, fit a multiple regression model to predict coffee quality scores and interpret the slope, R-squared value, and residual diagnostics.
+
+### Built-in datasets
+
+8.  **Group Comparison**: Use the `iris` dataset to compare sepal lengths among the three species using ANOVA. Follow up with a post-hoc Tukey HSD test.
+
+9.  **Non-Parametric Test**: Use the `mtcars` dataset to compare fuel efficiency (`mpg`) between automatic and manual transmissions (`am`) using a Mann-Whitney U test.
+
+### Reporting
+
+10. **Reporting**: Write a short paragraph reporting the results of one of your analyses above, including the test statistic, degrees of freedom, p-value, effect size, and a confidence interval where appropriate.

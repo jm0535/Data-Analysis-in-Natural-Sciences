@@ -67,7 +67,18 @@ Let's consider a specific example from forestry research:
 The p-value is the probability of obtaining results at least as extreme as the observed results, assuming that the null hypothesis is true. In simpler terms, it measures the strength of evidence against the null hypothesis.
 
 - A small p-value (typically ≤ 0.05) indicates strong evidence against the null hypothesis, leading to its rejection.
-- A large p-value (> 0.05) indicates weak evidence against the null hypothesis, leading to a failure to reject it.
+- A large p-value (> 0.05) indicates insufficient evidence to reject the null hypothesis.
+
+::: callout-warning
+## Common misinterpretations of the p-value
+
+The p-value is one of the most frequently misinterpreted statistics. To keep your reasoning sharp:
+
+- A **high p-value does *not* mean the null hypothesis is true** — only that the data do not provide enough evidence to reject it. Failing to reject H₀ is not the same as proving H₀.
+- The p-value is **not the probability that the null hypothesis is true**, nor the probability that your result occurred by chance.
+- **Statistical significance ≠ practical importance.** A very small p-value can accompany a trivially small effect, especially with large samples. Always report and interpret an effect size alongside the p-value.
+- p-values depend on sample size. Reporting confidence intervals gives a more complete picture of the result.
+:::
 
 ### Significance Level (α)
 

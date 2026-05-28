@@ -25,6 +25,18 @@ Data visualization is a crucial skill for communicating scientific findings effe
 - Gain expertise in creating informative graphs and plots
 - Understand the role of visualization in conveying insights clearly in natural sciences
 
+::: {.callout-tip}
+## Accessibility note
+
+Every figure in this book pairs a `fig-cap` (visible caption) with a `fig-alt`
+(alternative text read by screen readers). When you build your own figures,
+add `fig-alt` describing the *content and main message* of the plot —
+not just the chart type. We also default to the **viridis** colour palette
+because it is perceptually uniform and remains distinguishable for readers
+with deuteranopia and protanopia (the two most common forms of colour-vision
+deficiency).
+:::
+
 ## The Importance of Data Visualization
 
 ### Why Data Visualization Matters
@@ -96,6 +108,7 @@ Let's create a bar chart using the plant biodiversity dataset:
 #| fig-width: 8
 #| fig-height: 6
 #| fig-cap: "Bar chart showing the conservation status of plant species across different regions"
+#| fig-alt: "Grouped bar chart with conservation status categories (Endangered, Vulnerable, Least Concern) on the x-axis and species counts on the y-axis, with bars colored by region."
 # Load required packages
 library(tidyverse)
 library(ggplot2)
@@ -213,6 +226,7 @@ Let's create a scatter plot to examine relationships between variables in our pl
 #| fig-width: 8
 #| fig-height: 6
 #| fig-cap: "Scatter plot showing relationship between threat scores and year last seen"
+#| fig-alt: "Scatter plot with year last seen on the x-axis and threat score on the y-axis. Points are colored by taxonomic group; a fitted trend line indicates the overall relationship."
 # Load necessary data
 library(tidyverse)
 
@@ -326,6 +340,7 @@ Box plots are excellent for comparing distributions across groups:
 #| fig-width: 8
 #| fig-height: 6
 #| fig-cap: "Box plot comparing threat scores across different continents"
+#| fig-alt: "Side-by-side box plots, one per continent, showing the distribution of threat scores. Each box displays the median, interquartile range, and outliers as points beyond the whiskers."
 # Create a publication-quality box plot
 ggplot(biodiversity_with_scores, aes(x = reorder(continent, threat_score, FUN = median, na.rm = TRUE),
                           y = threat_score,
@@ -400,6 +415,7 @@ Heatmaps are powerful for visualizing complex relationships in multivariate data
 #| fig-width: 9
 #| fig-height: 7
 #| fig-cap: "Heatmap visualizing the correlation matrix between different threat types"
+#| fig-alt: "Square correlation heatmap with threat types on both axes. Cell colors range from blue (negative correlation) through white (zero) to red (positive correlation); numeric correlation coefficients are overlaid on each cell."
 # Create a simulated biodiversity dataset
 set.seed(123)  # For reproducibility
 
@@ -554,6 +570,7 @@ Time series plots are essential for visualizing trends over time:
 #| fig-width: 9
 #| fig-height: 6
 #| fig-cap: "Time series plot tracking agricultural trends over time for major producers"
+#| fig-alt: "Line plot with year on the x-axis and crop yield on the y-axis. Separate colored lines track each major producing country over multiple decades, showing long-term trends and divergence between countries."
 # Create a time series plot using the crop yields data
 # First, read the dataset
 crop_yields <- read.csv("../data/agriculture/crop_yields.csv")
