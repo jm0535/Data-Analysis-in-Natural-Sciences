@@ -61,6 +61,7 @@ book:
         - chapters/10-conservation.qmd
     - "---"
     - references.qmd
+    - glossary.qmd
 
   page-footer:
     left: |

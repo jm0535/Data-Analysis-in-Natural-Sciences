@@ -72,6 +72,7 @@ Selecting the appropriate statistical test depends on several factors:
 #| label: fig-decision-tree
 #| echo: false
 #| fig-cap: "Decision tree for selecting appropriate statistical tests"
+#| fig-alt: "DiagrammeR/Graphviz decision tree starting from 'Research Question' and branching by number of variables and sample structure to recommend specific tests (t-tests, Wilcoxon, ANOVA, Kruskal-Wallis, correlation, regression, MANOVA, PCA, clustering)."
 #| eval: false
 
 # This code requires the DiagrammeR package
@@ -170,7 +171,7 @@ This code creates a decision tree for statistical test selection:
 ::: {.callout-important}
 ## Results Interpretation
 
-The decision tree provides a systematic approach to test selection:
+The decision tree in @fig-decision-tree provides a systematic approach to test selection:
 
 1. **Test Categories**:
    - Parametric vs. non-parametric tests
@@ -269,6 +270,7 @@ knitr::kable(head(wheat_yields),
 ```{r}
 #| label: fig-normality-check
 #| fig-cap: "Normality assessment for wheat yields"
+#| fig-alt: "Two-panel base-R figure: left panel is a histogram of wheat yields (tonnes/ha) with a right-skewed shape; right panel is a normal Q-Q plot with a red reference line showing departures from normality in both tails."
 
 # Check for normality - Visual methods
 par(mfrow = c(1, 2))
@@ -280,6 +282,7 @@ qqnorm(wheat_yields$`Wheat (tonnes per hectare)`); qqline(wheat_yields$`Wheat (t
 #| label: tbl-shapiro-test
 #| tbl-cap: "Shapiro-Wilk Normality Test Results: Wheat Yields"
 
+set.seed(42)
 # Statistical test for normality
 shapiro_result <- shapiro.test(sample(wheat_yields$`Wheat (tonnes per hectare)`, min(5000, length(wheat_yields$`Wheat (tonnes per hectare)`))))
 
@@ -336,7 +339,7 @@ This code demonstrates how to check the normality assumption for parametric test
 
 ::: {.callout-important}
 ## Results Interpretation
-The normality assessment reveals a right-skewed distribution of wheat yields, confirmed by both visual inspection and the significant Shapiro-Wilk test (p < 0.001). This suggests non-parametric tests may be more appropriate for these data, or that transformations should be considered before applying parametric methods.
+The normality assessment in @fig-normality-check reveals a right-skewed distribution of wheat yields, confirmed by both visual inspection and the significant Shapiro-Wilk test (@tbl-shapiro-test, p < 0.001). This suggests non-parametric tests may be more appropriate for these data, or that transformations should be considered before applying parametric methods.
 :::
 
 ## Tests for Comparing Groups
@@ -360,6 +363,7 @@ crop_yields_grouped <- crop_yields %>%
 ```{r}
 #| label: fig-independent-ttest
 #| fig-cap: "Wheat yields by time period"
+#| fig-alt: "Two-category boxplot of wheat yields (tonnes/ha) comparing the early period (pre-2000) to the recent period (2000+); the recent-period box sits noticeably higher, suggesting yields have increased over time."
 
 # Visualize the data
 ggplot(crop_yields_grouped, aes(x = period, y = `Wheat (tonnes per hectare)`, fill = period)) +
@@ -471,6 +475,7 @@ knitr::kable(head(paired_data),
 ```{r}
 #| label: fig-paired-samples
 #| fig-cap: "Comparison of wheat and rice yields"
+#| fig-alt: "Two-category boxplot comparing wheat vs rice yields (tonnes/ha) from the paired country-year data; rice typically shows a higher and more spread-out distribution than wheat."
 
 # Visualize the paired data
 paired_data_long <- paired_data %>%
@@ -592,6 +597,7 @@ continental_yields <- crop_yields %>%
 ```{r}
 #| label: fig-anova-continents
 #| fig-cap: "Wheat yields by continent (2000-present)"
+#| fig-alt: "Boxplot of post-2000 wheat yields (tonnes/ha) grouped by continent and colored by continent; Europe shows the highest medians while Africa and Oceania sit lower, motivating an ANOVA comparison."
 
 # Visualize wheat yields by continent
 ggplot(continental_yields, aes(x = Continent, y = `Wheat (tonnes per hectare)`, fill = Continent)) +
@@ -737,9 +743,9 @@ This code demonstrates how to perform a one-way ANOVA:
 
 ::: {.callout-important}
 ## Results Interpretation
-The ANOVA results show significant differences in wheat yields between continents (p < 0.001). The F-statistic (39.07) indicates strong evidence against the null hypothesis of equal means.
+The ANOVA results in @tbl-anova-results show significant differences in wheat yields between continents (p < 0.001), as visualized in @fig-anova-continents. The F-statistic (39.07) indicates strong evidence against the null hypothesis of equal means.
 
-The Tukey HSD post-hoc test reveals:
+The Tukey HSD post-hoc test in @tbl-tukey-hsd reveals:
 - Europe and Oceania have significantly higher wheat yields than Africa and Asia
 - North America has significantly higher yields than Africa
 - No significant difference between Europe and Oceania
@@ -887,6 +893,7 @@ crop_correlation <- crop_yields %>%
 ```{r}
 #| label: fig-pearson-correlation
 #| fig-cap: "Relationship between wheat and maize yields"
+#| fig-alt: "Scatter plot of wheat yield (tonnes/ha) vs maize yield (tonnes/ha) with a blue linear regression line and confidence band; the cloud trends upward, indicating a positive linear correlation between the two crops."
 
 # Visualize the relationship
 ggplot(crop_correlation, aes(x = `Wheat (tonnes per hectare)`, y = `Maize (tonnes per hectare)`)) +
@@ -1033,6 +1040,7 @@ Linear regression models the relationship between a dependent variable and one o
 ```{r}
 #| label: fig-linear-regression
 #| fig-cap: "Wheat yield trends in the United States"
+#| fig-alt: "Scatter plot of US wheat yield (tonnes/ha) by year with a blue linear regression line and confidence band; points show a clear upward trend across the full time series."
 
 # Create a dataset with year as predictor for wheat yields
 time_series_data <- crop_yields %>%
@@ -1104,6 +1112,7 @@ knitr::kable(model_stats,
 ```{r}
 #| label: fig-linear-regression-diagnostics
 #| fig-cap: "Regression diagnostic plots"
+#| fig-alt: "Standard 2x2 base-R lm diagnostic plots: residuals vs fitted, normal Q-Q of residuals, scale-location, and residuals vs leverage with Cook's distance contours, used to check linear regression assumptions."
 
 # Check assumptions
 par(mfrow = c(2, 2))
@@ -1364,6 +1373,7 @@ Time series analysis examines data collected over time to identify patterns, tre
 ```{r}
 #| label: fig-time-series-analysis
 #| fig-cap: "US wheat yields over time with trend line"
+#| fig-alt: "Base-R line plot of US wheat yield (tonnes/ha) by year with a red lowess smoother overlaid; the series rises markedly from the mid-twentieth century onward, capturing the long-term productivity trend."
 
 # Create a time series of wheat yields for a specific country
 us_wheat <- crop_yields %>%
@@ -1405,7 +1415,7 @@ This code demonstrates how to perform time series analysis:
 
 ::: {.callout-important}
 ## Results Interpretation
-The time series analysis reveals important patterns in wheat yields over time:
+The time series analysis in @fig-time-series-analysis reveals important patterns in wheat yields over time:
 
 1. **Trend Component**: There is a clear upward trend in wheat yields, consistent with technological improvements in agriculture
 2. **Seasonal Component**: The data shows minimal seasonality as expected with annual data

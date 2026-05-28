@@ -178,6 +178,7 @@ Data visualization is crucial for understanding patterns. The `ggplot2` package 
 ```{r}
 #| label: penguin-visualization
 #| fig-cap: "Distribution of penguin bill lengths by species"
+#| fig-alt: "Boxplot with jittered points showing bill length (mm) on the y-axis for three penguin species; Adelie has the shortest bills (~35-45mm) while Chinstrap and Gentoo have longer overlapping ranges (~40-55mm)."
 #| fig-width: 8
 #| fig-height: 5
 #| warning: false
@@ -515,6 +516,7 @@ The `ggplot2` package creates beautiful, publication-quality graphics:
 #| fig-width: 10
 #| fig-height: 6
 #| fig-cap: "Body mass distribution across three penguin species from Palmer Station, Antarctica."
+#| fig-alt: "Boxplot with jittered points showing body mass (g) by penguin species; Gentoo penguins are notably heavier (~4500-6000g) than Adelie and Chinstrap (~3000-4500g), which have overlapping distributions."
 
 # Create a boxplot of body mass by species
 ggplot(penguins, aes(x = species, y = body_mass_g, fill = species)) +
@@ -558,6 +560,7 @@ The ggplot2 syntax follows a layered grammar of graphics:
 #| fig-width: 10
 #| fig-height: 7
 #| fig-cap: "Relationship between bill length and body mass in three penguin species, showing positive correlations within each species."
+#| fig-alt: "Scatter plot of bill length (mm) vs body mass (g) colored by species, with linear regression lines and confidence bands; all three species show positive slopes, with Gentoo points clustered in the upper right."
 
 # Create a scatter plot with regression lines
 ggplot(penguins, aes(x = bill_length_mm, y = body_mass_g, color = species)) +

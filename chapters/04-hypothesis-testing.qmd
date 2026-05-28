@@ -120,6 +120,7 @@ To reduce Type II errors and increase the power of your study:
 ```{r}
 #| label: fig-two-sample-ttest
 #| fig-cap: "Tree heights comparison between two sites"
+#| fig-alt: "Side-by-side boxplot of simulated tree heights (m) at Site A and Site B; Site B's box is shifted upward by about 3 m, illustrating the mean difference set up for a two-sample t-test."
 
 # Simulate tree height data for two sites
 set.seed(123)
@@ -237,6 +238,7 @@ Let's apply the t-test to analyze real data. We'll use our marine dataset to com
 ```{r}
 #| label: fig-marine-ttest
 #| fig-cap: "Comparison of fishing yields between lakes"
+#| fig-alt: "Light-blue boxplot of fishing yield values for Lake Michigan vs Lake Superior; the visualization supports a two-sample t-test by contrasting the two lakes' medians, IQRs, and outliers."
 
 # Load necessary packages
 library(tidyverse)
@@ -363,6 +365,7 @@ The one-sample t-test compares a sample mean to a known or hypothesized populati
 ```{r}
 #| label: fig-one-sample-ttest
 #| fig-cap: "Distribution of tree heights with reference value"
+#| fig-alt: "Sky-blue histogram of Site A tree heights with 1 m bins; a red dashed vertical line at 23 m marks the reference value used in the one-sample t-test, sitting to the left of the sample mean."
 
 # Let's test if the average tree height in Site A differs from a reference value of 23m
 reference_height <- 23  # Reference value (e.g., regional average)
@@ -407,7 +410,7 @@ This code demonstrates one-sample hypothesis testing:
 ::: {.callout-important}
 ## Results Interpretation
 
-The analysis provides several key insights:
+The analysis in @fig-one-sample-ttest provides several key insights:
 
 1. **Statistical Significance**:
    - P-value indicates strength of evidence against null hypothesis
@@ -475,6 +478,7 @@ paired_data <- data.frame(
 ```{r}
 #| label: fig-paired-ttest-scatter
 #| fig-cap: "Tree heights before and after treatment"
+#| fig-alt: "Scatter plot of paired tree heights with height-before (m) on the x-axis and height-after (m) on the y-axis in forest-green points; a gray dashed 1:1 line shows that nearly all points sit above it, indicating heights increased after treatment."
 
 # Visualize the paired data
 ggplot(paired_data, aes(x = height_before, y = height_after)) +
@@ -490,6 +494,7 @@ ggplot(paired_data, aes(x = height_before, y = height_after)) +
 ```{r}
 #| label: fig-paired-ttest-diff
 #| fig-cap: "Distribution of height differences"
+#| fig-alt: "Forest-green histogram of after-minus-before tree height differences with 0.5 m bins; a red dashed line at 0 marks no change and a blue solid line marks the positive sample mean, with the distribution centered to the right of zero."
 
 # Perform paired t-test
 paired_result <- t.test(paired_data$height_after, paired_data$height_before, paired = TRUE)
@@ -604,6 +609,7 @@ shapiro_B <- shapiro.test(site_B)
 ```{r}
 #| label: fig-normality-test
 #| fig-cap: "Q-Q plots for normality assessment"
+#| fig-alt: "Two side-by-side normal Q-Q plots (Site A and Site B) of simulated tree heights with red reference lines; points fall close to the diagonal in both panels, consistent with approximate normality."
 
 # QQ plots for visual assessment of normality
 par(mfrow = c(1, 2))  # Set up a 1x2 plotting area
@@ -720,6 +726,7 @@ knitr::kable(ci_table,
 ```{r}
 #| label: fig-confidence-interval
 #| fig-cap: "95% confidence interval for mean tree height"
+#| fig-alt: "Normal sampling-distribution curve for the Site A mean tree height; a solid blue line marks the point estimate, red dashed lines mark the 95% CI bounds, and a shaded blue band between them is annotated with numeric values."
 
 # Visualize the confidence interval
 ggplot(data.frame(x = c(ci_result$conf.int[1] - 1, ci_result$conf.int[2] + 1)), aes(x = x)) +
@@ -771,7 +778,7 @@ This code demonstrates how to calculate and visualize confidence intervals:
 ::: {.callout-important}
 ## Results Interpretation
 
-The confidence interval analysis reveals:
+The confidence interval analysis (see @tbl-confidence-interval and @fig-confidence-interval) reveals:
 
 - The **point estimate** (sample mean) for tree height in Site A is approximately 25m.
 

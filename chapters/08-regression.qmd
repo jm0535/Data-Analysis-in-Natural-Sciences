@@ -95,6 +95,7 @@ model_tidy %>%
 ```{r}
 #| label: fig-linear-regression-plot
 #| fig-cap: "Relationship between bill length and body mass"
+#| fig-alt: "Scatter plot of penguin bill length (mm) vs body mass (g) with points colored by species (viridis), a dark-red linear regression line with pink CI band, and annotations showing R-squared, p-value, and the fitted equation."
 
 # Create an enhanced scatter plot with regression line
 ggplot(penguins_clean, aes(x = bill_length_mm, y = body_mass_g)) +
@@ -132,6 +133,7 @@ ggplot(penguins_clean, aes(x = bill_length_mm, y = body_mass_g)) +
 ```{r}
 #| label: fig-linear-regression-diag
 #| fig-cap: "Model diagnostic plots"
+#| fig-alt: "Multi-panel diagnostic display from the performance package's check_model: posterior predictive check, linearity, homogeneity of variance, influential observations, collinearity, and normality of residuals for the bill-length regression."
 
 # Create diagnostic plots using the performance package
 check_model <- check_model(model)
@@ -163,7 +165,7 @@ This code demonstrates linear regression analysis:
 ::: {.callout-important}
 ## Results Interpretation
 
-The regression analysis reveals:
+The regression analysis (see @fig-linear-regression-plot, @fig-linear-regression-diag, and @tbl-linear-regression-coef) reveals:
 
 1. **Model Fit**:
    - Strength of relationship (R²)
@@ -258,6 +260,7 @@ knitr::kable(vif_values, digits = 3)
 ```{r}
 #| label: fig-multiple-regression-diag
 #| fig-cap: "Multiple regression diagnostic plots"
+#| fig-alt: "performance::check_model panel grid for the multiple regression of body mass on bill length, bill depth, flipper length, and species, including posterior predictive check, linearity, residual variance, influential points, collinearity, and Q-Q plot."
 
 # Check for model assumptions
 check_multi_model <- check_model(multi_model)
@@ -267,6 +270,7 @@ plot(check_multi_model)
 ```{r}
 #| label: fig-multiple-regression-effects
 #| fig-cap: "Predictor effects"
+#| fig-alt: "effects::allEffects panel of partial-effect plots for each predictor in the multiple regression (bill length, bill depth, flipper length, species), each showing the fitted relationship to body mass with confidence bands."
 
 # Visualize predictor effects
 plot(allEffects(multi_model), ask = FALSE)
@@ -301,6 +305,7 @@ knitr::kable(model_comparison)
 ```{r}
 #| label: fig-predicted-vs-actual
 #| fig-cap: "Predicted vs actual body mass"
+#| fig-alt: "Scatter plot of predicted body mass (x) vs observed body mass (y), points colored by penguin species with a dashed 1:1 reference line; points cluster tightly along the line, indicating good model fit."
 
 # Create a visualization of predicted vs. actual values
 predicted_values <- augment(multi_model, data = penguins_clean)
@@ -323,6 +328,7 @@ ggplot(predicted_values, aes(x = .fitted, y = body_mass_g, color = species)) +
 ```{r}
 #| label: fig-flipper-pdp
 #| fig-cap: "Effect of flipper length on body mass"
+#| fig-alt: "ggeffects partial-dependence line plot of predicted body mass (g) as a function of flipper length (mm), holding other predictors constant; the trend is positive and roughly linear with a 95% confidence band."
 
 # Create a partial dependence plot for flipper length
 pdp_flipper <- ggeffects::ggpredict(multi_model, terms = "flipper_length_mm")
@@ -359,7 +365,7 @@ This code demonstrates enhanced multiple regression analysis techniques:
 ::: {.callout-important}
 ## Results Interpretation
 
-The multiple regression analysis reveals several important insights:
+The multiple regression analysis (see @tbl-multiple-regression-vif, @fig-multiple-regression-diag, @fig-multiple-regression-effects, and @tbl-model-comparison) reveals several important insights:
 
 1. **Model Performance**
    - Multiple regression substantially improves explanatory power over simple regression
@@ -499,6 +505,7 @@ cat(paste0("Precision (Positive Predictive Value): ", round(precision * 100, 1),
 ```{r}
 #| label: fig-logistic-roc
 #| fig-cap: "ROC curve for Adelie penguin classification"
+#| fig-alt: "Receiver operating characteristic curve from pROC for the logistic model predicting Adelie vs other species; the curve hugs the upper-left corner and the AUC value is printed inside the shaded area under the curve."
 
 # Create ROC curve
 roc_curve <- roc(penguins_binary$is_adelie, fitted(log_model))
@@ -512,6 +519,7 @@ plot(roc_curve, print.auc = TRUE, auc.polygon = TRUE,
 ```{r}
 #| label: fig-logistic-probs
 #| fig-cap: "Classification visualization by species"
+#| fig-alt: "Faceted scatter plot (one panel per species) of bill depth (mm) vs body mass (g) with points colored by predicted Adelie probability on a navy-white-red gradient; a black p=0.5 contour shows the decision boundary and ✗ marks misclassified points."
 
 # Create a visualization of predicted probabilities by species
 ggplot(penguins_pred, aes(x = bill_depth_mm, y = body_mass_g, color = predicted_prob)) +
@@ -539,6 +547,7 @@ ggplot(penguins_pred, aes(x = bill_depth_mm, y = body_mass_g, color = predicted_
 ```{r}
 #| label: fig-logistic-effects
 #| fig-cap: "Marginal effects on probability"
+#| fig-alt: "effects::allEffects panel of marginal-effect curves showing each logistic-regression predictor's influence on the probability of being Adelie, with 95% confidence bands."
 
 # Create marginal effects plots for the predictors
 plot(allEffects(log_model), ask = FALSE, main = "Marginal Effects on Probability of Adelie")
@@ -547,6 +556,7 @@ plot(allEffects(log_model), ask = FALSE, main = "Marginal Effects on Probability
 ```{r}
 #| label: fig-logistic-residuals
 #| fig-cap: "DHARMa residual diagnostics"
+#| fig-alt: "DHARMa two-panel diagnostic plot for the logistic regression: a Q-Q plot of simulated residuals with uniformity and dispersion tests on the left, and a residuals vs predicted plot with quantile regression lines on the right."
 
 # Check model fit
 sim_residuals <- simulateResiduals(log_model)
@@ -750,6 +760,7 @@ knitr::kable(test_results, digits = 3)
 ```{r}
 #| label: fig-tidymodels-linear
 #| fig-cap: "Tidymodels predicted vs actual body mass"
+#| fig-alt: "Test-set scatter plot of actual body mass (x) vs predicted body mass (y) from the tidymodels linear workflow, with viridis-colored species and a dashed 1:1 reference line indicating predictions track observed values closely."
 
 penguin_pred <- penguin_fit %>%
   predict(penguin_test) %>%
@@ -816,6 +827,7 @@ knitr::kable(cv_metrics, digits = 3)
 ```{r}
 #| label: fig-cv-distribution
 #| fig-cap: "Cross-validation performance distribution"
+#| fig-alt: "Boxplot with jittered points of per-fold metric values (RMSE, R-squared, MAE) from 10-fold cross-validation; tight box widths indicate consistent performance across folds."
 
 collect_metrics(cv_results, summarize = FALSE) %>%
   ggplot(aes(x = .metric, y = .estimate)) +
@@ -833,6 +845,7 @@ collect_metrics(cv_results, summarize = FALSE) %>%
 ```{r}
 #| label: fig-cv-predictions
 #| fig-cap: "Cross-validation predictions"
+#| fig-alt: "Scatter plot of actual vs cross-validated predicted body mass for all out-of-fold predictions in steel blue, with a red dashed 1:1 line; points hug the line, confirming generalization across folds."
 
 cv_predictions <- collect_predictions(cv_results)
 
@@ -917,6 +930,7 @@ knitr::kable(model_comparison %>% select(model, .metric, mean, std_err),
 ```{r}
 #| label: fig-model-comparison
 #| fig-cap: "Model performance comparison"
+#| fig-alt: "Faceted bar chart comparing linear regression vs random forest across cross-validation metrics (MAE, RMSE, R-squared), with viridis-filled bars and error bars showing standard error around each mean."
 
 model_comparison %>%
   ggplot(aes(x = model, y = mean, fill = model)) +
@@ -943,6 +957,7 @@ Optimizing model parameters is crucial for machine learning models like Random F
 ```{r}
 #| label: fig-hyperparameter-tuning
 #| fig-cap: "Hyperparameter tuning results"
+#| fig-alt: "Two-panel line-and-point plot of random forest cross-validated RMSE against the mtry and min_n tuning parameters; each facet shows how RMSE changes as one hyperparameter varies, highlighting the optimal region."
 
 # Define a model specification with tunable parameters
 rf_tune_spec <- rand_forest(
@@ -1087,6 +1102,7 @@ knitr::kable(logistic_metrics, digits = 3)
 ```{r}
 #| label: fig-logistic-confusion
 #| fig-cap: "Confusion matrix for Adelie classification"
+#| fig-alt: "2x2 confusion-matrix heatmap (yardstick autoplot) for the tidymodels logistic classifier; diagonal cells (correct predictions) are dark, off-diagonals are pale, summarizing classification performance on the test set."
 
 conf_mat(logistic_pred, truth = is_adelie, estimate = .pred_class) %>%
   autoplot(type = "heatmap") +
@@ -1097,6 +1113,7 @@ conf_mat(logistic_pred, truth = is_adelie, estimate = .pred_class) %>%
 ```{r}
 #| label: fig-logistic-roc-rf
 #| fig-cap: "ROC curve for tidymodels logistic regression"
+#| fig-alt: "yardstick autoplot of the ROC curve for the tidymodels logistic Adelie classifier; the curve bows toward the top-left corner, indicating strong discrimination between Adelie and other penguins."
 
 logistic_pred %>%
   roc_curve(truth = is_adelie, .pred_Adelie) %>%
@@ -1115,6 +1132,7 @@ cat("Area Under the Curve (AUC):", round(auc_value, 3), "\n")
 ```{r}
 #| label: fig-logistic-probs-rf
 #| fig-cap: "Predicted probabilities for Adelie classification"
+#| fig-alt: "Scatter of bill depth (mm) vs body mass (g) with point color encoding predicted P(Adelie) on a navy-white-red gradient and point shape encoding the true species label; Adelie observations cluster in the high-probability red region."
 
 ggplot(logistic_pred, aes(x = bill_depth_mm, y = body_mass_g,
                          color = .pred_Adelie, shape = is_adelie)) +
