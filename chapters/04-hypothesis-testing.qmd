@@ -89,21 +89,19 @@ The p-value is one of the most frequently misinterpreted statistics. To keep you
 
 The significance level, written α (alpha), is the threshold you pick before running the test. In most fields it is 0.05, meaning you are willing to accept a 5% chance of falsely rejecting a true null hypothesis. The number is conventional, not magical. In some areas (genomics, particle physics) it is much smaller because the cost of false positives is higher.
 
-## Types of Errors in Hypothesis Testing
+## Two kinds of mistake
 
-### Type I and Type II Errors
+### Type I and Type II errors
 
-In hypothesis testing, two types of errors can occur:
+Any test can be wrong in two ways, and they have unfortunately bland names.
 
-1. **Type I Error**: Rejecting a true null hypothesis (false positive).
-   - Probability = α (significance level)
-   - Example: Concluding there's a difference in tree heights when there actually isn't.
+A *Type I error* is a false positive. You reject H₀ when H₀ is actually true. You announce a difference between sites when there is no difference. The probability of this happening is α, the threshold you set in advance.
 
-2. **Type II Error**: Failing to reject a false null hypothesis (false negative).
-   - Probability = β
-   - Example: Failing to detect a real difference in tree heights.
+A *Type II error* is a false negative. You fail to reject H₀ when H₀ is actually false. There is a real difference between sites and your test missed it. The probability is β, and 1 - β is what people mean by *power*: the probability your test catches a real effect when there is one.
 
-### Experimental Design
+In practice, sample size is usually the lever. Bigger samples give you more power and let you detect smaller effects, at the cost of more time and money in the field.
+
+### Experimental design
 
 ::: {.callout-tip}
 ## PROFESSIONAL TIP: Improving Statistical Power
@@ -118,9 +116,11 @@ To reduce Type II errors and increase the power of your study:
 - Report confidence intervals: These provide information about effect size and precision
 :::
 
-## Common Hypothesis Tests in Ecological Research
+## Common hypothesis tests in ecological research
 
-## Example: Two-Sample t-test
+The rest of this chapter walks through the four tests you will reach for most often: the two-sample t-test, the one-sample t-test, the paired t-test, and a sanity check on whether your data are normal enough for any of them.
+
+### Example: two-sample t-test
 
 ```{r}
 #| label: fig-two-sample-ttest
@@ -221,24 +221,20 @@ This code demonstrates a complete hypothesis testing workflow using a two-sample
 ::: {.callout-important}
 ## Results Interpretation
 
-The t-test results reveal:
+Reading the output:
 
-- The **t-value** (approximately -2.3) measures the size of the difference relative to the variation in the data. The negative sign indicates that Site B has a higher mean than Site A.
+- The t-value (about -2.3) is the standardised size of the difference. Negative just means Site B's mean came out higher than Site A's in the way R set up the contrast.
+- The p-value (about 0.025) is below 0.05, so we reject H₀.
+- The mean difference is around -3 m. Trees at Site B are about 3 m taller on average than those at Site A.
+- The 95% confidence interval runs from -5.61 to -0.39. It does not cross zero, which is consistent with the p-value telling us to reject H₀.
+- The boxplot tells the same story visually: Site B sits higher on the y axis.
 
-- The **p-value** (approximately 0.025) is less than our significance level of 0.05, leading us to reject the null hypothesis.
-
-- The **mean difference** between sites is about -3m, indicating trees at Site B are on average 3m taller than those at Site A.
-
-- The **95% confidence interval** (-5.61 to -0.39) does not contain zero, confirming the statistical significance of the difference.
-
-- The **boxplot visualization** supports these findings, showing higher median and quartile values for Site B.
-
-This analysis provides strong evidence that tree heights differ between the two sites, with Site B having taller trees on average. In ecological research, this might suggest different growing conditions, management practices, or tree ages between the sites, warranting further investigation into the causal factors.
+Statistically the difference is real. Whether it matters is a different question. A 3 m gap between sites could reflect genuinely different growing conditions, different stand ages, different management, or just two areas that happened to be sampled at different stages of recovery. That is a question for the next study, not this test.
 :::
 
-## Example: Using Marine Dataset for Two-Sample t-test
+### Example: marine dataset
 
-Let's apply the t-test to analyze real data. We'll use our marine dataset to compare fishing yields between different regions:
+Time to use real numbers. The marine dataset bundled with the book lets us compare fishing yields between lakes, which is exactly the kind of two-group comparison the t-test was made for.
 
 ```{r}
 #| label: fig-marine-ttest
@@ -413,53 +409,35 @@ This code demonstrates one-sample hypothesis testing:
 :::
 
 ::: {.callout-important}
-## Results Interpretation
+## Reading the results
 
-The analysis in @fig-one-sample-ttest provides several key insights:
+A few things to look at in @fig-one-sample-ttest:
 
-1. **Statistical Significance**:
-   - P-value indicates strength of evidence against null hypothesis
-   - Confidence interval shows range of plausible values
-   - Effect size measures magnitude of difference
-
-2. **Practical Significance**:
-   - Whether the difference is biologically meaningful
-   - How the results relate to ecological processes
-   - Implications for forest management
-
-3. **Data Distribution**:
-   - Shape of the height distribution
-   - Presence of outliers
-   - Sample size adequacy
+- The p-value tells you how surprising the data would be if the true mean really were 20m. Small p, strong evidence against that.
+- The confidence interval is more useful for daily work. It gives you a range of plausible values for the population mean, which is what most readers actually want.
+- The effect size (how far the sample mean sits from 20m) tells you whether the difference matters. A 0.3m gap on a 25m tree is statistically detectable in a big enough sample, but probably not ecologically interesting.
+- Check the histogram too. A heavy tail or obvious outliers can drag the mean around and make the test less trustworthy.
 :::
 
 ::: {.callout-tip}
-## PROFESSIONAL TIP: Hypothesis Testing Best Practices
+## A practical checklist
 
-When conducting hypothesis tests:
+Before running any test:
 
-1. **Test Selection**:
-   - Choose appropriate test based on data type
-   - Check assumptions before testing
-   - Consider sample size requirements
-   - Use non-parametric alternatives when needed
+- Pick the test that matches your data. Continuous and roughly normal usually means t-test or ANOVA; counts or proportions usually mean chi-square or a GLM.
+- Check the assumptions first, not after the fact.
+- If the assumptions fail, reach for a non-parametric version (Wilcoxon, Kruskal-Wallis) or a transformation.
 
-2. **Interpretation**:
-   - Focus on effect size, not just p-values
-   - Consider practical significance
-   - Look at confidence intervals
-   - Document all assumptions
+When you write it up:
 
-3. **Reporting**:
-   - Include test statistics
-   - Report degrees of freedom
-   - Provide effect sizes
-   - Discuss limitations
+- Report the effect size and a confidence interval, not just the p-value. Readers care how big the difference is.
+- Include the test statistic, degrees of freedom, and p-value so someone else can sanity-check your work.
+- Be honest about what the assumptions look like and what the test cannot tell you.
 :::
 
 ## Paired t-test
 
-A paired t-test is used when measurements are taken from the same subjects under different conditions:
+When the same subjects are measured twice, the two-sample t-test is the wrong tool. Each "before" measurement is paired with an "after" from the same tree, plot or animal, and treating them as independent throws that information away. The paired t-test works on the *differences* within each pair, which usually gives you a tighter, more powerful test.
 
 ```{r}
 #| label: paired-data-setup
@@ -577,30 +555,18 @@ This code demonstrates a paired t-test workflow:
 :::
 
 ::: {.callout-important}
-## Results Interpretation
+## Reading the results
 
-The paired t-test results reveal:
+Heights went from about 15m before to about 17.5m after, an average gain of roughly 2.5m per tree. The t-value sits around 13.5 and the p-value is well under 0.001, so the change is not something you would see by chance.
 
-- The **mean height before treatment** was approximately 15m, while the **mean height after treatment** was approximately 17.5m.
+The scatter plot is the clearest piece of evidence: almost every point lands above the 1:1 line, meaning almost every tree grew. The histogram of differences sits firmly to the right of zero, with no real overlap. That consistency is what makes the paired design so useful. By looking at within-tree change, you control for the fact that some trees were taller to start with and some plots had better soil, and you isolate the thing you actually care about: whether the treatment moved the needle.
 
-- The **mean difference** of about 2.5m represents the average growth effect of the treatment.
-
-- The **t-value** (approximately 13.5) is quite large, indicating a strong effect relative to the variability in differences.
-
-- The extremely small **p-value** (< 0.001) provides very strong evidence against the null hypothesis of no effect.
-
-- The **95% confidence interval** for the mean difference does not include zero, confirming the statistical significance.
-
-- The **scatter plot** shows that virtually all points lie above the diagonal line, indicating consistent growth across trees.
-
-- The **histogram of differences** is centered well to the right of zero, showing that almost all trees experienced positive growth.
-
-This analysis provides compelling evidence that the treatment had a significant positive effect on tree growth. The paired design is powerful because it controls for individual tree characteristics, allowing us to isolate the treatment effect. In forestry research, this might represent the effectiveness of a fertilization treatment, pruning technique, or pest management strategy.
+In a real forestry study this could be a fertilization trial, a pruning regime, or a pest control program. Same logic, same test.
 :::
 
-## Testing Assumptions: Normality
+## Checking the normality assumption
 
-Before applying parametric tests like the t-test, we should check if the data meets the assumption of normality:
+The t-test assumes the data are roughly normal. With large samples that assumption barely matters (the central limit theorem does the heavy lifting), but with smaller samples it is worth a quick look.
 
 ```{r}
 #| label: normality-tests
@@ -675,29 +641,18 @@ This code demonstrates how to test the normality assumption:
 :::
 
 ::: {.callout-important}
-## Results Interpretation
+## Reading the results
 
-The normality test results reveal:
+For Site A the Shapiro-Wilk test gives a W around 0.97 with p > 0.05, so there is no evidence the data deviate from normal. Site B looks similar. The Q-Q plots back this up: the points hug the reference line with only minor wobble at the tails.
 
-- For **Site A**, the Shapiro-Wilk test yields a W statistic of approximately 0.97 with a p-value > 0.05, suggesting that we fail to reject the null hypothesis. The data from Site A appears to follow a normal distribution.
+That is enough to justify using a t-test here. Two things worth knowing though. First, Shapiro-Wilk gets very picky with large samples and very forgiving with small ones, which is the opposite of what you want. With n = 30 it is reasonable, but do not lean on the p-value alone. Second, the Q-Q plot is usually more informative than the test. A systematic bend in the plot tells you something a single number cannot.
 
-- For **Site B**, similar results indicate that the data also appears to be normally distributed.
-
-- The **Q-Q plots** visually confirm these findings, as the points for both sites generally follow the reference line with minor deviations.
-
-- These results support the use of parametric tests like the t-test for analyzing this data.
-
-In ecological research, checking normality is crucial because:
-- Many statistical tests assume normally distributed data
-- Violations of this assumption can lead to incorrect conclusions
-- If data is non-normal, researchers might need to transform the data or use non-parametric alternatives
-
-The combined approach of statistical testing and visual assessment provides a robust evaluation of the normality assumption, increasing confidence in subsequent analyses.
+If the data clearly are not normal, you have two paths: transform them (log, square-root) and re-check, or switch to a non-parametric test like Wilcoxon.
 :::
 
-## Confidence Intervals
+## Confidence intervals
 
-Confidence intervals provide a range of plausible values for population parameters:
+A p-value tells you whether an effect exists. A confidence interval tells you how big it might be, which is almost always the more useful question.
 
 ```{r}
 #| label: ci-calculation
@@ -781,46 +736,22 @@ This code demonstrates how to calculate and visualize confidence intervals:
 :::
 
 ::: {.callout-important}
-## Results Interpretation
+## Reading the results
 
-The confidence interval analysis (see @tbl-confidence-interval and @fig-confidence-interval) reveals:
+The sample mean for Site A is about 25m, and the 95% CI runs from roughly 23.1m to 26.9m. That interval is the useful number. It says: given the data we have, the population mean is probably somewhere in there.
 
-- The **point estimate** (sample mean) for tree height in Site A is approximately 25m.
+A quick note on what 95% actually means, because it is one of the most misinterpreted ideas in statistics. It does not mean there is a 95% chance the true mean is inside this particular interval. It means that if you repeated the whole sampling procedure many times and built a CI each time, about 95% of those intervals would contain the true mean. In practice most people read it the first way and the second way and end up at roughly the right place anyway.
 
-- The **95% confidence interval** ranges from about 23.1m to 26.9m.
+The width of the interval is driven by sample size and how spread out the data are. Want a tighter estimate? Bigger sample, or less variable measurements. There is no shortcut.
 
-- This interval represents the range of plausible values for the true mean tree height in the population from which Site A was sampled.
-
-- We can be 95% confident that the true mean tree height falls within this range.
-
-- The width of the interval reflects the precision of our estimate, influenced by:
-  - Sample size (n = 30)
-  - Sample standard deviation
-  - Confidence level (95%)
-
-In ecological research, confidence intervals are valuable because they:
-- Provide a measure of precision for our estimates
-- Allow for meaningful comparisons between groups
-- Focus on estimation rather than just hypothesis testing
-- Communicate uncertainty in a transparent way
-
-A narrower confidence interval would indicate a more precise estimate, which could be achieved with a larger sample size or less variable measurements.
+I tend to lead with confidence intervals over p-values when I report results, because they answer the question people actually have: how big is the effect, and how sure are we?
 :::
 
 ## Summary
 
-This chapter has covered the fundamentals of hypothesis testing in ecological and forestry research:
+This chapter walked through the working parts of hypothesis testing: framing a null and an alternative, reading a p-value without overreading it, the two kinds of mistake you can make (false alarm vs. missed effect), the three t-tests you will reach for most often, the normality check that has to happen first, and the confidence interval that usually says more than the p-value does.
 
-1. **The Logic of Hypothesis Testing**: Understanding null and alternative hypotheses
-2. **P-values and Significance Levels**: Interpreting statistical significance
-3. **Types of Errors**: Recognizing Type I and Type II errors
-4. **Common Tests**: Applying one-sample, two-sample, and paired t-tests
-5. **Assumptions**: Testing for normality and other requirements
-6. **Confidence Intervals**: Estimating population parameters with uncertainty
-
-Hypothesis testing provides a structured framework for making statistical inferences from sample data. By following the principles outlined in this chapter, researchers can design robust studies, analyze data appropriately, and draw valid conclusions about ecological and forestry phenomena.
-
-Remember that hypothesis testing is just one component of a comprehensive research approach. It should be complemented by exploratory data analysis, effect size estimation, and consideration of practical significance in addition to statistical significance.
+The thing to take away is that hypothesis testing is one tool, not the whole toolbox. Before any test, plot the data and understand what it looks like. After any test, report the effect size and the interval, not just whether p crossed 0.05. Statistical significance is about whether an effect is detectable. Practical significance is whether it matters. Both questions deserve an answer.
 
 ## Exercises
 
