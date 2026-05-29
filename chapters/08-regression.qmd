@@ -143,94 +143,54 @@ plot(check_model)
 ::: {.callout-important}
 ## Reading the diagnostic plots
 
-- **Posterior predictive check** — simulated draws should overlay the
+- **Posterior predictive check**: simulated draws should overlay the
   observed density; large gaps indicate model misspecification.
-- **Linearity** — the reference line should be roughly flat; curvature
+- **Linearity**: the reference line should be roughly flat; curvature
   means the linear form is wrong.
-- **Homogeneity of variance** — points should scatter evenly around the
+- **Homogeneity of variance**: points should scatter evenly around the
   line. A funnel shape signals heteroscedasticity; consider a
   transformation or robust standard errors.
-- **Influential observations** — flagged points outside the contour
+- **Influential observations**: flagged points outside the contour
   exert disproportionate leverage. Refit without them to confirm the
   conclusion is not driven by 1-2 cases.
-- **Collinearity (multi-predictor models)** — VIF > 5 warrants concern;
+- **Collinearity (multi-predictor models)**: VIF > 5 warrants concern;
   > 10 means one predictor is largely redundant.
-- **Normality of residuals** — Q-Q points should fall on the diagonal.
+- **Normality of residuals**: Q-Q points should fall on the diagonal.
   Mild departures are fine at n > 30 (CLT); heavy tails matter for
   prediction intervals more than for slope inference.
 :::
 
 ::: {.callout-note}
-## Code Explanation
+## What the code is doing
 
-This code demonstrates linear regression analysis:
-
-1. **Model Setup**:
-   - Uses `lm()` for linear regression
-   - Predicts body mass from bill length
-   - Includes model diagnostics
-
-2. **Visualization**:
-   - Creates scatter plot with regression line
-   - Uses `geom_smooth()` for trend line
-   - Adds appropriate labels
-
-3. **Diagnostics**:
-   - Residual plots
-   - Q-Q plot
-   - Scale-location plot
-   - Leverage plot
+`lm(body_mass_g ~ bill_length_mm, data = penguins_clean)` fits the regression. The formula reads as "body mass explained by bill length". The scatterplot adds the fitted line with `geom_smooth(method = "lm")` and annotates R² and the equation directly on the figure so a reader can see both at once. The diagnostic panel comes from `performance::check_model()`, which bundles the residual, Q-Q, scale-location, and leverage plots into a single call.
 :::
 
 ::: {.callout-important}
-## Results Interpretation
+## Reading the results
 
-The regression analysis (see @fig-linear-regression-plot, @fig-linear-regression-diag, and @tbl-linear-regression-coef) reveals:
+See @fig-linear-regression-plot, @fig-linear-regression-diag, and @tbl-linear-regression-coef.
 
-1. **Model Fit**:
-   - Strength of relationship (R²)
-   - Statistical significance (p-value)
-   - Direction of relationship
+Start with the headline numbers. R² tells you what fraction of the variation in body mass the bill-length slope accounts for, and the p-value on the slope tells you whether that relationship is bigger than sampling noise. A positive slope means heavier penguins tend to have longer bills; the size of the slope is how many grams of body mass you get per extra millimetre of bill.
 
-2. **Assumptions**:
-   - Linearity of relationship
-   - Homogeneity of variance
-   - Normality of residuals
-   - Independence of observations
+Then look at whether the model has earned the right to make those claims. The diagnostic panel is where I check that: residuals scattered around zero with no funnel, Q-Q points roughly on the diagonal, no single point dragging the line around. If any of those go sideways, the coefficient is still a number but I would not bet on the standard error.
 
-3. **Practical Significance**:
-   - Effect size
-   - Biological relevance
-   - Prediction accuracy
+Finally, ask whether the effect is biologically interesting, not just statistically detectable. With a few hundred penguins you can pick up tiny slopes that mean nothing in the field. The confidence interval on the slope and the R² together are usually the honest summary.
 :::
 
 ::: {.callout-tip}
-## PROFESSIONAL TIP: Regression Analysis Best Practices
+## A working checklist for regression
 
-When conducting regression analysis:
+Before fitting, look at the data. Plot the predictor against the response. If the cloud is curved, a straight line is the wrong tool. If there are obvious outliers, decide whether they belong in the analysis before they decide the slope for you.
 
-1. **Model Selection**:
-   - Choose appropriate model type
-   - Consider variable transformations
-   - Check for multicollinearity
-   - Evaluate model assumptions
+After fitting, work through the diagnostics in order: residuals first, then leverage, then VIF if you have more than one predictor. Refit without any influential cases and see whether your conclusion changes. If it does, that is part of the result.
 
-2. **Diagnostic Checks**:
-   - Examine residual plots
-   - Check for outliers
-   - Verify normality
-   - Assess leverage points
-
-3. **Reporting**:
-   - Include model coefficients
-   - Report confidence intervals
-   - Provide effect sizes
-   - Discuss limitations
+When you write it up, give the coefficient, its confidence interval, the sample size, and at least one diagnostic. A p-value alone is not a report.
 :::
 
-## Multiple Regression
+## Multiple regression
 
-Multiple regression extends linear regression to include multiple predictors:
+Most ecological questions have more than one moving part. Body mass is not just about bill length; it also depends on flipper length, on bill depth, and on which species you are looking at. Multiple regression lets you put several predictors on the right-hand side of the equation and ask what each one contributes once the others are held constant.
 
 ```{r}
 #| label: setup-multiple-regression
@@ -361,75 +321,34 @@ plot(pdp_flipper) +
 ```
 
 ::: {.callout-note}
-## Code Explanation
+## What the code is doing
 
-This code demonstrates enhanced multiple regression analysis techniques:
-
-1. **Model Construction**
-   - Uses `lm()` to build a multiple regression with morphological predictors and species
-   - Creates a more comprehensive model accounting for both measurements and taxonomy
-   - Properly handles categorical predictors (species) with appropriate contrasts
-
-2. **Advanced Diagnostics**
-   - Evaluates multicollinearity with Variance Inflation Factors (VIF)
-   - Conducts comprehensive model assumption checks
-   - Compares model performance metrics across simple and multiple regression
-
-3. **Professional Visualization**
-   - Creates an elegant predicted vs. actual plot to assess model fit
-   - Generates partial dependence plots to visualize individual predictor effects
-   - Uses model effects plots to show relationships while controlling for other variables
-   - Implements consistent styling with appropriate annotations and colorblind-friendly palettes
+The formula `body_mass_g ~ bill_length_mm + bill_depth_mm + flipper_length_mm + species` puts four predictors in the model. R handles species as a categorical variable automatically, encoding it as dummy contrasts. `car::vif()` reports variance inflation factors so you can see whether the morphometric predictors are stepping on each other. `effects::allEffects()` then draws the partial relationship for each predictor with the others held at their means, which is what you actually want to see when there are several variables in play. `ggeffects::ggpredict()` does the same job for one predictor at a time and gives you a cleaner ggplot object to work with.
 :::
 
 ::: {.callout-important}
-## Results Interpretation
+## Reading the results
 
-The multiple regression analysis (see @tbl-multiple-regression-vif, @fig-multiple-regression-diag, @fig-multiple-regression-effects, and @tbl-model-comparison) reveals several important insights:
+See @tbl-multiple-regression-vif, @fig-multiple-regression-diag, @fig-multiple-regression-effects, and @tbl-model-comparison.
 
-1. **Model Performance**
-   - Multiple regression substantially improves explanatory power over simple regression
-   - The adjusted R² is much higher, indicating better model fit
-   - Species is a significant predictor, suggesting morphological differences between species
+Adjusted R² jumps once flipper length and species enter the model, which tells you bill length alone was leaving a lot on the table. Flipper length and bill length both have positive slopes: heavier birds are longer everywhere. Bill depth drops to a weaker contribution once you control for the other measurements, which is the typical sign that it was a partial proxy for one of them in the simple model. The species coefficients pick up the average body-mass offset between Gentoo, Chinstrap, and Adelie that morphometry alone cannot capture.
 
-2. **Predictor Effects**
-   - Flipper length and bill length both positively correlate with body mass
-   - Species-specific effects indicate evolutionary differences in body size
-   - Bill depth shows a weaker relationship when controlling for other variables
-
-3. **Diagnostics Findings**
-   - Multicollinearity (VIF values) appears manageable (VIF < 5 is generally acceptable)
-   - The model generally meets assumptions for inference
-   - Residual patterns suggest the linear model captures the main relationships well
+VIFs are all comfortably under 5, so collinearity is not distorting the standard errors. The diagnostic panel looks clean: no funnel in the residuals, Q-Q points on the line, no influential cases sitting outside the contours. That is the regression behaving itself.
 :::
 
 ::: {.callout-tip}
-## PROFESSIONAL TIP: Multiple Regression Best Practices
+## A working checklist for multiple regression
 
-When conducting ecological multiple regression analyses:
+Pick predictors that have a reason to be there. Throwing every column into `lm()` and letting AIC sort it out is a recipe for a model that fits this dataset and nothing else.
 
-1. **Model Building Strategy**
-   - Start with biologically meaningful predictors based on theory
-   - Consider alternative model specifications (linear, polynomial, interactions)
-   - Use a hierarchical approach, starting simple and adding complexity
-   - Adopt information-theoretic approaches (AIC/BIC) for model selection
+Check correlations among predictors before you fit. If two of them are above about 0.8, decide which one stays. VIFs over 10 are a hard stop; over 5 is a yellow flag worth investigating.
 
-2. **Addressing Collinearity**
-   - Examine correlations among predictors before modeling
-   - Calculate VIF values and remove highly collinear predictors (VIF > 10)
-   - Consider dimension reduction techniques (PCA) for related predictors
-   - Use regularization methods (ridge, lasso) for high-dimensional data
-
-3. **Results Communication**
-   - Present standardized coefficients to compare predictor importance
-   - Visualize partial effects rather than just reporting coefficients
-   - Report effect sizes and confidence intervals, not just p-values
-   - Describe both statistical and biological significance of your findings
+Report effects, not just p-values. A coefficient with its confidence interval, alongside a partial effect plot, communicates more in two seconds than a row of asterisks ever will. Standardised coefficients are useful when predictors are on different scales and you want a fair comparison of their relative importance.
 :::
 
-## Logistic Regression
+## Logistic regression
 
-Logistic regression models binary outcomes:
+Sometimes the outcome you care about is not a number but a yes-or-no. Did the seed germinate? Is this individual an Adelie or something else? Linear regression is the wrong tool for that, because nothing constrains its predictions to fall between 0 and 1. Logistic regression solves that by modelling the log-odds of the outcome as a linear function of the predictors, then squashing the result back into a probability through the logit link.
 
 ```{r}
 #| label: setup-logistic-regression
@@ -584,95 +503,40 @@ plot(sim_residuals)
 ```
 
 ::: {.callout-note}
-## Code Explanation
+## What the code is doing
 
-This enhanced logistic regression analysis provides comprehensive insights:
-
-1. **Model Construction**
-   - Creates a binary outcome variable (Adelie vs. Other species)
-   - Uses `glm()` with a binomial family and logit link
-   - Incorporates multiple predictors (bill depth, body mass)
-
-2. **Professional Reporting**
-   - Displays odds ratios with confidence intervals for interpretability
-   - Calculates and reports pseudo-R² (McFadden) for model fit
-   - Creates a detailed confusion matrix with classification metrics
-   - Generates a ROC curve with AUC for overall discriminative ability
-
-3. **Advanced Visualization**
-   - Plots predicted probabilities with decision boundaries
-   - Highlights misclassified points for error analysis
-   - Creates marginal effects plots showing how each predictor influences classification
-   - Conducts simulation-based residual analysis for model validation
+`glm(is_adelie ~ bill_depth_mm + body_mass_g, family = binomial(link = "logit"))` fits the logistic model. The `tidy(..., exponentiate = TRUE)` call converts coefficients into odds ratios, which are easier to talk about than log-odds. McFadden's pseudo-R² is computed by hand from the deviances since `glance()` does not report it directly. The confusion matrix uses a 0.5 probability cutoff to convert fitted probabilities into class labels, and `pROC::roc()` builds the ROC curve from the underlying probabilities so you do not have to commit to any single threshold. `DHARMa::simulateResiduals()` runs simulation-based residual checks, which are far more reliable for GLMs than the raw Pearson or deviance residuals.
 :::
 
 ::: {.callout-important}
-## Results Interpretation
+## Reading the results
 
-The logistic regression yields important ecological insights:
+The AUC is the headline number for classification. It is the probability that a randomly chosen Adelie gets a higher predicted score than a randomly chosen non-Adelie, and values above about 0.9 mean the model separates the two groups cleanly. Accuracy, sensitivity, and specificity flesh that out at the 0.5 cutoff, but you can read off other operating points from the ROC curve if the cost of false positives and false negatives is not equal.
 
-1. **Classification Performance**
-   - The model effectively distinguishes Adelie penguins from other species
-   - High AUC (area under ROC curve) indicates strong discriminative ability
-   - Classification accuracy, sensitivity, and specificity show the practical utility
+The odds ratios tell you how a one-unit change in each predictor multiplies the odds of being Adelie. An odds ratio of 2 doubles the odds; 0.5 halves them. Bill depth comes out as a strong discriminator, which lines up with what is known about Adelie morphology relative to Gentoo and Chinstrap.
 
-2. **Morphological Predictors**
-   - Bill dimensions are strong predictors of species identity
-   - Odds ratios reveal how changes in morphology affect classification probability
-   - Interaction between bill length and depth creates a clear decision boundary
-
-3. **Ecological Implications**
-   - The model demonstrates morphological differentiation between penguin species
-   - Misclassified individuals may represent morphological overlap zones
-   - Results align with evolutionary theory on character displacement
-   - Potential applications in field identification and evolutionary studies
+The misclassified points are worth looking at, not glossing over. They tend to sit in the morphological overlap between species, and they are often the most informative birds in the dataset. The DHARMa residual plot is the sanity check: if the simulated residuals look uniform and the dispersion test passes, the binomial assumption is holding up.
 :::
 
 ::: {.callout-tip}
-## PROFESSIONAL TIP: Logistic Regression Best Practices
+## A working checklist for logistic regression
 
-When applying logistic regression in ecological studies:
+Mind the events-per-predictor ratio. The usual rule of thumb is at least ten events of the rarer class for each predictor in the model. With fewer, your coefficients will be unstable no matter what the p-values say.
 
-1. **Model Development**
-   - Balance the number of events and predictors (aim for >10 events per predictor)
-   - Test for nonlinearity in continuous predictors using splines or polynomial terms
-   - Evaluate interactions between predictors where biologically meaningful
-   - Consider regularization for high-dimensional data to prevent overfitting
+Pick a threshold based on what the errors cost, not by default. A 0.5 cutoff makes sense when false positives and false negatives are equally bad. They rarely are.
 
-2. **Model Evaluation**
-   - Use cross-validation to assess predictive performance
-   - Report multiple performance metrics beyond p-values (AUC, accuracy, sensitivity, specificity)
-   - Consider the costs of different error types (false positives vs. false negatives)
-   - Test model calibration (agreement between predicted probabilities and observed outcomes)
-
-3. **Result Communication**
-   - Report odds ratios for interpretability (not just coefficients)
-   - Create visualizations showing decision boundaries and classification regions
-   - Discuss practical significance for ecological applications
-   - Indicate model limitations and potential sampling biases
+Report odds ratios with confidence intervals, an AUC, and at least one calibration check. Coefficients on the logit scale are technically correct but almost nobody reads them at a glance.
 :::
 
-## Summary
+## Summary so far
 
-In this chapter, we've explored regression analysis using both traditional base R approaches and the modern tidymodels framework:
+So far we have done the base-R version of regression. `lm()` handles continuous outcomes, with one predictor or several, and gives you coefficients, confidence intervals, and a diagnostic panel you can read in about a minute. `glm()` extends the same machinery to binary outcomes through the logit link, with odds ratios and an ROC curve as the natural way to report what came out.
 
-- **Linear regression** for modeling continuous relationships between morphological variables
-- **Multiple regression** for incorporating several predictors and controlling for confounding factors
-- **Logistic regression** for binary classification and probability estimation
-- **Tidymodels workflow** for consistent, reproducible modeling
+The next section does the same modelling with tidymodels. The maths is identical. What changes is the scaffolding around it: explicit train/test splits, a recipe for preprocessing, a workflow object that bundles model and recipe together, and built-in support for resampling and tuning. For one quick `lm()` call it is overkill. For comparing several models, or for anything you plan to deploy or revisit, it pays for itself fast.
 
-The tidymodels framework provides:
-- Unified interface across different model types
-- Consistent preprocessing with recipes
-- Built-in resampling and cross-validation
-- Standardized model evaluation metrics
-- Streamlined workflow management
+## Regression with the tidymodels framework
 
-Each approach provides unique insights into ecological patterns and relationships, with applications ranging from morphological studies to species classification and trait prediction.
-
-## Regression with Tidymodels Framework
-
-The tidymodels ecosystem provides a modern, unified approach to statistical modeling in R. Let's explore how to implement regression analysis using this framework.
+Tidymodels is a set of packages that share a common interface for modelling. You define preprocessing in a recipe, the model in a parsnip spec, and tie them together with a workflow. Once that is in place, swapping a random forest in for a linear model is a one-line change, and cross-validation, tuning, and metrics all work the same way regardless of which engine is under the hood.
 
 ### Setting Up Tidymodels
 
@@ -697,15 +561,9 @@ glimpse(penguins)
 ```
 
 ::: {.callout-note}
-## Tidymodels Philosophy
+## What tidymodels is trying to do
 
-The tidymodels framework follows key principles:
-
-1. **Consistency**: Uniform syntax across different model types
-2. **Modularity**: Separate components for different modeling tasks
-3. **Tidyverse integration**: Works seamlessly with dplyr, ggplot2, etc.
-4. **Reproducibility**: Built-in support for resampling and validation
-5. **Extensibility**: Easy to add new models and methods
+The framework leans on a few habits. The same syntax fits a linear model and a random forest, so switching engines does not mean relearning the API. Preprocessing, model fitting, resampling, and evaluation each live in their own package, so you can mix and match. Everything plays nicely with dplyr and ggplot2 pipelines. Resampling and validation are first-class rather than something you bolt on afterwards. And adding a new model type is a matter of writing a parsnip wrapper, not rewiring the whole stack.
 :::
 
 ### Linear Regression with Tidymodels
@@ -802,17 +660,11 @@ ggplot(penguin_pred, aes(x = body_mass_g, y = .pred, color = species)) +
 ```
 
 ::: {.callout-important}
-## Tidymodels Workflow Benefits
+## Why this is worth the extra typing
 
-This tidymodels approach provides several advantages:
+The workflow forces you to split the data, preprocess it, fit the model, and evaluate it as separate steps. That sounds bureaucratic but it pays off. Train and test stay properly separated, so you cannot accidentally peek. The recipe encodes preprocessing once and applies it consistently to new data, which is the part people most often get wrong by hand. The workflow object is reusable: you can drop new data into the same pipeline without rewriting it. And metrics are computed the same way no matter which model you fit, so model comparisons are fair.
 
-1. **Clear separation of concerns**: Data splitting, preprocessing, and modeling are distinct steps
-2. **Automatic train/test split**: Built-in support for validation
-3. **Preprocessing pipeline**: Recipe ensures consistent transformations
-4. **Reusable workflows**: Easy to apply the same pipeline to new data
-5. **Standardized metrics**: Consistent evaluation across models
-
-The test set RMSE and R² provide unbiased estimates of model performance on new data.
+The test-set RMSE and R² are the numbers to report. They are honest estimates of how the model will do on data it has not seen.
 :::
 
 ### Cross-Validation with Tidymodels
@@ -882,15 +734,9 @@ ggplot(cv_predictions, aes(x = body_mass_g, y = .pred)) +
 ```
 
 ::: {.callout-tip}
-## PROFESSIONAL TIP: Why Cross-Validation?
+## Why bother with cross-validation
 
-Cross-validation provides:
-
-1. **More reliable performance estimates**: Averages over multiple train/test splits
-2. **Better use of data**: All observations used for both training and validation
-3. **Overfitting detection**: Large difference between training and CV metrics suggests overfitting
-4. **Model comparison**: Fair basis for comparing different modeling approaches
-5. **Hyperparameter tuning**: Essential for selecting optimal model parameters
+A single train/test split gives you one number. Cross-validation gives you ten, and the spread across folds tells you how much that single number could have wobbled. Every observation gets used for both training and validation across the folds, so you are not throwing data away. A big gap between training and CV metrics is the clearest signal of overfitting you can ask for. And when you are comparing models or tuning hyperparameters, CV is the only fair basis: anything else is comparing apples to whatever happened to be in your one test split.
 :::
 
 ### Model Comparison with Tidymodels
@@ -970,9 +816,9 @@ model_comparison %>%
         axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-### Hyperparameter Tuning
+### Hyperparameter tuning
 
-Optimizing model parameters is crucial for machine learning models like Random Forest.
+Random forests and most other machine-learning models have settings that the model itself does not learn from the data. For a random forest, `mtry` (how many predictors to consider at each split) and `min_n` (the minimum node size) are the usual two. Tuning means trying a grid of values and picking whichever combination gives the best cross-validated performance.
 
 ```{r}
 #| label: fig-hyperparameter-tuning
@@ -1037,36 +883,26 @@ collect_metrics(final_fit)
 ```
 
 ::: {.callout-tip}
-## Tuning Strategy
-Grid search explores a defined set of parameters. For more complex models, consider `tune_bayes()` for Bayesian optimization which can be more efficient.
+## Picking a tuning strategy
+
+Grid search just tries everything on the grid. It is exhaustive and simple, and fine for two or three parameters. Once the parameter space gets bigger, `tune_bayes()` uses Bayesian optimisation to spend more time in the promising regions and less on the obvious losers, which is usually much faster.
 :::
 
-## Chapter Summary
+## Chapter summary
 
-### Key Concepts
+### What we covered
 
--   **Linear Regression**: Models continuous outcomes as a linear combination of predictors
--   **Logistic Regression**: Models binary outcomes using the log-odds transformation
--   **Tidymodels**: A unified framework for modeling in R (parsnip, recipes, rsample, tune, yardstick)
--   **Cross-Validation**: Resampling method to estimate model performance on unseen data
--   **Hyperparameter Tuning**: Optimizing model configuration to improve predictive power
--   **Model Diagnostics**: Checking assumptions (normality, homoscedasticity, linearity) is essential
+Linear regression models a continuous outcome as a straight-line function of one or more predictors. Logistic regression does the same for a binary outcome via the logit link. Tidymodels (parsnip, recipes, rsample, tune, yardstick) gives all of that a common interface. Cross-validation estimates how the model will perform on data it has not seen, and tuning chooses the settings that make it perform best. None of this is worth quoting if the diagnostics are bad: normality, equal variance, linearity, and independence still matter regardless of which framework you used to fit the model.
 
-### R Functions Learned
+### Functions worth remembering
 
--   `lm()` / `glm()` - Base R regression functions
--   `linear_reg()` / `logistic_reg()` / `rand_forest()` - Parsnip model specifications
--   `recipe()` - Define preprocessing steps
--   `vfold_cv()` - Create cross-validation folds
--   `fit_resamples()` - Evaluate models with resampling
--   `tune_grid()` - Optimize hyperparameters
--   `collect_metrics()` - Extract performance statistics
+`lm()` and `glm()` are the base-R workhorses. In tidymodels, `linear_reg()`, `logistic_reg()`, and `rand_forest()` are the model specs; `recipe()` defines preprocessing; `vfold_cv()` builds folds; `fit_resamples()` runs CV; `tune_grid()` does grid search; and `collect_metrics()` pulls the numbers out at the end.
 
-### Next Steps
+### What's next
 
-In the next chapter, we will explore [Advanced Modeling Techniques](09-advanced-modeling.qmd), including how to interpret complex "black box" models and how to analyze data collected over time (time series).
+The next chapter, [Advanced Modeling Techniques](09-advanced-modeling.qmd), looks at how to interpret black-box models when the coefficients are not available, and how to handle data that comes in over time.
 
-### Logistic Regression with Tidymodels
+### Logistic regression with tidymodels
 
 ```{r}
 #| label: logistic-setup
@@ -1171,37 +1007,18 @@ ggplot(logistic_pred, aes(x = bill_depth_mm, y = body_mass_g,
 ```
 
 ::: {.callout-note}
-## Tidymodels for Classification
+## Tidymodels for classification
 
-The tidymodels classification workflow provides:
-
-1. **Unified metrics**: Automatic calculation of accuracy, ROC AUC, and other metrics
-2. **Probability predictions**: Easy access to class probabilities
-3. **Visualization tools**: Built-in plotting for confusion matrices and ROC curves
-4. **Consistent interface**: Same workflow structure as regression
+The classification side of tidymodels works the same way as the regression side. `metrics()` gives you accuracy and ROC AUC without having to write them by hand. `predict(type = "prob")` returns class probabilities directly, which is what you want for thresholding and ROC curves. `conf_mat()` and `roc_curve()` have built-in `autoplot()` methods, so the standard diagnostic plots are one call away. And the workflow object behaves the same whether you are predicting a number or a class.
 :::
 
-## Comparing Base R and Tidymodels Approaches
+## Base R vs tidymodels: when to use which
 
-### When to Use Each Approach
+Reach for base R when you want to fit a model quickly, when there are only one or two predictors, when you are teaching the underlying statistics, or when you need a specific diagnostic that the base packages provide more directly. The output is the kind of summary table that statisticians have been reading for fifty years.
 
-**Base R (`lm()`, `glm()`) is ideal for:**
-- Quick exploratory analyses
-- Simple models with few predictors
-- Teaching statistical concepts
-- When you need specific model diagnostics
-- Working with traditional statistical output
+Reach for tidymodels when you are comparing several models, when preprocessing has more than one step, when you need cross-validation or hyperparameter tuning, or when you expect to revisit the analysis later and want a pipeline that is easy to rerun. The upfront cost is real; the payoff comes when the project gets bigger than a single script.
 
-**Tidymodels is ideal for:**
-- Production modeling pipelines
-- Comparing multiple models
-- Complex preprocessing requirements
-- Cross-validation and resampling
-- Hyperparameter tuning
-- Consistent evaluation across models
-- Reproducible research workflows
-
-### Feature Comparison
+### Feature comparison
 
 | Feature | Base R | Tidymodels |
 |---------|--------|------------
@@ -1215,14 +1032,9 @@ The tidymodels classification workflow provides:
 | **Extensibility** | High | Very high |
 
 ::: {.callout-tip}
-## PROFESSIONAL TIP: Best of Both Worlds
+## Using both, in practice
 
-Many practitioners use both approaches:
-
-1.  **Exploration**: Use base R for quick model fitting and diagnostics
-2.  **Refinement**: Transition to tidymodels for rigorous evaluation
-3.  **Production**: Deploy tidymodels workflows for consistency
-4.  **Communication**: Use base R output for traditional audiences, tidymodels for modern reports
+What I usually do: start in base R while I am still figuring out what the model should look like. `lm()` and `glm()` are fast to type and the diagnostics are right there. Once I have something I trust, I rebuild it as a tidymodels workflow so I can cross-validate it properly and swap engines without rewriting everything. For a report or paper, the base-R summary is often what the reviewers expect to see. For a pipeline that someone else will rerun in six months, tidymodels is the safer bet.
 :::
 
 ## Exercises
