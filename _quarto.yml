@@ -59,6 +59,9 @@ book:
     - part: "Part V: Applied Ecology"
       chapters:
         - chapters/10-conservation.qmd
+    - part: "Part VI: R in Context"
+      chapters:
+        - chapters/11-r-integrations.qmd
     - "---"
     - references.qmd
     - glossary.qmd

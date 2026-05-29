@@ -20,6 +20,7 @@ The book covers:
 | **Data Analysis Fundamentals** | Exploratory data analysis, hypothesis testing, statistical tests |
 | **Data Visualization** | Visualization techniques, advanced graphics with ggplot2 |
 | **Advanced Topics** | Regression analysis, conservation applications |
+| **R in Context** | Integrations with jamovi, JASP, Positron, Quarto, reticulate, plumber |
 
 ### Chapter Overview
 
@@ -33,6 +34,7 @@ The book covers:
 8. **Regression Analysis**: Linear models, diagnostics, and the tidymodels framework
 9. **Advanced Modeling**: Mixed-effects, GLMs, and modern modeling approaches
 10. **Conservation Applications**: Real-world ecological case studies
+11. **R in the Wider Ecosystem**: Integrations with jamovi, JASP, Positron, VS Code, Jupyter, reticulate, plumber, and friends
 
 ## 📊 Datasets
 

@@ -59,6 +59,7 @@ This is an **open-access online textbook** that teaches modern data analysis tec
 | **Data Analysis Fundamentals** | 3-5 | EDA, hypothesis testing, statistical tests |
 | **Data Visualization** | 6-7 | ggplot2, advanced graphics, interactive plots |
 | **Advanced Topics** | 8-10 | Regression analysis, advanced modeling, conservation applications |
+| **R in Context** | 11 | Integrations with jamovi, JASP, Positron, Jupyter, reticulate, plumber |
 
 ## Who Is This Book For? {.unnumbered}
 
