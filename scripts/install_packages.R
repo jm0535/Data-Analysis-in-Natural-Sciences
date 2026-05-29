@@ -1,7 +1,7 @@
 # Install required packages for "Data Analysis in Natural Sciences: An R-Based Approach"
 # Author: Jimmy Moses
 # Repository: https://github.com/jm0535/dains
-# Last updated: December 2025
+# Last updated: May 2026
 #
 # Run this script once to set up all necessary packages:
 #   source("install_packages.R")
