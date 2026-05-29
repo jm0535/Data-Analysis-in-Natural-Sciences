@@ -10,27 +10,66 @@ library(tidyverse)
 
 > **Instructor copy — do not distribute.** See `solutions/README.md`.
 
-## Exercise 1
+## Exercise 1 — Install and explore
 
-*Prompt placeholder — fill in by copying the exercise text from
-`chapters/01-introduction.qmd` and writing the worked solution below.*
+No code answer. Mark for: students naming the four RStudio panes (Source, Console, Environment/History, Files/Plots/Help) and locating the project root.
 
-```{r}
-# TODO: solution
-```
-
-**Interpretation.** TODO — 2-3 sentences.
-
-## Exercise 2
+## Exercise 2 — Load the tidyverse
 
 ```{r}
-# TODO: solution
+library(tidyverse)
 ```
 
-**Interpretation.** TODO.
+Loaded packages: ggplot2, tibble, tidyr, readr, purrr, dplyr, stringr, forcats, lubridate. Watch for masking warnings (`filter` and `lag` from `stats`) — they should know what got masked.
+
+## Exercise 3 — Explore iris
+
+```{r}
+head(iris)
+glimpse(iris)
+summary(iris)
+```
+
+**Interpretation.** `head()` prints rows, `glimpse()` shows types and a few values per column, `summary()` gives per-column statistics. Each one answers a different question; good students use all three rather than picking a favourite.
+
+## Exercise 4 — Pipe rewrite
+
+```{r}
+c(4, 9, 16, 25, 36) %>% sqrt() %>% mean() %>% round(2)
+```
+
+**Interpretation.** Reads left-to-right and matches the order of operations. The nested version reads outside-in, which is why long pipelines beat deeply nested calls.
+
+## Exercise 5 — Grouped summary
+
+```{r}
+iris %>%
+  group_by(Species) %>%
+  summarise(across(Sepal.Length, list(mean = mean, sd = sd)))
+```
+
+**Interpretation.** `across()` applies the same functions to multiple columns without copy-pasting. Equivalent to `summarise(mean = mean(Sepal.Length), sd = sd(Sepal.Length))` for one column.
+
+## Exercise 6 — Scatter plot
+
+```{r}
+ggplot(iris, aes(Sepal.Length, Sepal.Width, colour = Species)) +
+  geom_point(size = 2) +
+  theme_minimal() +
+  labs(title = "Sepal dimensions by iris species")
+```
+
+**Interpretation.** *setosa* clearly separates; *versicolor* and *virginica* overlap. Good students mention the cluster structure before reading off any numeric trend.
+
+## Exercise 7 — Research question
+
+No code answer. Expect a question of the form *does X affect Y in Z system*, a data type (counts, measurements, occurrences), and a visualisation choice that matches the variable types.
 
 ## Common student pitfalls
 
 ::: {.callout-tip}
-- TODO: typical mistakes to flag during marking.
+- Loading `tidyverse` inside every code chunk.
+- Using `attach()` to avoid typing the data frame name.
+- Reading `summary()` output as if it's a test result.
+- Reaching for base-R `aggregate()` when `group_by() + summarise()` is cleaner.
 :::

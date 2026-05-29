@@ -6,31 +6,119 @@ format: html
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(tidyverse)
+library(tidymodels)
+library(palmerpenguins)
 ```
 
 > **Instructor copy — do not distribute.** See `solutions/README.md`.
+>
+> The chapter has 15 exercises across Base R, tidymodels, and Advanced
+> tiers. Worked solutions for a representative subset are below; the
+> remainder follow the same patterns.
 
-## Exercise 1
-
-*Prompt placeholder — fill in by copying the exercise text from
-`chapters/08-regression.qmd` and writing the worked solution below.*
-
-```{r}
-# TODO: solution
-```
-
-**Interpretation.** TODO — 2-3 sentences.
-
-## Exercise 2
+## Exercise 1 — Body mass from bill length + bill depth
 
 ```{r}
-# TODO: solution
+peng <- penguins %>% drop_na(body_mass_g, bill_length_mm, bill_depth_mm)
+fit <- lm(body_mass_g ~ bill_length_mm + bill_depth_mm, data = peng)
+summary(fit)
+par(mfrow = c(2, 2)); plot(fit); par(mfrow = c(1, 1))
 ```
 
-**Interpretation.** TODO.
+**Interpretation.** Both slopes are significant and positive once species is ignored, but Simpson's paradox lurks — adding `species` reverses the bill-depth coefficient. Good students should notice the residuals-vs-fitted clustering and refit with species included.
+
+## Exercise 2 — Interaction terms
+
+```{r}
+fit_main <- lm(body_mass_g ~ bill_length_mm + bill_depth_mm + species, data = peng)
+fit_int  <- lm(body_mass_g ~ bill_length_mm * species + bill_depth_mm, data = peng)
+anova(fit_main, fit_int)
+AIC(fit_main, fit_int)
+```
+
+**Interpretation.** An interaction is justified if the ANOVA p < 0.05 *and* AIC drops by ≥ 2. Don't add interactions just because they're available.
+
+## Exercise 3 — AIC model selection
+
+```{r}
+full <- lm(body_mass_g ~ bill_length_mm + bill_depth_mm + flipper_length_mm + species + sex,
+           data = peng %>% drop_na())
+step(full, direction = "both", trace = 0) %>% summary()
+```
+
+**Interpretation.** `step()` is convenient for teaching but penalises complexity gently; for real research, prefer `MuMIn::dredge()` with explicit candidate sets.
+
+## Exercise 4 — Multinomial logistic regression
+
+```{r}
+library(nnet)
+mfit <- multinom(species ~ bill_length_mm + bill_depth_mm + flipper_length_mm,
+                 data = peng, trace = FALSE)
+pred <- predict(mfit, peng)
+mean(pred == peng$species)
+table(pred, peng$species)
+```
+
+**Interpretation.** Accuracy should exceed 95%. Watch for students reporting accuracy without a confusion matrix — overall accuracy hides per-class failure modes.
+
+## Exercise 6 — tidymodels CV workflow
+
+```{r}
+set.seed(123)
+split <- initial_split(peng %>% drop_na(), strata = species)
+train <- training(split); test <- testing(split)
+
+rec <- recipe(flipper_length_mm ~ body_mass_g + bill_length_mm + bill_depth_mm,
+              data = train)
+wf  <- workflow() %>% add_model(linear_reg()) %>% add_recipe(rec)
+
+folds <- vfold_cv(train, v = 5, strata = flipper_length_mm)
+res   <- fit_resamples(wf, folds, metrics = metric_set(rmse, rsq))
+collect_metrics(res)
+```
+
+**Interpretation.** 5-fold CV gives a less optimistic RMSE than a single train/test split. Expect RMSE around 5-6 mm.
+
+## Exercise 8 — Three-model bake-off
+
+```{r, eval=FALSE}
+spec_lm  <- linear_reg() %>% set_engine("lm")
+spec_rf  <- rand_forest(trees = 500) %>% set_engine("ranger") %>% set_mode("regression")
+spec_svm <- svm_rbf() %>% set_engine("kernlab") %>% set_mode("regression")
+
+rec <- recipe(body_mass_g ~ bill_length_mm + bill_depth_mm + flipper_length_mm + species,
+              data = train) %>% step_dummy(all_nominal_predictors())
+
+models <- workflow_set(
+  preproc = list(simple = rec),
+  models  = list(lm = spec_lm, rf = spec_rf, svm = spec_svm)
+)
+
+res <- workflow_map(models, resamples = folds, metrics = metric_set(rmse, rsq))
+rank_results(res, rank_metric = "rmse")
+```
+
+**Interpretation.** On clean tabular data with strong species signal, linear regression often beats random forest — complexity is not free.
+
+## Exercise 14 — Ridge vs OLS
+
+```{r, eval=FALSE}
+library(glmnet)
+X <- model.matrix(body_mass_g ~ . - 1, data = peng %>% drop_na())
+y <- peng %>% drop_na() %>% pull(body_mass_g)
+cv <- cv.glmnet(X, y, alpha = 0)
+coef(cv, s = "lambda.min")
+```
+
+**Interpretation.** Ridge shrinks all coefficients toward zero; lasso (alpha = 1) sets some exactly to zero. With only a handful of predictors, regularisation rarely beats OLS.
 
 ## Common student pitfalls
 
 ::: {.callout-tip}
-- TODO: typical mistakes to flag during marking.
+- Reporting R² for a logistic regression (it doesn't mean what they think).
+- Skipping the residual plots for linear models.
+- Adding interactions without comparing to a main-effects model.
+- Using accuracy as the sole classification metric when classes are imbalanced.
+- Tuning hyperparameters on the test set instead of an inner CV loop.
+- Calling tidymodels a "library" — it's a meta-package.
 :::

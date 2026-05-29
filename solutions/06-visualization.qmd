@@ -6,31 +6,133 @@ format: html
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(tidyverse)
+library(viridis)
 ```
 
 > **Instructor copy — do not distribute.** See `solutions/README.md`.
 
-## Exercise 1
-
-*Prompt placeholder — fill in by copying the exercise text from
-`chapters/06-visualization.qmd` and writing the worked solution below.*
+## Exercise 1 — Distribution of plant species across taxonomic groups
 
 ```{r}
-# TODO: solution
+bio <- read_csv("../data/ecology/biodiversity.csv")
+
+bio %>%
+  count(taxonomic_group, sort = TRUE) %>%
+  ggplot(aes(x = fct_reorder(taxonomic_group, n), y = n, fill = taxonomic_group)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  scale_fill_viridis_d() +
+  labs(x = NULL, y = "Number of species",
+       title = "Species count by taxonomic group") +
+  theme_minimal()
 ```
 
-**Interpretation.** TODO — 2-3 sentences.
+**Interpretation.** A horizontal ordered bar chart is the right default here because group labels are long and counts span a wide range. Flag students who use a pie chart or who leave the bars in alphabetical order.
 
-## Exercise 2
+## Exercise 2 — Rice yield trends for top 5 producers
 
 ```{r}
-# TODO: solution
+crops <- read_csv("../data/agriculture/crop_yields.csv")
+
+top5 <- crops %>%
+  group_by(country) %>%
+  summarise(total = sum(rice_yield, na.rm = TRUE)) %>%
+  slice_max(total, n = 5) %>%
+  pull(country)
+
+crops %>%
+  filter(country %in% top5) %>%
+  ggplot(aes(x = year, y = rice_yield, colour = country)) +
+  geom_line(linewidth = 0.8) +
+  scale_colour_viridis_d() +
+  labs(x = "Year", y = "Rice yield (t/ha)",
+       title = "Rice yields, top 5 producers") +
+  theme_minimal()
 ```
 
-**Interpretation.** TODO.
+**Interpretation.** Lines are appropriate for ordered time data. Watch for students who use bars or who forget to filter before plotting (40+ overlapping lines is unreadable).
+
+## Exercise 3 — Pairs plot of spatial numeric variables
+
+```{r}
+spatial <- read_csv("../data/geography/spatial.csv")
+
+spatial %>%
+  select(where(is.numeric)) %>%
+  select(1:5) %>%       # keep it readable
+  GGally::ggpairs()
+```
+
+**Interpretation.** `GGally::ggpairs()` gives scatter, density, and correlation in one grid. Caution students against pairing more than ~6 variables — the grid becomes uninterpretable.
+
+## Exercise 4 — Conservation status across habitat types
+
+```{r}
+bio %>%
+  count(habitat_type, conservation_status) %>%
+  ggplot(aes(x = habitat_type, y = n, fill = conservation_status)) +
+  geom_col(position = "fill") +
+  scale_fill_viridis_d() +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x = "Habitat", y = "Proportion",
+       fill = "Status",
+       title = "Conservation status composition by habitat") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+```
+
+**Interpretation.** A 100% stacked bar reveals composition; raw counts hide differences when habitat totals vary. A grouped (dodged) bar is acceptable if the student wants to show absolute counts too.
+
+## Exercise 5 — Coffee correlation heatmap
+
+```{r}
+econ <- read_csv("../data/economics/economic.csv")
+
+econ %>%
+  select(where(is.numeric)) %>%
+  cor(use = "pairwise.complete.obs") %>%
+  as.data.frame() %>%
+  rownames_to_column("var1") %>%
+  pivot_longer(-var1, names_to = "var2", values_to = "r") %>%
+  ggplot(aes(var1, var2, fill = r)) +
+  geom_tile() +
+  scale_fill_viridis_c(limits = c(-1, 1), option = "C") +
+  geom_text(aes(label = round(r, 2)), size = 3) +
+  labs(title = "Correlation matrix, coffee economics") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.title = element_blank())
+```
+
+**Interpretation.** Diverging palette only works when zero is meaningful — here r = 0 means no linear association, so a perceptually uniform scale like viridis option C is fine. Annotating cells with the rounded coefficient is good practice for small matrices.
+
+## Exercise 6 — Animated yield trend (gganimate)
+
+```{r, eval=FALSE}
+library(gganimate)
+
+one_country <- crops %>% filter(country == "China")
+
+p <- ggplot(one_country, aes(x = year, y = rice_yield)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3, colour = "#1f78b4") +
+  labs(title = "Rice yield in China — year: {frame_along}",
+       x = "Year", y = "Yield (t/ha)") +
+  theme_minimal() +
+  transition_reveal(year)
+
+animate(p, nframes = 80, fps = 10)
+```
+
+**Interpretation.** `transition_reveal` is the right choice for cumulative time-series animation. Mark down students who animate without a clear pedagogic reason — animation should reveal something a static plot cannot.
 
 ## Common student pitfalls
 
 ::: {.callout-tip}
-- TODO: typical mistakes to flag during marking.
+- Pie charts for more than three categories.
+- Default `ggplot` grey theme in a publication figure.
+- Missing axis units, missing titles, illegible angled labels.
+- Using a rainbow palette instead of a colour-blind-safe one.
+- Plotting 30+ countries without filtering — turns a line plot into spaghetti.
+- Forgetting `alt` text or a figure caption when the chapter explicitly asked for accessibility.
 :::

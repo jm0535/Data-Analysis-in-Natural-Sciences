@@ -6,31 +6,121 @@ format: html
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(tidyverse)
+library(patchwork)
 ```
 
 > **Instructor copy — do not distribute.** See `solutions/README.md`.
 
-## Exercise 1
-
-*Prompt placeholder — fill in by copying the exercise text from
-`chapters/07-advanced-visualization.qmd` and writing the worked solution below.*
+## Exercise 1 — Publication-ready theme customization
 
 ```{r}
-# TODO: solution
+penguins <- palmerpenguins::penguins %>% drop_na(bill_length_mm, body_mass_g, species)
+
+ggplot(penguins, aes(bill_length_mm, body_mass_g, colour = species)) +
+  geom_point(size = 2, alpha = 0.85) +
+  scale_colour_manual(values = c("#1b9e77", "#d95f02", "#7570b3")) +
+  labs(x = "Bill length (mm)", y = "Body mass (g)",
+       colour = "Species",
+       title = "Bill length predicts body mass",
+       subtitle = "Palmer penguins, Antarctica",
+       caption = "Data: palmerpenguins") +
+  theme_minimal(base_size = 12, base_family = "sans") +
+  theme(plot.title = element_text(face = "bold"),
+        plot.caption = element_text(colour = "grey40"),
+        panel.grid.minor = element_blank(),
+        legend.position = "top")
 ```
 
-**Interpretation.** TODO — 2-3 sentences.
+**Interpretation.** The accepted answer should pick a colour-blind-safe palette, set an explicit base size, drop chartjunk (minor gridlines), and add a caption with the data source. Default `theme_grey()` is not publication-ready.
 
-## Exercise 2
+## Exercise 2 — Three-panel figure with patchwork
 
-```{r}
-# TODO: solution
+```{r, fig.width=10, fig.height=4}
+p1 <- ggplot(penguins, aes(bill_length_mm, body_mass_g, colour = species)) +
+  geom_point() + theme_minimal() + labs(title = "Scatter")
+
+p2 <- ggplot(penguins, aes(species, body_mass_g, fill = species)) +
+  geom_boxplot(show.legend = FALSE) + theme_minimal() + labs(title = "Box")
+
+p3 <- penguins %>% count(species) %>%
+  ggplot(aes(species, n, fill = species)) +
+  geom_col(show.legend = FALSE) + theme_minimal() + labs(title = "Bar")
+
+(p1 | p2 | p3) +
+  plot_annotation(title = "Penguin morphology — three views",
+                  tag_levels = "A")
 ```
 
-**Interpretation.** TODO.
+**Interpretation.** `patchwork` operators `|` (side-by-side) and `/` (stacked) compose plots without manual `grid.arrange`. Tag levels A/B/C are expected for any multi-panel figure submitted to a journal.
+
+## Exercise 3 — Interactive plotly conversion
+
+```{r, eval=FALSE}
+library(plotly)
+
+p <- ggplot(penguins,
+            aes(bill_length_mm, body_mass_g,
+                colour = species,
+                text = paste("Island:", island,
+                             "<br>Sex:", sex))) +
+  geom_point() + theme_minimal()
+
+ggplotly(p, tooltip = "text")
+```
+
+**Interpretation.** Custom `text` aesthetic plus `tooltip = "text"` gives readable hover info. Mark down submissions that leave the default tooltip showing internal column names.
+
+## Exercise 4 — Site distribution map
+
+```{r, eval=FALSE}
+library(sf)
+library(rnaturalearth)
+
+sites <- tibble(
+  site = c("Lae", "Madang", "Wewak"),
+  lon  = c(146.99, 145.78, 143.63),
+  lat  = c(-6.73, -5.22, -3.55)
+)
+
+png <- ne_countries(country = "Papua New Guinea", returnclass = "sf")
+
+ggplot() +
+  geom_sf(data = png, fill = "grey95", colour = "grey60") +
+  geom_point(data = sites, aes(lon, lat), colour = "#d95f02", size = 3) +
+  ggrepel::geom_text_repel(data = sites, aes(lon, lat, label = site)) +
+  labs(title = "Study sites in Papua New Guinea") +
+  theme_minimal()
+```
+
+**Interpretation.** A proper map needs a base layer, a projection that does not distort the region of interest, and labelled points. Plotting raw lat/lon as a scatter without a coastline is not a map.
+
+## Exercise 5 — Time-series animation
+
+```{r, eval=FALSE}
+library(gganimate)
+crops <- read_csv("../data/agriculture/crop_yields.csv")
+
+p <- crops %>%
+  filter(country %in% c("China", "India", "United States")) %>%
+  ggplot(aes(year, rice_yield, colour = country)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  labs(title = "Rice yield, year: {frame_along}",
+       x = "Year", y = "t/ha") +
+  theme_minimal() +
+  transition_reveal(year)
+
+animate(p, nframes = 100, fps = 12, width = 700, height = 400)
+```
+
+**Interpretation.** Animation justifies itself only when motion encodes meaningful change. The label `{frame_along}` ties the title to the current frame so viewers always see which year is being drawn.
 
 ## Common student pitfalls
 
 ::: {.callout-tip}
-- TODO: typical mistakes to flag during marking.
+- Reaching for animation when a small-multiples facet would do the job.
+- Plotly tooltips dumping raw column names.
+- Maps without a base layer or without a sensible projection.
+- Patchwork figures with mismatched themes between panels — readers should not need to relearn the chart style three times.
+- Overusing colour as decoration rather than encoding.
 :::

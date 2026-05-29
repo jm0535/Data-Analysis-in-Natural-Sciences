@@ -10,27 +10,100 @@ library(tidyverse)
 
 > **Instructor copy — do not distribute.** See `solutions/README.md`.
 
-## Exercise 1
+## Exercise 1 — DALEX variable importance on a random forest
 
-*Prompt placeholder — fill in by copying the exercise text from
-`chapters/09-advanced-modeling.qmd` and writing the worked solution below.*
+```{r, eval=FALSE}
+library(ranger)
+library(DALEX)
+library(palmerpenguins)
 
-```{r}
-# TODO: solution
+peng <- penguins %>% drop_na()
+rf <- ranger(body_mass_g ~ bill_length_mm + bill_depth_mm + flipper_length_mm + species + sex,
+             data = peng, importance = "permutation")
+
+ex <- explain(rf, data = peng %>% select(-body_mass_g), y = peng$body_mass_g,
+              label = "ranger")
+vi <- model_parts(ex)
+plot(vi)
 ```
 
-**Interpretation.** TODO — 2-3 sentences.
+**Interpretation.** Permutation importance is the gold standard — it measures how much performance drops when each predictor is shuffled. Sex and species usually dominate; flipper length comes next.
 
-## Exercise 2
+## Exercise 2 — Partial dependence
 
-```{r}
-# TODO: solution
+```{r, eval=FALSE}
+pdp_flipper <- model_profile(ex, variables = "flipper_length_mm")
+plot(pdp_flipper)
 ```
 
-**Interpretation.** TODO.
+**Interpretation.** PD curves show the marginal effect after averaging out other predictors. A monotonic rise here means heavier penguins have longer flippers on average — ecologically sensible. Flat PDs are diagnostic of a non-effect.
+
+## Exercise 3 — SHAP for a single prediction
+
+```{r, eval=FALSE}
+shap <- predict_parts(ex, new_observation = peng[1, ], type = "shap")
+plot(shap)
+```
+
+**Interpretation.** SHAP decomposes the prediction into per-feature contributions that sum to (prediction − baseline). Useful when a stakeholder asks "why did the model say X for this individual case?"
+
+## Exercise 4 — Time-series decomposition
+
+```{r}
+data("AirPassengers")
+dec <- decompose(AirPassengers, type = "multiplicative")
+plot(dec)
+```
+
+**Interpretation.** Trend + seasonal + random. Use multiplicative when seasonal amplitude grows with the level, additive otherwise. The remainder should look like white noise — if it has structure, the decomposition missed something.
+
+## Exercise 5 — ARIMA forecast
+
+```{r, eval=FALSE}
+library(forecast)
+fit <- auto.arima(AirPassengers)
+fc  <- forecast(fit, h = 24)
+autoplot(fc)
+```
+
+**Interpretation.** Prediction intervals widen rapidly. Honest answer to "how far ahead": until the 95% PI becomes wider than the historical range. Beyond that the forecast is a guess.
+
+## Exercise 6 — Phenology trend with autocorrelation
+
+```{r, eval=FALSE}
+library(nlme)
+# Pretend dataset: arrival_doy by year
+fit <- gls(arrival_doy ~ year, data = phen, correlation = corAR1())
+summary(fit)
+```
+
+**Interpretation.** AR(1) errors absorb the year-to-year carryover that would otherwise inflate the trend's significance. Don't report a phenology trend without controlling for autocorrelation.
+
+## Exercise 7 — Model agreement on importance
+
+```{r, eval=FALSE}
+# Compare ranger, xgboost, and a simple lm on the same data
+# Compute importance for each, plot side by side.
+```
+
+**Interpretation.** If three different models disagree on the top variable, no model is trustworthy yet. Stable importance rankings across model families are a basic sanity check.
+
+## Exercise 8 — Ensemble interpretation
+
+```{r, eval=FALSE}
+library(stacks)
+# Build a stack of rf + glmnet + boost, blend predictions,
+# then explain the blended model with DALEX as in Exercise 1.
+```
+
+**Interpretation.** Stacks usually pick small weights for weak models. The blended explanation often resembles whichever base model has the largest weight.
 
 ## Common student pitfalls
 
 ::: {.callout-tip}
-- TODO: typical mistakes to flag during marking.
+- Treating variable importance as causal evidence.
+- Forecasting beyond the horizon the prediction intervals support.
+- Decomposing a series that isn't actually seasonal.
+- Using SHAP for global explanations (it's per-prediction by design).
+- Reporting only the highest accuracy across many tried models — selection-induced optimism.
 :::

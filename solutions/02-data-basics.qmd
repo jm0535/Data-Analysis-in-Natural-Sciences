@@ -6,31 +6,96 @@ format: html
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(tidyverse)
+library(palmerpenguins)
 ```
 
 > **Instructor copy — do not distribute.** See `solutions/README.md`.
+>
+> Note: the chapter points to `data/environmental/climate_data.csv` for
+> penguins, which is a known dataset/filename mismatch
+> (see `data/MISMATCHES.md`). Solutions below use the `palmerpenguins`
+> package directly so they run reliably.
 
-## Exercise 1
-
-*Prompt placeholder — fill in by copying the exercise text from
-`chapters/02-data-basics.qmd` and writing the worked solution below.*
-
-```{r}
-# TODO: solution
-```
-
-**Interpretation.** TODO — 2-3 sentences.
-
-## Exercise 2
+## Exercise 1 — Counts by species and island
 
 ```{r}
-# TODO: solution
+penguins %>%
+  count(species, island) %>%
+  pivot_wider(names_from = island, values_from = n, values_fill = 0)
 ```
 
-**Interpretation.** TODO.
+**Interpretation.** Wide format is easier to scan when the question is "which species is on which island?". Long format (the raw `count()` output) is easier to plot.
+
+## Exercise 2 — Mean and SD per species
+
+```{r}
+penguins %>%
+  drop_na(bill_length_mm, bill_depth_mm, body_mass_g) %>%
+  group_by(species) %>%
+  summarise(across(c(bill_length_mm, bill_depth_mm, body_mass_g),
+                   list(mean = mean, sd = sd), .names = "{.col}_{.fn}"))
+```
+
+**Interpretation.** Adelie has shortest bills and lightest body mass; Gentoo is heaviest. Watch for students who forget `drop_na()` and report NaN means.
+
+## Exercise 3 — Flipper-to-mass ratio
+
+```{r}
+penguins %>%
+  drop_na(flipper_length_mm, body_mass_g) %>%
+  mutate(flip_per_g = flipper_length_mm / body_mass_g) %>%
+  group_by(species) %>%
+  summarise(mean_ratio = mean(flip_per_g))
+```
+
+**Interpretation.** A higher flipper-length-per-gram ratio implies relatively longer flippers for body size — a possible swimming-efficiency proxy. Caution students against over-interpreting a ratio without considering body shape.
+
+## Exercise 4 — Bill length vs bill depth
+
+```{r}
+ggplot(penguins %>% drop_na(),
+       aes(bill_length_mm, bill_depth_mm, colour = species)) +
+  geom_point(size = 2, alpha = 0.8) +
+  theme_minimal() +
+  labs(title = "Bill morphology by species",
+       x = "Bill length (mm)", y = "Bill depth (mm)")
+```
+
+**Interpretation.** This is a classic Simpson's paradox illustration — overall the two variables look uncorrelated, but within each species they're positively related. Worth flagging in class.
+
+## Exercise 5 — Wheat trends for one country
+
+```{r}
+crops <- read_csv("../data/agriculture/crop_yields.csv")
+crops %>%
+  filter(country == "Australia") %>%
+  ggplot(aes(year, wheat_yield)) +
+  geom_line() + geom_smooth(method = "loess") +
+  theme_minimal() +
+  labs(title = "Wheat yield in Australia over time")
+```
+
+**Interpretation.** LOESS reveals departures from linearity better than a straight line. A flat line with high variance is just as interesting as a clear trend.
+
+## Exercise 6 — Mass by sex
+
+```{r}
+penguins %>%
+  drop_na(sex, body_mass_g) %>%
+  ggplot(aes(sex, body_mass_g, fill = sex)) +
+  geom_violin(alpha = 0.4) +
+  geom_boxplot(width = 0.2, show.legend = FALSE) +
+  facet_wrap(~species) +
+  theme_minimal()
+```
+
+**Interpretation.** Males are heavier than females across all three species — sexual size dimorphism. Faceting by species prevents the between-species variation from swamping the within-species comparison.
 
 ## Common student pitfalls
 
 ::: {.callout-tip}
-- TODO: typical mistakes to flag during marking.
+- Reading the wrong file because chapter text and filenames disagree.
+- Summarising without dropping NAs and then reporting NaN.
+- Pooling species when comparing sexes (Simpson's paradox).
+- Plotting wheat yield without sorting by year first.
 :::

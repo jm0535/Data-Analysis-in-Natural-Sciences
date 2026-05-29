@@ -6,31 +6,99 @@ format: html
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(tidyverse)
+library(vegan)
 ```
 
 > **Instructor copy — do not distribute.** See `solutions/README.md`.
 
-## Exercise 1
-
-*Prompt placeholder — fill in by copying the exercise text from
-`chapters/10-conservation.qmd` and writing the worked solution below.*
+## Exercise 1 — Shannon and Simpson diversity
 
 ```{r}
-# TODO: solution
+data(BCI)             # vegan: Barro Colorado Island tree counts
+H <- diversity(BCI, index = "shannon")
+D <- diversity(BCI, index = "simpson")
+tibble(plot = seq_along(H), shannon = H, simpson = D) %>% head()
 ```
 
-**Interpretation.** TODO — 2-3 sentences.
+**Interpretation.** Shannon weights rare species more; Simpson weights common species more. The two indices usually rank communities similarly but disagree at the margins — that's when you report both.
 
-## Exercise 2
+## Exercise 2 — Linear vs non-linear population trend
 
 ```{r}
-# TODO: solution
+yrs <- 2000:2024
+N   <- round(80 * exp(-0.04 * (yrs - 2000)) + rnorm(length(yrs), 0, 3))
+df  <- tibble(year = yrs, abundance = N)
+
+lin <- lm(abundance ~ year, data = df)
+exp_fit <- nls(abundance ~ a * exp(b * (year - 2000)),
+               data = df, start = list(a = 80, b = -0.04))
+
+AIC(lin, exp_fit)
 ```
 
-**Interpretation.** TODO.
+**Interpretation.** Compare AIC. Populations rarely decline linearly forever — exponential or logistic models reflect biological reality. Use the linear model only as a null benchmark.
+
+## Exercise 3 — BACI design for a proposed protected area
+
+A BACI (Before-After-Control-Impact) design needs:
+
+- **Before / After:** pre-establishment surveys (≥ 3 years recommended) and post-establishment surveys (≥ 5 years to detect change above noise).
+- **Control / Impact:** a paired unprotected site matched on habitat, elevation, and baseline community composition.
+- **Response variables:** species richness, abundance of indicator species, vegetation structure.
+- **Analysis:** mixed-effects model with `site_type * period` interaction. The interaction term is the BACI effect.
+
+```{r, eval=FALSE}
+library(lme4)
+m <- lmer(richness ~ site_type * period + (1 | site), data = survey)
+summary(m)
+```
+
+**Interpretation.** Without the control site, any post-establishment change is confounded with regional trends.
+
+## Exercise 4 — Threat matrix
+
+```{r}
+threats <- tribble(
+  ~threat,                ~severity, ~scope, ~irreversibility,
+  "Agricultural expansion",       3,      3,                2,
+  "Selective logging",            2,      3,                1,
+  "Hunting pressure",             3,      2,                2,
+  "Climate change",               3,      3,                3,
+  "Invasive species",             2,      2,                2
+) %>% mutate(score = severity * scope * irreversibility) %>%
+  arrange(desc(score))
+
+threats
+```
+
+**Interpretation.** Following IUCN's threat-classification logic, score = severity × scope × irreversibility. Climate change usually tops local matrices because it scores maximum on all three axes.
+
+## Exercise 5 — One-page policy brief structure
+
+A defensible brief contains:
+
+1. **Headline finding** (one sentence, no jargon).
+2. **What we did** (sampling design, sample size, time period).
+3. **What we found** (effect size + uncertainty, not just p-values).
+4. **What it means** (translated for the decision being made).
+5. **What we recommend** (specific, actionable, ranked).
+6. **What we don't know** (honest limitations).
+7. **Contact + data availability**.
+
+**Interpretation.** Mark down briefs that lead with methods or that hide uncertainty. The audience makes a decision regardless — your job is to make sure the decision is informed.
+
+## Exercises 6-8 (sketch)
+
+- **Complementarity for site selection** — use `prioritizr` to pick the smallest set of sites covering all species at least once.
+- **Climate vulnerability** — combine exposure (projected climate change), sensitivity (thermal tolerance), and adaptive capacity (dispersal ability) into a composite index.
+- **Community monitoring trends** — fit a GLM with year as predictor and report the annual rate of change with a confidence interval.
 
 ## Common student pitfalls
 
 ::: {.callout-tip}
-- TODO: typical mistakes to flag during marking.
+- Reporting Shannon without checking that sample sizes are comparable.
+- Calling a linear trend "the population is declining" when residuals show curvature.
+- Designing BACI without a control site — that's just BA.
+- Threat matrices with no explicit scoring rubric.
+- Policy briefs longer than two pages or hiding effect sizes inside dense paragraphs.
 :::
