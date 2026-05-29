@@ -8,10 +8,20 @@ Validation schemas define rules that data must satisfy to be considered valid. T
 
 ## Schema Files
 
-- `forestry_schema.R` - Validation rules for forestry datasets
-- `agriculture_schema.R` - Validation rules for agricultural data
-- `ecology_schema.R` - Validation rules for ecological data
-- (Additional schemas as needed)
+One schema per directory in `data/`:
+
+- `agriculture_schema.R`: country-year crop yields
+- `botany_schema.R`: plastic-waste brand audit data
+- `ecology_schema.R`: IUCN Red List records
+- `economics_schema.R`: coffee quality scores
+- `entomology_schema.R`: animal-shelter outcome data
+- `environmental_schema.R`: Palmer Penguins morphology
+- `epidemiology_schema.R`: Atlantic hurricane tracks
+- `forestry_schema.R`: Star Wars character measurements (stand-in for continuous-variable work)
+- `geography_schema.R`: EMA medicine authorisations
+- `marine_schema.R`: Great Lakes fish populations
+
+Schemas are written against the **actual columns** in each CSV, not what the directory name implies. See `data/MISMATCHES.md` for the full mapping between directory names and dataset contents.
 
 ## Using Schemas
 

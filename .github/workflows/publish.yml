@@ -81,6 +81,7 @@ jobs:
           use-renv: true
 
       - name: Run chapter tests
+        if: hashFiles('tests/test-chapters.R') != ''
         run: |
           Rscript tests/test-chapters.R
 
@@ -96,10 +97,10 @@ jobs:
           # Tune this ceiling as the book grows. Hard-fail only on egregious
           # regressions (>40 min) so transient runner slowdowns don't block.
           if [ "$elapsed" -gt 2400 ]; then
-            echo "::error::Render took ${elapsed}s — exceeds 40min hard limit"
+            echo "::error::Render took ${elapsed}s, exceeds 40min hard limit"
             exit 1
           elif [ "$elapsed" -gt 1500 ]; then
-            echo "::warning::Render took ${elapsed}s — exceeds 25min soft limit; investigate slowdown"
+            echo "::warning::Render took ${elapsed}s, exceeds 25min soft limit; investigate slowdown"
           fi
         id: render
 
