@@ -1,0 +1,143 @@
+---
+title: "Solutions — 11-r-integrations"
+format: html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+```
+
+> **Instructor copy — do not distribute.** See `solutions/README.md`.
+>
+> Most exercises in this chapter are setup/configuration tasks. The
+> answers below are what to look for when marking, not standalone
+> code outputs.
+
+## Exercise 1 — jamovi Syntax mode round-trip
+
+What to look for:
+
+- Student installed jamovi successfully (Flatpak on Linux, `.dmg`/Homebrew on macOS).
+- Switched to Syntax mode and pasted the generated `jmv::ANOVA(...)` call.
+- Reproduced identical F-statistic, df, and p-value in R.
+
+```{r}
+#| eval: false
+library(jmv)
+jmv::ANOVA(
+  data = iris,
+  dep = "Sepal.Length",
+  factors = "Species",
+  effectSize = "eta",
+  postHoc = ~ Species
+)
+```
+
+Common slip: students paste the call but forget `library(jmv)` and report a "could not find function" error.
+
+## Exercise 2 — Positron vs RStudio
+
+Acceptable observations include:
+
+- VS Code-style keybindings instead of RStudio shortcuts.
+- Variables pane shows both R and Python objects (no equivalent in RStudio).
+- Console/Terminal split; Quarto preview pane embedded.
+- Right-click "Run cell" works the same but addins that depend on `rstudioapi` are absent.
+
+Reject pure aesthetic answers ("the icons are different").
+
+## Exercise 3 — reticulate + scikit-learn
+
+```{r}
+#| eval: false
+library(reticulate)
+virtualenv_create("dains-py", packages = c("scikit-learn", "pandas"))
+use_virtualenv("dains-py")
+
+sk <- import("sklearn.linear_model")
+fit <- sk$LinearRegression()$fit(r_to_py(mtcars[, c("wt", "hp")]), mtcars$mpg)
+preds <- fit$predict(r_to_py(mtcars[, c("wt", "hp")]))
+
+library(ggplot2)
+ggplot(tibble(actual = mtcars$mpg, predicted = preds),
+       aes(actual, predicted)) +
+  geom_point() + geom_abline(slope = 1, linetype = 2) +
+  theme_minimal()
+```
+
+Mark down: hard-coded system Python paths, missing virtualenv, or pulling Python objects into R without `py_to_r()` and then complaining about printing.
+
+## Exercise 4 — plumber endpoint for penguin body size
+
+```{r}
+#| eval: false
+# File: penguin_api.R
+library(palmerpenguins)
+library(dplyr)
+
+#* @get /size
+#* @param species The penguin species (Adelie, Chinstrap, Gentoo)
+function(species) {
+  penguins |>
+    filter(species == !!species) |>
+    summarise(mean_mass = mean(body_mass_g, na.rm = TRUE)) |>
+    pull(mean_mass)
+}
+```
+
+```bash
+# Run:
+Rscript -e 'plumber::pr("penguin_api.R") |> plumber::pr_run(port = 8000)'
+
+# Test:
+curl "http://localhost:8000/size?species=Adelie"
+```
+
+Common failure: forgetting `!!species` and ending up filtering by the literal string "species".
+
+## Exercise 5 — IRkernel and Jupyter
+
+What to look for:
+
+- `IRkernel::installspec()` ran successfully and the R kernel appears in `jupyter kernelspec list`.
+- Notebook reproduces a chapter 5 analysis (e.g., one-way ANOVA on `iris`) cell by cell.
+- `quarto convert notebook.ipynb` produced a `.qmd` file with the same content.
+
+Mark down: students who tried to install IRkernel from CRAN without also having Jupyter on the system PATH — that throws a confusing error.
+
+## Exercise 6 — DuckDB + dbplyr
+
+```{r}
+#| eval: false
+library(DBI)
+library(duckdb)
+library(dplyr)
+
+con <- dbConnect(duckdb(), tempfile())
+crops <- readr::read_csv("../data/agriculture/crop_yields.csv")
+dbWriteTable(con, "crops", crops)
+
+q <- tbl(con, "crops") |>
+  filter(year >= 2010) |>
+  group_by(country) |>
+  summarise(mean_wheat = mean(wheat_yield, na.rm = TRUE)) |>
+  arrange(desc(mean_wheat))
+
+dbplyr::show_query(q)   # the generated SQL
+collect(q)              # actually execute
+
+dbDisconnect(con, shutdown = TRUE)
+```
+
+The SQL `show_query()` reveals should include `GROUP BY country` and `ORDER BY ... DESC`. Students who `collect()` first and then call `summarise()` are doing the analysis in R, not in the database, and have missed the point.
+
+## Common student pitfalls
+
+::: {.callout-tip}
+- Installing tools via `pip` system-wide instead of `pipx` and breaking the system Python.
+- Mixing conda, system Python, and reticulate virtualenvs in the same project.
+- Assuming jamovi/JASP output is tidyverse-friendly — it isn't.
+- Treating Positron's beta status as a blocker for coursework; for most R + Quarto workflows it's already fine.
+- Hand-writing SQL in DBI when `dbplyr` would generate it from dplyr verbs.
+:::
