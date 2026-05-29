@@ -9,7 +9,7 @@ prefer-html: true
 
 ## Welcome {.unnumbered}
 
-Welcome to **Data Analysis in Natural Sciences: An R-Based Approach** — a comprehensive, practical guide designed for students, professionals, and researchers across the natural sciences. This book provides hands-on methods for analyzing and visualizing data using R, with real-world applications spanning ecology, forestry, agriculture, marine biology, environmental science, and beyond.
+Welcome to **Data Analysis in Natural Sciences: An R-Based Approach**, a comprehensive, practical guide designed for students, professionals, and researchers across the natural sciences. This book provides hands-on methods for analyzing and visualizing data using R, with real-world applications spanning ecology, forestry, agriculture, marine biology, environmental science, and beyond.
 
 ::: {.callout-note appearance="simple" icon=false}
 ## 📘 About This Book
@@ -58,16 +58,16 @@ This is an **open-access online textbook** that teaches modern data analysis tec
 | **Getting Started** | 1-2 | Introduction to R, data structures, importing data |
 | **Data Analysis Fundamentals** | 3-5 | EDA, hypothesis testing, statistical tests |
 | **Data Visualization** | 6-7 | ggplot2, advanced graphics, interactive plots |
-| **Advanced Topics** | 8-9 | Regression analysis, conservation applications |
+| **Advanced Topics** | 8-10 | Regression analysis, advanced modeling, conservation applications |
 
 ## Who Is This Book For? {.unnumbered}
 
 This book is designed for anyone working with data in the natural sciences:
 
-- 🎓 **Students** — Undergraduate and postgraduate students in biology, ecology, forestry, agriculture, and environmental sciences
-- 🔬 **Researchers** — Scientists seeking to enhance their data analysis and visualization skills
-- 🌿 **Practitioners** — Conservation professionals, environmental consultants, and natural resource managers
-- 📊 **Data Enthusiasts** — Anyone interested in learning R for scientific data analysis
+- 🎓 **Students**: Undergraduate and postgraduate students in biology, ecology, forestry, agriculture, and environmental sciences
+- 🔬 **Researchers**: Scientists seeking to enhance their data analysis and visualization skills
+- 🌿 **Practitioners**: Conservation professionals, environmental consultants, and natural resource managers
+- 📊 **Data Enthusiasts**: Anyone interested in learning R for scientific data analysis
 
 ::: {.callout-tip}
 ## Getting Started
@@ -77,12 +77,12 @@ New to R? Start with [Chapter 1: Introduction to Data Analysis](chapters/01-intr
 
 ## Features {.unnumbered}
 
-✅ **Complete code examples** — All code is fully reproducible
-✅ **Real datasets** — Learn with actual data from ecological and environmental research
-✅ **Modern R practices** — Tidyverse and tidymodels workflows throughout
-✅ **Professional tips** — Best practices from experienced researchers
-✅ **Exercises** — Practice problems to reinforce learning
-✅ **Open access** — Free to read online
+✅ **Complete code examples**: All code is fully reproducible
+✅ **Real datasets**: Learn with actual data from ecological and environmental research
+✅ **Modern R practices**: Tidyverse and tidymodels workflows throughout
+✅ **Professional tips**: Best practices from experienced researchers
+✅ **Exercises**: Practice problems to reinforce learning
+✅ **Open access**: Free to read online
 
 ## About the Author {.unnumbered}
 
@@ -119,7 +119,13 @@ To get the most out of this book, you should have:
 - R and RStudio installed (instructions in Chapter 1)
 - Curiosity about data and natural sciences!
 
-*No prior programming experience is required* — I start from the basics and build up progressively.
+*No prior programming experience is required.* I start from the basics and build up progressively.
+
+## A note on the example datasets {.unnumbered}
+
+The book ships with ten dataset directories named after scientific disciplines (`forestry/`, `epidemiology/`, `marine/`, and so on). Most of these CSV files came from public TidyTuesday-style sources and kept their original schemas. The directory names reflect the chapter context in which each file is used, not always what the file literally contains. For example, `forestry/forest_inventory.csv` is actually a Star Wars character table that we treat as a stand-in for continuous-variable analysis.
+
+This is documented in full at [`data/MISMATCHES.md`](https://github.com/jm0535/dains/blob/main/data/MISMATCHES.md). When you reach a chapter exercise that asks you to load one of these files, glance at `names(df)` and the first few rows before assuming the variables match the directory name. If you have a real domain dataset you'd like to swap in, the code in each chapter is small enough to adapt.
 
 ## Get Involved {.unnumbered}
 

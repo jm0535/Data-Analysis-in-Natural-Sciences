@@ -39,10 +39,19 @@ This appendix defines key statistical, modeling, and R-programming terms used th
 
 ## E
 
+**Chi-square test**
+: A test of association between two categorical variables, based on comparing observed cell counts to those expected if the variables were independent. Expected counts below 5 in any cell make the test unreliable; use Fisher's exact test instead.
+
 **Effect size**
 : A quantitative measure of the magnitude of a phenomenon (e.g., Cohen's *d*, η², *r*). Unlike p-values, effect sizes are largely independent of sample size and communicate practical importance.
 
 ## G
+
+**Fisher's exact test**
+: An exact test of association between two categorical variables, preferred over the chi-square test when sample sizes are small or expected cell counts are low. It computes the exact probability of the observed table under independence.
+
+**GLM (generalized linear model)**
+: A family of regression models that extends linear regression to non-normal response distributions (binomial for binary outcomes, Poisson for counts, etc.) via a link function. Logistic and Poisson regression are common GLMs.
 
 **ggplot2**
 : A widely used R package for declarative data visualization based on the Grammar of Graphics. Plots are built up in layers (data, aesthetics, geoms, scales, facets, themes).
@@ -65,6 +74,9 @@ This appendix defines key statistical, modeling, and R-programming terms used th
 
 ## K
 
+**Leverage**
+: A measure of how unusual a predictor value is relative to the rest of the data. High-leverage points sit far from the centroid of the predictor space and can pull a regression line toward themselves. Combined with large residuals, they become influential observations.
+
 **Kruskal-Wallis test**
 : A nonparametric alternative to one-way ANOVA that compares the distributions of three or more independent groups using ranks. It does not assume normality.
 
@@ -78,11 +90,17 @@ This appendix defines key statistical, modeling, and R-programming terms used th
 
 ## M
 
+**Mann-Whitney U test**
+: A nonparametric alternative to the two-sample t-test that compares two independent groups using ranks rather than raw values. Robust to non-normality and outliers; tests whether one distribution tends to produce larger values than the other.
+
 **Mann-Kendall test**
 : A nonparametric test for monotonic trend in time-series data. It is widely used in ecology and hydrology because it does not require the data to be normally distributed.
 
 **Median**
 : The middle value of an ordered dataset (or the average of the two middle values for even *n*). It is a robust measure of central tendency that is less affected by outliers than the mean.
+
+**Mixed-effects model**
+: A regression model that includes both fixed effects (population-level coefficients) and random effects (group-level deviations), used when observations are clustered or repeated within groups (e.g., repeated measures, multi-site studies). Implemented in R via `lme4` and `nlme`.
 
 **Multiple regression**
 : A linear regression with two or more predictor variables. It allows the effect of each predictor to be estimated while controlling for the others.
@@ -181,8 +199,19 @@ This appendix defines key statistical, modeling, and R-programming terms used th
 
 ## V
 
+**VIF (variance inflation factor)**
+: A diagnostic for multicollinearity in regression. Each predictor's VIF measures how much its variance is inflated by correlation with other predictors. Rules of thumb: VIF > 5 is worth investigating, VIF > 10 usually means dropping or combining predictors.
+
 **Variance**
 : The average squared deviation of observations from their mean. It measures spread but is expressed in squared units, which is why the standard deviation is often reported instead.
 
 **Viridis palette**
 : A family of perceptually uniform, colorblind-friendly color scales (viridis, magma, plasma, inferno, cividis) widely used in scientific visualization and available in ggplot2 via `scale_*_viridis_*()`.
+
+## W
+
+**Welch's t-test**
+: A version of the two-sample t-test that does not assume equal variances between the two groups. R's `t.test()` uses Welch's correction by default. Preferred over Student's t-test in almost all applied work because the equal-variance assumption is rarely safe.
+
+**Wilcoxon signed-rank test**
+: The nonparametric counterpart to the paired t-test. It tests whether the median of paired differences is zero by ranking the absolute differences and comparing the signed ranks.
