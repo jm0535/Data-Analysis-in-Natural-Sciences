@@ -2,6 +2,12 @@
 prefer-html: true
 reference-location: document
 citation-location: document
+execute:
+  eval: false
+knitr:
+  opts_chunk:
+    dev: "png"
+    python.reticulate: false
 ---
 
 # R in the Wider Ecosystem

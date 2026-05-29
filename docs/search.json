@@ -1455,5 +1455,137 @@
     "crumbs": [
       "References"
     ]
+  },
+  {
+    "objectID": "chapters/11-r-integrations.html",
+    "href": "chapters/11-r-integrations.html",
+    "title": "11  R in the Wider Ecosystem",
+    "section": "",
+    "text": "11.1 Introduction\nRStudio is not the only way to write R, and R does not work alone. By 2026 the R ecosystem includes a point-and-click GUI used in undergraduate teaching (jamovi), a Bayesian-friendly cousin (JASP), a new flagship IDE from Posit (Positron), polyglot tools that treat R and Python as equals (Quarto, reticulate, VS Code), and a small zoo of ways to expose R to other languages (plumber, Rserve, rpy2). This chapter walks through the integrations that natural-science researchers actually reach for, organised around the question students keep asking: what should I use, and when?",
+    "crumbs": [
+      "Part VI: R in Context",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>R in the Wider Ecosystem</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-r-integrations.html#introduction",
+    "href": "chapters/11-r-integrations.html#introduction",
+    "title": "11  R in the Wider Ecosystem",
+    "section": "",
+    "text": "NoteLearning Objectives\n\n\n\nBy the end of this chapter, you will be able to:\n\nChoose between RStudio and its alternatives for a given workflow.\nMove analyses between point-and-click GUIs (jamovi, JASP) and scripted R.\nRun R from VS Code, Positron, Jupyter, and the terminal.\nConnect R to Python, databases, and other applications via reticulate, DBI, and plumber.\nDecide which integrations are mature enough for coursework and which are still experimental.\n\n\n\n\n\n\n\n\n\n\nTipPROFESSIONAL TIP: Pick the tool that matches the question\n\n\n\nThe right environment depends on what you’re trying to do, not on what is fashionable:\n\nTeaching a stats lab to first-year ecology students who fear the command line? Reach for jamovi.\nWriting your thesis with mixed R and Python chunks? Quarto + Positron (or VS Code).\nSharing a species-distribution model with a non-R collaborator? Wrap it in Shiny or plumber.\nWorking on a remote HPC cluster over SSH? Radian beats the bare R console.\n\nDon’t switch tools mid-project unless there’s a real payoff. Each switch costs you a day of friction.",
+    "crumbs": [
+      "Part VI: R in Context",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>R in the Wider Ecosystem</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-r-integrations.html#when-the-gui-is-the-right-answer-jamovi-and-jasp",
+    "href": "chapters/11-r-integrations.html#when-the-gui-is-the-right-answer-jamovi-and-jasp",
+    "title": "11  R in the Wider Ecosystem",
+    "section": "11.2 When the GUI is the right answer: jamovi and JASP",
+    "text": "11.2 When the GUI is the right answer: jamovi and JASP\n\n11.2.1 jamovi\njamovi is an open-source statistical platform with a spreadsheet-style interface, built on top of R. Students who learned stats in SPSS feel at home immediately. The trick is that every analysis jamovi runs is also an R call to the jmv package — you can flip on Syntax mode (top-right ⋮ menu) and see the underlying code.\nWhen to use it. Introductory teaching, stakeholder demos, or as a sanity check against a scripted analysis.\nInstall.\n# Linux (Flatpak — works on Fedora, Ubuntu, others)\nflatpak install flathub org.jamovi.jamovi\n\n# macOS\nbrew install --cask jamovi\nIntegration with R.\n\n\nCode\n# In an R script, reproduce a jamovi ANOVA\nlibrary(jmv)\nlibrary(jmvReadWrite)\n\n# Read a .omv file directly, with embedded analyses\ndat &lt;- jmvReadWrite::read_omv(\"study1.omv\", getSyn = TRUE)\n\n# Or run the same analysis from scratch\njmv::ANOVA(\n  data = iris,\n  dep  = \"Sepal.Length\",\n  factors = \"Species\",\n  postHoc = ~ Species,\n  effectSize = \"eta\"\n)\n\n\n\n\n\n\n\n\nWarning\n\n\n\njmv returns S4 objects, not tibbles. broom::tidy() and the rest of the tidyverse will not work on them directly. Treat jmv output as a printed report; if you need a tidy data frame for downstream code, refit the model with aov() or lm() and tidy that.\n\n\n\n\n11.2.2 JASP\nJASP is jamovi’s Bayesian-friendly cousin: same point-and-click model, but with strong support for Bayes factors, posterior plots, and meta-analysis. Click the R Syntax button on any analysis to see the call.\nWhen to use it. First encounter with Bayesian methods, or any analysis where you want a Bayes factor alongside a p-value without writing Stan code.\nInstall.\n# Linux\nflatpak install flathub org.jaspstats.JASP\n\n# macOS\nbrew install --cask jasp\n\n\n\n\n\n\nNote\n\n\n\nJASP’s R syntax export is less complete than jamovi’s — some Bayesian modules still don’t emit runnable R. Treat the export as a starting point, not a guarantee.",
+    "crumbs": [
+      "Part VI: R in Context",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>R in the Wider Ecosystem</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-r-integrations.html#editors-and-ides-beyond-rstudio",
+    "href": "chapters/11-r-integrations.html#editors-and-ides-beyond-rstudio",
+    "title": "11  R in the Wider Ecosystem",
+    "section": "11.3 Editors and IDEs beyond RStudio",
+    "text": "11.3 Editors and IDEs beyond RStudio\n\n11.3.1 Positron — Posit’s new IDE\nPositron is Posit’s next-generation IDE, built on Code OSS (the same base as VS Code). Posit has signalled it as the long-term successor to RStudio, while continuing to maintain RStudio in parallel. Releases come weekly; the May 2026 build (2026.05.x) is the first I’d recommend for daily writing.\nWhy a student would switch. First-class Python and R support side by side. The Variables pane shows both R and Python objects when you use reticulate. Quarto preview, Shiny apps, and notebooks all run in-IDE.\nInstall.\n# Linux (Fedora): download the .rpm from positron.posit.co/download.html\nsudo dnf install ./Positron-*.rpm\n\n# macOS\nbrew install --cask positron\nWhat to expect. RStudio keyboard shortcuts mostly don’t carry over — Positron uses VS Code bindings. RStudio addins that depend on the rstudioapi package will not run. The trade-off is a much more capable editor with proper multi-language support.\n\n\n11.3.2 VS Code with the R extension\nIf you already write Python or web code in VS Code, you can add R without learning a second IDE.\nInstall.\n# macOS\nbrew install --cask visual-studio-code\n\n# Then install the R extension and language server\ncode --install-extension reditorsupport.r\n\n\nCode\ninstall.packages(c(\"languageserver\", \"httpgd\"))\n\n\nThe httpgd package gives a live plot pane that updates as you re-run code, which the default VS Code R extension lacks. Add to your .Rprofile:\n\n\nCode\nif (interactive() && Sys.getenv(\"RSTUDIO\") == \"\" &&\n    requireNamespace(\"httpgd\", quietly = TRUE)) {\n  options(vsc.plot = FALSE)\n  httpgd::hgd()\n}\n\n\n\n\n11.3.3 Radian — a better R console\nRadian is a Python-based replacement for the bare R REPL, with multi-line editing, syntax highlighting, and IPython-style features. Useful when you’re SSHed into a server and don’t have a graphical IDE.\npipx install radian\nradian\n\n\n\n\n\n\nWarning\n\n\n\nRadian is no longer under active development as of 2026. It still works, but treat it as legacy rather than a long-term investment. Watch the project’s README for a successor recommendation.",
+    "crumbs": [
+      "Part VI: R in Context",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>R in the Wider Ecosystem</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-r-integrations.html#r-from-a-notebook-jupyter-and-irkernel",
+    "href": "chapters/11-r-integrations.html#r-from-a-notebook-jupyter-and-irkernel",
+    "title": "11  R in the Wider Ecosystem",
+    "section": "11.4 R from a notebook: Jupyter and IRkernel",
+    "text": "11.4 R from a notebook: Jupyter and IRkernel\nUniversity HPC platforms and cloud notebooks (Colab-style services, JupyterHub) speak Jupyter, not RStudio. Connecting R is a two-step install:\n\n\nCode\ninstall.packages(\"IRkernel\")\nIRkernel::installspec()  # registers the R kernel with Jupyter\n\n\n# If Jupyter is not yet on PATH\npipx install jupyterlab\njupyter lab\n\n\n\n\n\n\nWarning\n\n\n\nJupyter notebooks (.ipynb) diff poorly under git because the output JSON changes every run. Use jupytext to pair every notebook with a clean .R or .qmd file, and put the .qmd under version control instead. Reserve notebooks for the final presentation layer.",
+    "crumbs": [
+      "Part VI: R in Context",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>R in the Wider Ecosystem</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-r-integrations.html#r-alongside-python-reticulate",
+    "href": "chapters/11-r-integrations.html#r-alongside-python-reticulate",
+    "title": "11  R in the Wider Ecosystem",
+    "section": "11.5 R alongside Python: reticulate",
+    "text": "11.5 R alongside Python: reticulate\nThe reticulate package lets R call Python — useful when a Python-only library (a remote-sensing wrapper, scikit-learn, a satellite-imagery API) is the right tool for one step of an otherwise R pipeline.\n\n\nCode\nlibrary(reticulate)\nuse_python(Sys.which(\"python3\"))\n\n# Pass an R data frame into Python, train a model, pull predictions back\nsk &lt;- import(\"sklearn.ensemble\")\nrf &lt;- sk$RandomForestRegressor(n_estimators = 100L)\nrf$fit(r_to_py(iris[, 1:4]), iris$Sepal.Length)\npredictions &lt;- rf$predict(r_to_py(iris[, 1:4]))\nhead(predictions)\n\n\nIn a Quarto document, R and Python chunks can share variables automatically:\n\n::: {.cell layout-align=\"center\"}\n\n```{.r .cell-code}\ndf &lt;- mtcars\n```\n:::\n\n\n\n::: {.cell layout-align=\"center\"}\n\n```{.python .cell-code}\nimport pandas as pd\nr.df.head()\n```\n:::\n\n\n\n\n\n\n\nWarning\n\n\n\nThe single biggest reticulate pitfall is environment management. Pick one approach and stick to it: either reticulate::virtualenv_create() and use_virtualenv(), or pair renv (for R) with uv (for Python). Don’t mix system Python, conda, and venvs in the same project.",
+    "crumbs": [
+      "Part VI: R in Context",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>R in the Wider Ecosystem</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-r-integrations.html#r-talking-to-other-applications",
+    "href": "chapters/11-r-integrations.html#r-talking-to-other-applications",
+    "title": "11  R in the Wider Ecosystem",
+    "section": "11.6 R talking to other applications",
+    "text": "11.6 R talking to other applications\n\n11.6.1 Databases — DBI and DuckDB\nMost labs that maintain a specimen database, environmental monitoring archive, or remote-sensing catalogue store the data in a database. Query it from R rather than exporting CSVs.\n\n\nCode\nlibrary(DBI)\nlibrary(duckdb)\nlibrary(dplyr)\n\n# DuckDB: a fast analytics database that lives in a single file\ncon &lt;- dbConnect(duckdb::duckdb(), \"specimens.duckdb\")\nDBI::dbWriteTable(con, \"iris\", iris)\n\n# dbplyr translates dplyr verbs to SQL transparently\ntbl(con, \"iris\") |&gt;\n  group_by(Species) |&gt;\n  summarise(n = n(), mean_sl = mean(Sepal.Length)) |&gt;\n  collect()\n\ndbDisconnect(con, shutdown = TRUE)\n\n\nFor PostgreSQL or MariaDB, swap duckdb::duckdb() for RPostgres::Postgres() or RMariaDB::MariaDB(). The odbc package covers commercial databases (SQL Server, Oracle) but requires system-level ODBC drivers — on Fedora, sudo dnf install unixODBC-devel first.\n\n\n11.6.2 Exposing R as a web service: plumber\nWhen a Python or JavaScript application needs to call an R-only model (a vegan ordination, a brms Bayesian fit), wrap the R function as a REST endpoint with plumber.\n\n\nCode\n# In a file plumber.R:\n#* @get /predict\n#* @param x A numeric value\nfunction(x) {\n  list(prediction = as.numeric(x) * 2 + rnorm(1))\n}\n\n# Then in R:\nplumber::pr(\"plumber.R\") |&gt; plumber::pr_run(port = 8000)\n\n\nAny other language can now call GET http://localhost:8000/predict?x=3 and get a JSON response. Plumber generates Swagger documentation automatically.\n\n\n11.6.3 Shiny — R as an interactive application\nShiny apps embed an R analysis in a browser interface. Useful for sharing a model with a non-R collaborator: the user moves sliders, the app re-runs the analysis on the server, and updated plots appear.\nShinylive is the 2024-2026 development worth knowing. It compiles a Shiny app to WebAssembly so the app runs entirely client-side, with no server. Pair it with the quarto-shinylive Quarto extension and you can embed a working Shiny app inside a chapter of a book like this one, hosted on plain GitHub Pages.",
+    "crumbs": [
+      "Part VI: R in Context",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>R in the Wider Ecosystem</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-r-integrations.html#cloud-and-reproducibility",
+    "href": "chapters/11-r-integrations.html#cloud-and-reproducibility",
+    "title": "11  R in the Wider Ecosystem",
+    "section": "11.7 Cloud and reproducibility",
+    "text": "11.7 Cloud and reproducibility\n\n11.7.1 Posit Cloud\nPosit Cloud (formerly RStudio Cloud) runs RStudio in a browser with zero install. The free tier is still available and useful for students without a working local R install, but as of 2025 new accounts can no longer publish outputs from there — that moved to Posit Connect Cloud. Treat it as a teaching environment, not a publishing platform.\n\n\n11.7.2 GitHub Codespaces with Rocker\nThe rocker-org/devcontainer-try-r repository gives a one-click cloud R + RStudio Server environment in GitHub Codespaces. Combined with r2u for fast binary package installs, it is the cleanest way I know to ensure 30 students all get the same R setup for an assignment.\n\n\n11.7.3 rig — managing multiple R versions\nrig is Posit’s R installation manager. It replaces ad-hoc scripts for switching between R versions on a single machine. Worth using once you have more than one R project that pins different versions.\n# Install rig (Linux)\ncurl -Ls https://github.com/r-lib/rig/releases/download/latest/rig-linux-latest.tar.gz | sudo tar xz -C /usr/local\n\n# Install and use a specific R version\nrig add 4.4.3\nrig default 4.4.3",
+    "crumbs": [
+      "Part VI: R in Context",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>R in the Wider Ecosystem</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-r-integrations.html#a-decision-guide",
+    "href": "chapters/11-r-integrations.html#a-decision-guide",
+    "title": "11  R in the Wider Ecosystem",
+    "section": "11.8 A decision guide",
+    "text": "11.8 A decision guide\nThe chapter covers many tools. Here is the cheat sheet I would give a student.\n\n\n\n\n\n\n\nWhat you want to do\nReach for\n\n\n\n\nTeach intro stats with a GUI\njamovi\n\n\nFirst encounter with Bayesian methods\nJASP\n\n\nModern IDE, R + Python first-class\nPositron\n\n\nAlready use VS Code, add R\nVS Code + R extension + httpgd\n\n\nCleaner R console in a terminal\nRadian (with the maintenance caveat)\n\n\nRun R inside JupyterHub\nIRkernel\n\n\nCall Python from R\nreticulate\n\n\nQuery a database from R\nDBI + DuckDB / RPostgres\n\n\nShare an R analysis as a web app\nShiny (or Shinylive in a Quarto book)\n\n\nExpose R to a non-R application\nplumber\n\n\nZero-install R for a classroom\nPosit Cloud, or GitHub Codespaces + Rocker\n\n\nManage multiple R versions\nrig",
+    "crumbs": [
+      "Part VI: R in Context",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>R in the Wider Ecosystem</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-r-integrations.html#summary",
+    "href": "chapters/11-r-integrations.html#summary",
+    "title": "11  R in the Wider Ecosystem",
+    "section": "11.9 Summary",
+    "text": "11.9 Summary\nR does not live alone. Each integration in this chapter exists because someone needed R to talk to something else — a GUI for non-coders, a notebook server, a Python library, a web application, a database. None of these tools replaces RStudio for general use; they let you reach contexts where RStudio is not the right answer.\nIf you take one thing from this chapter, let it be this: a good analytical workflow is whichever combination of tools lets you do your science reproducibly, share your results, and not lose a day of work to environment problems. The R ecosystem is plural by design — use that.",
+    "crumbs": [
+      "Part VI: R in Context",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>R in the Wider Ecosystem</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-r-integrations.html#exercises",
+    "href": "chapters/11-r-integrations.html#exercises",
+    "title": "11  R in the Wider Ecosystem",
+    "section": "11.10 Exercises",
+    "text": "11.10 Exercises\n\nInstall jamovi. Load a built-in dataset, run a one-way ANOVA, switch to Syntax mode, and copy the generated jmv::ANOVA() call into an R script. Confirm you get identical output.\nInstall Positron. Open this book’s repository in it and render a single chapter from the Quarto pane. Note three differences from RStudio that affect your workflow.\nIn an R session, install reticulate and create a virtual environment. Run a small scikit-learn regression on mtcars, return predictions to R, and plot them with ggplot2.\nWrite a plumber endpoint that takes a species name (string) and returns the mean body size from the Palmer penguins dataset for that species as JSON. Test it with curl.\nSet up IRkernel and open a Jupyter notebook. Reproduce one analysis from Chapter 5 in the notebook. Then convert the notebook to a .qmd file with quarto convert.\nConnect to a DuckDB database holding a CSV from data/. Use dbplyr to filter and summarise without collect()ing first. Inspect the generated SQL with show_query().",
+    "crumbs": [
+      "Part VI: R in Context",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>R in the Wider Ecosystem</span>"
+    ]
+  },
+  {
+    "objectID": "chapters/11-r-integrations.html#references",
+    "href": "chapters/11-r-integrations.html#references",
+    "title": "11  R in the Wider Ecosystem",
+    "section": "11.11 References",
+    "text": "11.11 References\n\nPositron documentation: https://positron.posit.co/\njamovi documentation: https://docs.jamovi.org/\nJASP documentation: https://jasp-stats.org/\nreticulate site: https://rstudio.github.io/reticulate/\nplumber site: https://www.rplumber.io/\nIRkernel installation: https://irkernel.github.io/installation/\nRocker devcontainers: https://github.com/rocker-org/devcontainer-try-r",
+    "crumbs": [
+      "Part VI: R in Context",
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>R in the Wider Ecosystem</span>"
+    ]
   }
 ]
