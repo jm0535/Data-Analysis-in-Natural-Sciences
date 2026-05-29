@@ -148,96 +148,39 @@ digraph test_selection {
 ```
 
 ::: {.callout-note}
-## Code Explanation
+## What the code is doing
 
-This code creates a decision tree for statistical test selection:
-
-1. **Package Setup**:
-   - Uses `DiagrammeR` for creating flowcharts
-   - Defines node styles and attributes
-   - Sets up the graph structure
-
-2. **Node Structure**:
-   - Main categories: One Variable, Two Variables, Multiple Variables
-   - Subcategories for different data types
-   - Specific tests for each scenario
-
-3. **Connections**:
-   - Shows logical flow between decisions
-   - Links tests to appropriate scenarios
-   - Guides test selection process
+`DiagrammeR` lets you describe a flowchart in plain text and renders it as a graph. The node block defines the boxes (questions, then tests at the leaves) and the edge block wires them together top-down.
 :::
 
 ::: {.callout-important}
-## Results Interpretation
+## How to read the decision tree
 
-The decision tree in @fig-decision-tree provides a systematic approach to test selection:
-
-1. **Test Categories**:
-   - Parametric vs. non-parametric tests
-   - Tests for different data types
-   - Tests for different sample sizes
-
-2. **Selection Criteria**:
-   - Data distribution (normal vs. non-normal)
-   - Number of variables
-   - Type of variables (continuous vs. categorical)
-   - Sample independence
-
-3. **Test Properties**:
-   - Assumptions of each test
-   - Appropriate use cases
-   - Limitations and considerations
+@fig-decision-tree is a cheat sheet, not a law. The branches sort tests by the questions you actually ask in front of a dataset: how many variables, what type, are the groups independent, do the values look roughly normal. Walk down it until you land on a test, then check that test's assumptions before you trust the p-value. If two branches look plausible, run both and see whether they agree. They usually do.
 :::
 
 ::: {.callout-tip}
 ## PROFESSIONAL TIP: Statistical Test Selection
 
-When choosing statistical tests:
+A practical sequence when picking a test:
 
-1. **Data Characteristics**:
-   - Check data distribution
-   - Verify assumptions
-   - Consider sample size
-   - Evaluate data types
-
-2. **Research Design**:
-   - Match test to research question
-   - Consider experimental design
-   - Account for dependencies
-   - Plan for multiple comparisons
-
-3. **Test Selection Process**:
-   - Start with research question
-   - Identify data characteristics
-   - Choose appropriate test
-   - Verify assumptions
-   - Consider alternatives
+- Start from the question, not the data. "Are these two groups different?" leads to a t-test or Mann-Whitney. "Does X predict Y?" leads to regression. Get the question right first.
+- Look at the data. Distribution, sample size, type (continuous, categorical, ordinal). This narrows the parametric vs. non-parametric choice.
+- Check the assumptions of whatever test you land on. If they fail, switch tests rather than ignoring the violation.
+- If you're running many tests, plan for multiple comparisons up front. Bonferroni or FDR correction should be a decision, not an afterthought.
 :::
 
-## Parametric vs. Non-Parametric Tests
+## Parametric vs. non-parametric tests
 
-### Parametric Tests
+Parametric tests assume the data come from a particular distribution, usually normal. When the assumption holds they are powerful and easy to interpret. Common ones: t-tests, ANOVA, Pearson correlation, linear regression.
 
-Parametric tests make assumptions about the underlying population distribution, typically that the data follows a normal distribution. Common parametric tests include:
+Non-parametric tests make weaker assumptions. They work on ranks rather than raw values, which makes them robust to skewed data and outliers, at the cost of some statistical power. The usual suspects: Mann-Whitney U, Wilcoxon signed-rank, Kruskal-Wallis, Spearman correlation.
 
-- t-tests
-- ANOVA
-- Pearson correlation
-- Linear regression
+The honest rule is: try parametric first if it's appropriate, fall back to non-parametric if the assumptions clearly fail. Don't switch to non-parametric just to avoid checking.
 
-### Non-Parametric Tests
+### Checking assumptions
 
-Non-parametric tests make fewer assumptions about the population distribution and are useful when data doesn't meet the assumptions of parametric tests. Common non-parametric tests include:
-
-- Mann-Whitney U test
-- Wilcoxon signed-rank test
-- Kruskal-Wallis test
-- Spearman correlation
-
-### Checking Assumptions
-
-Before applying a parametric test, it's essential to check if your data meets the necessary assumptions. Let's use our crop yield dataset to demonstrate:
+Let's use the crop yield dataset to walk through this:
 
 ```{r}
 #| label: load-crop-data
@@ -328,18 +271,14 @@ knitr::kable(summary_stats,
 ```
 
 ::: {.callout-note}
-## Code Explanation
-This code demonstrates how to check the normality assumption for parametric tests:
+## What the code is doing
 
-1. **Data Preparation**: Imports and filters the dataset, removing missing values
-2. **Visual Assessment**: Creates histogram and Q-Q plot to visually assess normality
-3. **Statistical Testing**: Uses Shapiro-Wilk test to formally test for normality
-4. **Result Presentation**: Formats results in clear, publication-ready tables
+A histogram plus a Q-Q plot side by side is my standard first look at any continuous variable. The Shapiro-Wilk test then puts a number on what your eyes already told you. Note the `sample()` call: Shapiro-Wilk refuses inputs larger than 5000, so we cap it.
 :::
 
 ::: {.callout-important}
-## Results Interpretation
-The normality assessment in @fig-normality-check reveals a right-skewed distribution of wheat yields, confirmed by both visual inspection and the significant Shapiro-Wilk test (@tbl-shapiro-test, p < 0.001). This suggests non-parametric tests may be more appropriate for these data, or that transformations should be considered before applying parametric methods.
+## Reading the results
+The histogram leans right and the Q-Q plot bends away from the reference line at both tails. Shapiro-Wilk agrees (p < 0.001 in @tbl-shapiro-test), so the normal assumption is out. For these data I would either reach for a non-parametric test (Mann-Whitney, Kruskal-Wallis) or try a log transformation first and recheck. Don't ignore the result and run a t-test anyway.
 :::
 
 ## Tests for Comparing Groups
@@ -380,7 +319,7 @@ ggplot(crop_yields_grouped, aes(x = period, y = `Wheat (tonnes per hectare)`, fi
 
 Before the test, verify normality of each group and equality of variance.
 `t.test()` defaults to Welch's correction, which is robust to unequal
-variance — preferred over the classical Student's t-test in almost all
+variance, preferred over the classical Student's t-test in almost all
 applied work.
 
 ```{r}
@@ -450,20 +389,14 @@ knitr::kable(period_summary,
 ```
 
 ::: {.callout-note}
-## Code Explanation
-This code demonstrates how to perform an independent samples t-test:
+## What the code is doing
 
-1. **Data Preparation**: Creates two groups based on time periods
-2. **Visualization**: Uses boxplots to visually compare the distributions
-3. **Statistical Testing**: Performs t-test using R's formula interface with backticks for column names with spaces
-4. **Result Presentation**: Creates formatted tables of results and summary statistics
+`t.test()` accepts a formula (`y ~ group`) when `group` has exactly two levels. The backticks around `Wheat (tonnes per hectare)` are needed only because the column name contains spaces and parentheses.
 :::
 
 ::: {.callout-important}
-## Results Interpretation
-The t-test results show a significant difference in wheat yields between the two time periods (p < 0.001). The recent period (2000+) has substantially higher yields (mean = 3.31 tonnes/hectare) compared to the earlier period (mean = 2.45 tonnes/hectare).
-
-This increase of approximately 35% over time likely reflects advancements in agricultural technology, improved crop varieties, and better farming practices that have been developed and implemented over recent decades.
+## Reading the results
+Recent-period wheat yields (mean 3.31 t/ha) sit well above the pre-2000 mean of 2.45 t/ha, and the t-test puts that gap far outside what sampling noise could produce (p < 0.001). That's a 35% jump, which lines up with the long arc of postwar agricultural improvement: better varieties, more fertilizer, more irrigation. The test confirms the difference is real. It does not tell you which of those drivers is responsible; that takes domain knowledge and more variables in the model.
 :::
 
 #### Paired Samples t-Test
@@ -585,20 +518,14 @@ knitr::kable(paired_summary,
 ```
 
 ::: {.callout-note}
-## Code Explanation
-This code demonstrates how to perform a paired samples t-test:
+## What the code is doing
 
-1. **Data Preparation**: Creates a dataset with paired observations (wheat and rice yields)
-2. **Visualization**: Uses a scatterplot to show the relationship between the paired variables
-3. **Statistical Testing**: Performs a paired t-test to compare the means of two related variables
-4. **Result Presentation**: Creates formatted tables of results and summary statistics
+The `paired = TRUE` argument is what changes the test. We pass two vectors of the same length, and R works with the within-row differences rather than the raw values, so each country-year acts as its own control.
 :::
 
 ::: {.callout-important}
-## Results Interpretation
-The paired t-test results show a significant difference between wheat and rice yields (p < 0.001). On average, rice yields are higher than wheat yields by approximately 1.68 tonnes per hectare.
-
-This difference is consistent with biological and agricultural knowledge - rice typically produces more biomass per hectare than wheat under certain conditions. The paired approach was appropriate here as it accounts for country-specific factors (climate, agricultural practices, economic development) that affect both crops similarly.
+## Reading the results
+Rice beats wheat by about 1.68 tonnes per hectare on average, and the paired test says that gap is far from zero (p < 0.001). The number to lean on here is the mean difference, not the two group means, because the test is asking a within-pair question: in the same country and year, which crop yields more? Pairing soaks up a lot of country-level noise (climate, infrastructure, farming intensity), which is why the test has so much power even with a moderate effect.
 :::
 
 ### Analysis of Variance (ANOVA)
@@ -650,7 +577,7 @@ ggplot(continental_yields, aes(x = Continent, y = `Wheat (tonnes per hectare)`, 
 
 Before interpreting an ANOVA, verify that its assumptions hold:
 
-1. **Independence** of observations (study design — not testable from the data alone).
+1. **Independence** of observations (a study-design property, not testable from the data alone).
 2. **Normality** of residuals within each group (Shapiro-Wilk test or Q-Q plot).
 3. **Homogeneity of variance** across groups (Levene's test).
 
@@ -681,7 +608,7 @@ continental_yields %>%
 
 A non-significant Levene's test (p > 0.05) supports the equal-variance assumption.
 A non-significant Shapiro-Wilk (p > 0.05) supports normality within groups. With
-large samples, Shapiro-Wilk becomes overly sensitive — also inspect a Q-Q plot
+large samples, Shapiro-Wilk becomes overly sensitive, so also inspect a Q-Q plot
 of the residuals: `plot(anova_result, which = 2)`.
 
 ```{r}
@@ -768,28 +695,18 @@ knitr::kable(continent_summary,
 ```
 
 ::: {.callout-note}
-## Code Explanation
-This code demonstrates how to perform a one-way ANOVA:
+## What the code is doing
 
-1. **Data Preparation**: Creates a dataset with continental groupings for wheat yields
-2. **Visualization**: Uses boxplots to compare distributions across continents
-3. **Statistical Testing**: Performs ANOVA using R's formula interface
-4. **Post-hoc Analysis**: Conducts Tukey's HSD test to identify which specific groups differ
-5. **Result Presentation**: Creates formatted tables of results and summary statistics
+`aov()` fits the one-way model; `TukeyHSD()` then walks through all pairs of continents with a family-wise error correction. Without that correction you would inflate your false-positive rate just by running so many comparisons.
 :::
 
 ::: {.callout-important}
-## Results Interpretation
-The ANOVA results in @tbl-anova-results show significant differences in wheat yields between continents (p < 0.001), as visualized in @fig-anova-continents. The F-statistic (39.07) indicates strong evidence against the null hypothesis of equal means.
+## Reading the results
+The omnibus ANOVA (F = 39.07, p < 0.001) tells you the continents are not all the same on average. It does not tell you which ones differ, which is why the Tukey table matters more for interpretation.
 
-The Tukey HSD post-hoc test in @tbl-tukey-hsd reveals:
-- Europe and Oceania have significantly higher wheat yields than Africa and Asia
-- North America has significantly higher yields than Africa
-- No significant difference between Europe and Oceania
+Europe and Oceania sit at the top of the distribution. Both differ significantly from Africa and Asia but not from each other. North America beats Africa cleanly. The pattern tracks what you would expect from inputs and infrastructure rather than from anything biological about the continents themselves.
 
-These findings reflect important geographical and developmental patterns in global agriculture, with European and Oceanian countries typically having more advanced agricultural technology and favorable growing conditions.
-
-Note that for unbalanced designs (unequal sample sizes across groups), Type II ANOVA tests would be more appropriate, as they adjust for the imbalance in the data. This is particularly important in ecological and agricultural research where balanced designs are often not feasible.
+One caveat worth keeping in mind: group sizes here are unequal. `aov()` uses Type I sums of squares, which is fine for one-way designs but becomes a real problem in multi-factor models with imbalance. Reach for `car::Anova(..., type = "II")` when you add a second factor.
 :::
 
 ### Non-Parametric Alternatives
@@ -972,25 +889,16 @@ knitr::kable(cor_table,
 ```
 
 ::: {.callout-note}
-## Code Explanation
-This code demonstrates how to perform correlation analysis:
+## What the code is doing
 
-1. **Data Preparation**: Creates a dataset with wheat and maize yields for comparison
-2. **Visualization**: Uses a scatterplot to show the relationship between variables
-3. **Statistical Testing**: Calculates Pearson correlation
-4. **Result Presentation**: Creates a formatted table of results
+`cor.test()` returns both the correlation coefficient and a hypothesis test for whether it differs from zero, along with a confidence interval. Always look at the scatter plot first; r alone hides curvature and outliers.
 :::
 
 ::: {.callout-important}
-## Results Interpretation
-The Pearson correlation results show a strong positive relationship between wheat and maize yields (r = 0.73, p < 0.001).
+## Reading the results
+r = 0.73 is a strong positive correlation, and the p-value is the easy part: with this sample size, almost any non-zero r will register as significant. The number that matters is r itself, and 0.73 means wheat and maize move together most of the time without being interchangeable.
 
-This strong correlation likely reflects shared agricultural factors affecting both crops:
-- Countries with advanced agricultural technology tend to have higher yields for all crops
-- Similar environmental conditions (soil quality, rainfall, temperature) affect multiple crops
-- Economic development level influences agricultural inputs (fertilizers, machinery, irrigation)
-
-Understanding these correlations can help in developing agricultural policies that benefit multiple crop systems simultaneously.
+What's driving it? Probably not biology. Both crops respond to the same country-level inputs: fertilizer access, mechanization, irrigation, agronomic know-how. A country good at growing one tends to be good at growing the other. That's a useful pattern for policy, but it's also a reminder that correlation here is not a within-field relationship; it's a between-country one.
 :::
 
 #### Spearman Correlation
@@ -1048,24 +956,16 @@ knitr::kable(correlation_comparison,
 ```
 
 ::: {.callout-note}
-## Code Explanation
-This code demonstrates how to perform Spearman rank correlation:
+## What the code is doing
 
-1. **Purpose**: Calculates a non-parametric correlation that works with non-normal data
-2. **Implementation**: Uses the same cor.test() function but specifies method="spearman"
-3. **Advantages**: Robust to outliers and non-linear relationships as it uses ranks instead of raw values
-4. **Comparison**: Presented alongside Pearson correlation to provide a more complete analysis
+Same `cor.test()` call as before, just with `method = "spearman"`. Under the hood R ranks the values first and then computes a Pearson correlation on the ranks, which is why outliers and mild non-linearity lose their grip on the result.
 :::
 
 ::: {.callout-important}
-## Results Interpretation
-The Spearman correlation (rho = 0.76, p < 0.001) is slightly stronger than the Pearson correlation (r = 0.73), suggesting that:
+## Reading the results
+Spearman's rho (0.76) edges out Pearson's r (0.73). When the rank-based version is a little stronger, the usual reading is that the relationship is monotonic but not perfectly linear, often because a few high-yield countries bend the regression line.
 
-1. The relationship between wheat and maize yields may have some non-linear components
-2. The correlation is robust even when considering ranks rather than absolute values
-3. The relationship holds across the entire distribution, not just for countries with average yields
-
-The similarity between Pearson and Spearman results increases confidence in the finding that wheat and maize yields are strongly correlated, regardless of the statistical approach used.
+The bigger takeaway: both methods land in the same neighbourhood. When parametric and non-parametric versions agree, you can stop worrying about which one to report. When they disagree sharply, that disagreement is usually telling you something about outliers or shape, and it's worth tracking down before you pick a number for the paper.
 :::
 
 ### Regression Analysis
@@ -1157,26 +1057,16 @@ plot(lm_model)
 ```
 
 ::: {.callout-note}
-## Code Explanation
-This code demonstrates how to perform linear regression analysis:
+## What the code is doing
 
-1. **Model Specification**: Uses the formula interface to predict wheat yields from year
-2. **Model Fitting**: Applies the lm() function to fit the linear model
-3. **Visualization**: Creates a scatter plot with the regression line and confidence interval
-4. **Model Assessment**: Extracts key statistics including coefficients, R-squared, and p-values
-5. **Result Presentation**: Formats results in publication-ready tables
+`lm()` fits the model, `summary()` pulls out the coefficients and fit statistics, and `plot(lm_model)` gives the four diagnostic plots (residuals vs fitted, Q-Q, scale-location, leverage) you should look at before quoting any p-value.
 :::
 
 ::: {.callout-important}
-## Results Interpretation
-The linear regression results show that year is a significant predictor of wheat yield (p < 0.001). For each additional year, wheat yield increases by approximately 0.04 tonnes per hectare.
+## Reading the results
+The slope on Year is about 0.04 tonnes per hectare per year, and it's statistically significant by a wide margin. In plain English: US wheat yields gained roughly four-hundredths of a tonne per hectare every year over the series, which compounds to a serious increase across decades.
 
-The model explains a substantial portion of the variance in wheat yields (R² = 0.53), indicating that:
-1. There is a strong linear trend in wheat yields over time
-2. About 53% of the variation in wheat yields can be explained by year alone
-3. The remaining 47% is due to factors specific to wheat cultivation or other variables not included in the model
-
-This relationship has practical implications for agricultural planning and food security assessments, as year data could potentially be used to estimate wheat production in regions where data is more readily available.
+R² = 0.53 means year alone accounts for about half the variation in yield. That's a lot for a single predictor, but it also means the other half is everything year doesn't capture: weather, policy changes, drought years, shifts in which states grow wheat. Don't let R² fool you into thinking the model is forecast-ready. A linear fit through a long agricultural time series will eventually flatten or break, and the diagnostic plots are where you'll see the first signs of trouble.
 :::
 
 #### Multiple Regression
@@ -1251,31 +1141,18 @@ knitr::kable(multi_model_stats,
 ```
 
 ::: {.callout-note}
-## Code Explanation
-This code demonstrates how to perform multiple regression analysis:
+## What the code is doing
 
-1. **Model Specification**: Uses the formula interface to predict wheat yields from multiple predictors (year and continent)
-2. **Categorical Variables**: Includes a categorical predictor (continent) which is automatically converted to dummy variables
-3. **Model Fitting**: Applies the lm() function to fit the multiple regression model
-4. **Model Summary**: Extracts key statistics including coefficients, standard errors, t-values, and p-values
-5. **Result Presentation**: Creates formatted tables showing the contribution of each predictor
+Adding `+` terms to the formula stacks predictors into one model. When you include a categorical variable, R picks one level as the reference (alphabetically by default) and reports each other level as a contrast against it. So every continent coefficient below is "this continent versus Africa".
 :::
 
 ::: {.callout-important}
-## Results Interpretation
-The multiple regression results show that both year and continent are significant predictors of wheat yields:
+## Reading the results
+Year still matters after you control for continent, just less: about 0.03 t/ha per year instead of the 0.04 we saw in the simple model. Some of what looked like a time trend in one country gets absorbed by geography once you let the model see other countries.
 
-1. **Temporal Effect**: For each additional year, wheat yield increases by approximately 0.03 tonnes per hectare (p < 0.001), controlling for continent
-2. **Geographic Effects**: Compared to Africa (the reference category):
-   - Europe has significantly higher yields (+2.77 tonnes/hectare, p < 0.001)
-   - Oceania has significantly higher yields (+1.76 tonnes/hectare, p < 0.001)
-   - North America has significantly higher yields (+1.75 tonnes/hectare, p < 0.001)
-   - South America has significantly higher yields (+1.11 tonnes/hectare, p < 0.001)
-   - Asia has significantly higher yields (+0.88 tonnes/hectare, p < 0.001)
+The continent contrasts are all positive against Africa, which is the reference level. Europe leads at +2.77 t/ha, with Oceania and North America close behind, then South America and Asia. These are conditional effects: the gap that remains after the year trend is accounted for.
 
-The model explains a substantial portion of the variance (R² = 0.67), considerably more than the single-predictor models. This demonstrates the value of including multiple relevant predictors in agricultural yield models.
-
-For ecological and agricultural research, this type of analysis helps disentangle the effects of time (technological progress) from geography (climate, soil conditions, and regional agricultural practices).
+R² climbs to 0.67, up from 0.53 with year alone. That gain is real, but watch the adjusted R² rather than the raw one as you keep adding predictors, otherwise you reward yourself for noise. The bigger value of this model is interpretive: it lets you ask how much of the rise in yields is time (technology spreading) versus place (where farming was already productive).
 :::
 
 ## Tests for Categorical Data
@@ -1395,30 +1272,16 @@ if(exists("chi_sq_result")) {
 ```
 
 ::: {.callout-note}
-## Code Explanation
-This code demonstrates how to perform a Chi-Square test of independence:
+## What the code is doing
 
-1. **Data Preparation**: Creates a contingency table showing the distribution of countries across continents and yield categories
-2. **Visualization**: Uses a mosaic plot to visualize the contingency table
-3. **Statistical Testing**: Performs the Chi-Square test to assess independence between continent and yield category
-4. **Result Presentation**: Creates formatted tables of observed counts, expected counts, and test results
+`table()` builds the contingency table from two categorical columns; `chisq.test()` then compares observed counts to what you would expect if the two variables were independent. The standardized residuals are the diagnostic worth reading: they tell you which cells drive the result.
 :::
 
 ::: {.callout-important}
-## Results Interpretation
-The Chi-Square test results show a significant association between continent and wheat yield category (χ² = 79.56, df = 10, p < 0.001).
+## Reading the results
+χ² = 79.56 on 10 df with p < 0.001 says the categories are not independent. The omnibus number is rarely the interesting part of a chi-square; the residuals are. Europe shows up with more high-yield countries than independence would predict, Africa with more low-yield ones, and Asia spreads itself more evenly across the categories.
 
-The contingency table and mosaic plot reveal:
-1. Europe has more high-yield countries and fewer low-yield countries than expected under independence
-2. Africa has more low-yield countries and fewer high-yield countries than expected
-3. Asia shows a more balanced distribution across yield categories
-
-This pattern aligns with the ANOVA and Kruskal-Wallis results, confirming that geographical location is strongly associated with agricultural productivity even when yields are categorized rather than treated as continuous variables.
-
-In ecological and agricultural research, this categorical approach can be valuable when:
-- Data do not meet the assumptions of parametric tests
-- The research question focuses on categories rather than precise values
-- Communicating results to non-technical stakeholders who may find categories more intuitive
+That pattern echoes what ANOVA and Kruskal-Wallis already told us with the continuous version of yield, which is reassuring. The categorical framing throws away resolution but buys robustness: you don't need to worry about distribution shape, only about cell counts. If any expected cell drops below five, switch to Fisher's exact test or the simulated p-value (which is what we do above).
 :::
 
 ## Tests for Trends and Time Series
@@ -1460,30 +1323,16 @@ if(requireNamespace("zoo", quietly = TRUE)) {
 ```
 
 ::: {.callout-note}
-## Code Explanation
-This code demonstrates how to perform time series analysis:
+## What the code is doing
 
-1. **Data Preparation**: Creates a time series object from annual wheat yield data for a specific country
-2. **Visualization**: Plots the time series data with trend and seasonal components
-3. **Decomposition**: Separates the time series into trend, seasonal, and random components
-4. **Model Fitting**: Applies an ARIMA model to account for autocorrelation in the data
-5. **Result Presentation**: Creates formatted tables of model parameters and diagnostics
+`zoo()` wraps the yield values together with their year index so the plot keeps time on the x-axis cleanly. The `lowess()` line is a locally weighted smoother. It traces the trend without forcing it to be a straight line.
 :::
 
 ::: {.callout-important}
-## Results Interpretation
-The time series analysis in @fig-time-series-analysis reveals important patterns in wheat yields over time:
+## Reading the results
+The smoothed line in @fig-time-series-analysis climbs steadily from mid-century on. With annual data there's no seasonal cycle to disentangle, which simplifies things, but the year-to-year values are clearly not independent. This year's yield is a strong hint about next year's. That dependence (autocorrelation) is exactly what a plain regression ignores, and what an ARIMA or other time-aware model is built to handle.
 
-1. **Trend Component**: There is a clear upward trend in wheat yields, consistent with technological improvements in agriculture
-2. **Seasonal Component**: The data shows minimal seasonality as expected with annual data
-3. **ARIMA Model**: The model indicates significant autocorrelation in the data, meaning that yields in one year are related to yields in previous years
-
-This type of analysis is particularly valuable in ecological and agricultural research because:
-- It accounts for temporal dependencies that violate the independence assumption of many statistical tests
-- It allows for forecasting future yields based on historical patterns
-- It can help identify unusual years (outliers) or structural changes in agricultural systems
-
-For policy planning and food security assessments, understanding these temporal patterns is crucial for developing robust agricultural strategies that account for both long-term trends and year-to-year variations.
+In practice I treat a plot like this as the entry point, not the analysis. It tells you the series has structure worth modelling. Forecasting, change-point detection, and accounting for autocorrelation when comparing periods all live downstream of this first look.
 :::
 
 ### Mann-Kendall Trend Test
@@ -1519,26 +1368,16 @@ if(requireNamespace("Kendall", quietly = TRUE)) {
 ```
 
 ::: {.callout-note}
-## Code Explanation
-This code demonstrates how to perform the Mann-Kendall trend test:
+## What the code is doing
 
-1. **Purpose**: Tests for monotonic trends in time series data without assuming linearity
-2. **Implementation**: Uses the Kendall package to calculate the test statistic and p-value
-3. **Advantages**: Non-parametric approach that is robust to outliers and doesn't require normality
-4. **Visualization**: Creates a time series plot with a smoothed trend line to visualize the direction
-5. **Result Presentation**: Formats results in a clear, publication-ready table
+`Kendall::MannKendall()` walks every pair of observations in the series and counts how often a later value exceeds an earlier one. Tau is that count, scaled to fall between -1 and 1.
 :::
 
 ::: {.callout-important}
-## Results Interpretation
-The Mann-Kendall test results show a significant upward trend in wheat yields for France over time (tau = 0.87, p < 0.001).
+## Reading the results
+Tau = 0.87 is about as strong a positive trend signal as you can get from this test, and p < 0.001 confirms it's not noise. The reason to like Mann-Kendall over a regression slope here is that it makes almost no assumptions: no normality, no linear form, no homoscedasticity. All it asks is whether the series is monotonic, and it answers based on rank ordering rather than magnitude.
 
-This non-parametric approach confirms the findings from the linear regression and ARIMA models but makes fewer assumptions about the data:
-1. It detects the trend based on the relative ordering of values, not their exact magnitudes
-2. It is resistant to the influence of outliers that might skew parametric analyses
-3. It doesn't assume that the trend is strictly linear, only that it is monotonic
-
-For ecological and agricultural time series, which often contain irregular fluctuations due to weather events or policy changes, this robust approach provides valuable confirmation of long-term trends. The strong positive tau value (0.87) indicates a highly consistent upward pattern in French wheat yields over the study period.
+That makes it the right tool when you suspect outliers, structural breaks, or a non-linear shape that would mislead `lm()`. The downside is that tau is unitless: it tells you the trend is there and how consistent it is, but not how big in tonnes per hectare per year. Pair it with the regression slope when you need both the "is there a trend" and "how much" answers in the same report.
 :::
 
 ## Summary
