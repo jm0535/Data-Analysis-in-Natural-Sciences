@@ -23,34 +23,35 @@ The book covers:
 
 ### Chapter Overview
 
-1. **Introduction to Data Analysis** - R basics and analytical thinking
-2. **Data Basics** - Data structures, importing, and cleaning
-3. **Exploratory Data Analysis** - Descriptive statistics and pattern discovery
-4. **Hypothesis Testing** - Statistical inference fundamentals
-5. **Statistical Tests** - Common parametric and non-parametric tests
-6. **Data Visualization** - Creating effective scientific graphics
-7. **Advanced Visualization** - Interactive and publication-quality figures
-8. **Regression Analysis** - Linear models and tidymodels framework
-9. **Conservation Applications** - Real-world ecological case studies
+1. **Introduction to Data Analysis**: R basics and analytical thinking
+2. **Data Basics**: Data structures, importing, and cleaning
+3. **Exploratory Data Analysis**: Descriptive statistics and pattern discovery
+4. **Hypothesis Testing**: Statistical inference fundamentals
+5. **Statistical Tests**: Common parametric and non-parametric tests, with assumption checks
+6. **Data Visualization**: Creating effective scientific graphics
+7. **Advanced Visualization**: Interactive and publication-quality figures
+8. **Regression Analysis**: Linear models, diagnostics, and the tidymodels framework
+9. **Advanced Modeling**: Mixed-effects, GLMs, and modern modeling approaches
+10. **Conservation Applications**: Real-world ecological case studies
 
 ## 📊 Datasets
 
-All datasets are located in the `data/` directory, organized by scientific discipline:
+All datasets live in the `data/` directory, organized by scientific discipline. A few of the directory names reflect the chapter context in which the data are used rather than the literal subject of the CSV file (the files were sourced from public datasets and kept under their working names so chapter references stay stable). See [`data/MISMATCHES.md`](data/MISMATCHES.md) for the full audit.
 
-| Directory | Description | Source |
-|-----------|-------------|--------|
-| `agriculture/` | Crop yield data | Our World in Data |
-| `botany/` | Plant traits data | Break Free From Plastic |
-| `ecology/` | Plant biodiversity data | IUCN Red List |
-| `economics/` | Coffee economics data | Coffee Quality Institute |
-| `entomology/` | Animal data | Austin Animal Center |
-| `environmental/` | Climate data | Palmer penguins dataset |
-| `epidemiology/` | Disease/health data | Various sources |
-| `forestry/` | Forest inventory data | Field collections |
-| `geography/` | Spatial data | UN Office on Drugs and Crime |
-| `marine/` | Ocean/fishing data | Great Lakes Fishery Commission |
+| Directory | Chapter use | Actual data |
+|-----------|-------------|-------------|
+| `agriculture/` | Crop yields by country and year | Our World in Data: Wheat / Rice / Maize tonnes per hectare |
+| `botany/` | Categorical analysis example | Break Free From Plastic brand audit (polymer types) |
+| `ecology/` | Biodiversity and threat status | IUCN Red List records |
+| `economics/` | Quality-vs-price regression | Coffee Quality Institute scores |
+| `entomology/` | Categorical / counts example | Austin (and Australian) animal-shelter outcomes |
+| `environmental/` | Continuous variables example | Palmer Penguins morphology |
+| `epidemiology/` | Time-series / spatial example | Atlantic hurricane tracks |
+| `forestry/` | Continuous variables example | Star Wars character measurements (used as a stand-in) |
+| `geography/` | Categorical example | EMA medicine authorisations |
+| `marine/` | Long-format time series | Great Lakes Fishery Commission fish populations |
 
-Each dataset directory contains a `CITATION.txt` file with source information and proper citation for academic use.
+Each dataset directory contains a `CITATION.txt` with source attribution. If you want a dataset whose contents match its directory name (e.g. real forestry inventory), drop it in and update the corresponding chapter reference.
 
 ## 🚀 Getting Started
 
@@ -124,7 +125,8 @@ dains/
 ├── index.qmd            # Book landing page
 ├── preface.qmd          # Preface chapter
 ├── references.qmd       # References chapter
-├── chapters/            # Book chapters (01-09)
+├── chapters/            # Book chapters (01-10)
+├── solutions/           # Instructor answer keys (instructor-solutions branch only)
 ├── data/                # Datasets by discipline
 ├── docs/                # Rendered HTML output
 ├── images/              # Book images and cover
@@ -148,6 +150,20 @@ Contributions to improve the book are welcome! Please follow these steps:
 7. Open a Pull Request
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+## 👩‍🏫 For Instructors
+
+A separate `instructor-solutions` branch carries worked answer keys for all chapter exercises under `solutions/`. The branch is intentionally kept out of the published book and out of `main` to keep solutions away from students. If you teach from this book and want access, open an issue with a brief verification request.
+
+## 🛠️ Project Infrastructure
+
+A few notes on how the book is built and maintained:
+
+- **CI/CD:** Every push to `main` triggers `.github/workflows/publish.yml`, which renders the book with Quarto and deploys the output to GitHub Pages. The committed `docs/` folder is not what gets published; CI re-renders on every push, so figures regenerate from the R code in each chapter.
+- **Render-time gates:** The workflow warns at 25 minutes of render time and fails at 40, so render regressions get caught before they reach production.
+- **Git LFS:** Large binary assets (cover images, R logo, rendered PDFs) are tracked with Git LFS. See [`docs/GIT_LFS_SETUP.md`](docs/GIT_LFS_SETUP.md) for setup notes.
+- **Dependency tracking:** `renv` pins the R package versions used to build the book. The most recent dependency audit lives in [`renv-audit.md`](renv-audit.md).
+- **Statistical rigor:** Chapter 5 (statistical tests) and Chapter 8 (regression) include explicit assumption-check callouts (Shapiro-Wilk, Levene's test, expected cell counts for chi-square, residual diagnostics, VIF for collinearity) before each test is applied.
 
 ## 📜 License
 
@@ -175,4 +191,4 @@ PMB 411, Lae, Morobe Province, Papua New Guinea
 
 ---
 
-*Last updated: December 2025*
+*Last updated: May 2026*

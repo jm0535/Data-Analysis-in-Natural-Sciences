@@ -6,11 +6,16 @@ Thank you for your interest in contributing to this book! This document provides
 
 There are several ways you can contribute to this book:
 
-1. **Content Improvements**: Suggest improvements to existing chapters
-2. **Error Corrections**: Fix errors in code, text, or data
-3. **New Examples**: Contribute new examples or case studies
-4. **Dataset Additions**: Suggest or contribute new datasets
-5. **Translations**: Help translate content to other languages
+1. **Content improvements**: Sharpen explanations, add clarifying examples, or fix awkward phrasing in existing chapters.
+2. **Error corrections**: Fix errors in code, prose, statistics, or data. Statistical corrections (assumption violations, wrong test choice, misread output) are especially welcome.
+3. **New examples or case studies**: Contribute domain examples that strengthen a chapter.
+4. **Dataset additions**: If you have a dataset whose contents actually match one of the directory names listed in [`data/MISMATCHES.md`](data/MISMATCHES.md), open an issue and let's discuss swapping it in.
+5. **Translations**: Help translate content to other languages.
+
+What we ask you **not** to send:
+
+- Solutions to chapter exercises on `main`. The instructor answer keys live on a separate `instructor-solutions` branch. Open an issue if you teach from the book and need access.
+- AI-generated prose without a careful editing pass. The book has an active anti-AI-writing policy: no em-dashes, no rule-of-three filler, no "this serves as a testament to..." phrasing. See the humanizer notes if you want a quick checklist.
 
 ## Contribution Process
 
@@ -39,10 +44,19 @@ There are several ways you can contribute to this book:
 
 ### Writing Style
 
-- Use clear, concise language
-- Explain technical concepts in accessible terms
-- Include practical examples to illustrate concepts
-- Use active voice where possible
+- Use clear, concise language. Short sentences are fine.
+- Explain technical concepts in accessible terms; assume a smart reader who is new to the specific topic, not new to thinking.
+- Include practical examples to illustrate concepts.
+- Use active voice where possible.
+- Avoid em-dashes (the long dash). Use commas, semicolons, parentheses, or two short sentences instead.
+- Avoid AI-stamped patterns: "delve", "crucial", "pivotal", "testament", "tapestry", "in the evolving landscape of...", and rule-of-three filler ("X, Y, and Z" when only X is needed).
+- Lead with the point. If a paragraph could be cut in half without losing meaning, cut it.
+
+### Statistical content
+
+- Always check assumptions before reporting a parametric test result. If assumptions fail, switch tests rather than ignoring the violation.
+- Report effect sizes and confidence intervals, not just p-values.
+- Be honest about what the data can and cannot tell you.
 
 ### Markdown Formatting
 
