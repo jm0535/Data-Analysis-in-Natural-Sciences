@@ -6,6 +6,10 @@
 *.jpg filter=lfs diff=lfs merge=lfs -text
 *.jpeg filter=lfs diff=lfs merge=lfs -text
 
+# Cover images: stored as regular git blobs (not LFS) to avoid LFS budget limits
+images/cover_page_v2.png !filter !diff !merge
+images/dans_coverpage_final.png !filter !diff !merge
+
 # PDFs (rendered book, documentation)
 *.pdf filter=lfs diff=lfs merge=lfs -text
 
